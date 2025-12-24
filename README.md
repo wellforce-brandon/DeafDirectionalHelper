@@ -6,11 +6,11 @@ An accessibility tool for deaf and hard-of-hearing gamers to visualize direction
 
 ## The Problem
 
-As a 100% deaf from birth person, I can now hear artificially from one ear thanks to technology. And as a gamer, I can **hear** a sound, I can **recognize** it but I **cannot locate** it.
+As someone who has been single-sided deaf (SSD) since age 5, I can **hear** sounds but I **cannot locate** them directionally.
 
-At first as a casual gamer I was not really bothered by this fact, but over time I realized while watching strong players on YouTube that they could notice enemies way before I even could. The difference is that they have the audio cue while I'm only relying on the visual one.
+In competitive gaming, this is a significant disadvantage. Other players can hear enemies approaching from behind or to the side, while I'm limited to visual cues only. Directional audio is a core game mechanic that I simply cannot use.
 
-Hence I wish to find a way to **quickly** notice from what direction the sound is.
+This tool bridges that gap by converting directional audio into visual indicators, giving SSD and deaf gamers the same spatial awareness that hearing players take for granted.
 
 ## How It Works
 
