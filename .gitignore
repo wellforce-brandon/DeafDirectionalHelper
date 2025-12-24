@@ -3,3 +3,7 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+.idea/
+
+# Claude Code local settings (machine-specific permissions)
+.claude/settings.local.json

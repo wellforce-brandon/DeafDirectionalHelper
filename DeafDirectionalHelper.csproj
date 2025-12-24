@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <UseWindowsForms>true</UseWindowsForms>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <AssemblyName>DeafDirectionalHelper</AssemblyName>
+        <RootNamespace>DeafDirectionalHelper</RootNamespace>
+        <Product>DeafDirectionalHelper</Product>
+        <Description>Accessibility tool for deaf and hard-of-hearing gamers to visualize directional audio cues</Description>
+        <Copyright>Copyright (c) 2024 DeafDirectionalHelper Contributors. Based on CanetisRadar2 by Maxime Bonvin.</Copyright>
+        <ApplicationIcon>Icons\app.ico</ApplicationIcon>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="Icons\*.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Icons\app.ico">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Resource Include="Icons\app.ico" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="NAudio" Version="2.2.1" />
+    </ItemGroup>
+
+</Project>

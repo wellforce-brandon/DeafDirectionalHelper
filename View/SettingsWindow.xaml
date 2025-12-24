@@ -1,0 +1,488 @@
+<Window x:Class="DeafDirectionalHelper.View.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="DeafDirectionalHelper Settings"
+        Width="820" Height="620" MinWidth="700" MinHeight="500"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResizeWithGrip"
+        Background="#1E1E1E"
+        Icon="/Icons/app.ico">
+
+    <Window.Resources>
+        <!-- Base text style - larger for accessibility -->
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <!-- Accessible checkbox - larger hit target -->
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border x:Name="RootBorder" Background="Transparent"
+                                Padding="{TemplateBinding Padding}" CornerRadius="4">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <!-- Larger checkbox box (24x24 minimum) -->
+                                <Border x:Name="CheckBorder" Width="24" Height="24"
+                                        Background="#2E2E2E" BorderBrush="#5E5E5E"
+                                        BorderThickness="2" CornerRadius="4"
+                                        VerticalAlignment="Center">
+                                    <Path x:Name="CheckMark" Width="14" Height="14"
+                                          Stretch="Uniform" Fill="#4CAF50"
+                                          Data="M9.86 18l-5.86-5.86 1.41-1.41 4.45 4.45 9.59-9.59 1.41 1.41z"
+                                          Visibility="Collapsed"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ContentPresenter Grid.Column="1" Margin="12,0,0,0"
+                                                  VerticalAlignment="Center"
+                                                  RecognizesAccessKey="True"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#4CAF50"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RootBorder" Property="Background" Value="#3E3E3E"/>
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#64B5F6"/>
+                                <Setter TargetName="CheckBorder" Property="BorderThickness" Value="3"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- GroupBox with larger header -->
+        <Style TargetType="GroupBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#3E3E3E"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="10,8"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="HeaderTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontWeight="SemiBold" FontSize="16" Foreground="#88CCFF"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Accessible button - 44px minimum height for touch -->
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#3E3E3E"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#5E5E5E"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="MinHeight" Value="44"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#4E4E4E"/>
+                                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#7E7E7E"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#5E5E5E"/>
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#64B5F6"/>
+                                <Setter TargetName="ButtonBorder" Property="BorderThickness" Value="3"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Accessible ComboBox -->
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#2E2E2E"/>
+            <Setter Property="BorderBrush" Value="#5E5E5E"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="10,6"/>
+        </Style>
+
+        <!-- ComboBox dropdown items - dark text on light background -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemBorder" Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#CCE5FF"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#99CCFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Accessible Slider with larger thumb -->
+        <Style TargetType="Slider">
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Track x:Name="PART_Track" Grid.Row="1">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Style="{x:Null}" Command="Slider.DecreaseLarge">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Background="#4CAF50" Height="8" CornerRadius="4"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Style="{x:Null}" Command="Slider.IncreaseLarge">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Background="#3E3E3E" Height="8" CornerRadius="4"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb x:Name="SliderThumb">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Ellipse x:Name="ThumbCircle" Width="28" Height="28"
+                                                         Fill="#64B5F6" Stroke="#FFFFFF" StrokeThickness="2"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ThumbCircle" Property="Fill" Value="#90CAF9"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsDragging" Value="True">
+                                                        <Setter TargetName="ThumbCircle" Property="Fill" Value="#42A5F5"/>
+                                                        <Setter TargetName="ThumbCircle" Property="Width" Value="32"/>
+                                                        <Setter TargetName="ThumbCircle" Property="Height" Value="32"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header with Hotkeys Button -->
+        <Grid Grid.Row="0" Margin="15,15,15,10">
+            <TextBlock Text="DeafDirectionalHelper" FontSize="28" FontWeight="Bold"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Button Click="Hotkeys_Click" HorizontalAlignment="Right" VerticalAlignment="Center"
+                    MinWidth="80" MinHeight="36" Padding="12,6">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Hotkeys" VerticalAlignment="Center" FontSize="13"/>
+                    <TextBlock Text=" (Ctrl+Shift+H)" FontFamily="Consolas" Foreground="#88CCFF"
+                               FontSize="11" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Two-Column Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="5,0">
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- LEFT COLUMN: Display, Mode Settings, Layout Settings -->
+                <StackPanel Grid.Column="0">
+                    <!-- Display Section -->
+                    <GroupBox Header="Display">
+                        <StackPanel Margin="10">
+                            <CheckBox x:Name="EnabledCheckbox" Content="Sound Indicators Enabled"
+                                      Checked="EnabledCheckbox_Changed" Unchecked="EnabledCheckbox_Changed"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <TextBlock Text="Mode:" Width="80"/>
+                                <ComboBox x:Name="ModeComboBox" Width="200" SelectionChanged="ModeComboBox_Changed">
+                                    <ComboBoxItem Content="Dual" Tag="Bars"/>
+                                    <ComboBoxItem Content="Full 7.1 Surround" Tag="Full7Point1"/>
+                                    <ComboBoxItem Content="Both" Tag="Both"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <TextBlock Text="Monitor:" Width="80"/>
+                                <ComboBox x:Name="MonitorComboBox" Width="200"
+                                          SelectionChanged="MonitorComboBox_Changed"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Mode Settings Section -->
+                    <GroupBox x:Name="ModeSettingsGroup" Header="Mode Settings">
+                        <StackPanel Margin="10">
+                            <CheckBox x:Name="TransparentCheckbox" Content="Transparent until sound"
+                                      Checked="TransparentCheckbox_Changed" Unchecked="TransparentCheckbox_Changed"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                <TextBlock Text="Sensitivity:" Width="80"/>
+                                <Slider x:Name="SensitivitySlider" Width="140" Minimum="0.1" Maximum="3.0"
+                                        SmallChange="0.1" LargeChange="0.5" IsSnapToTickEnabled="True" TickFrequency="0.1"
+                                        ValueChanged="SensitivitySlider_ValueChanged"
+                                        Thumb.DragCompleted="SensitivitySlider_DragCompleted"/>
+                                <TextBlock x:Name="SensitivityLabel" Text="1.0" Width="35" Margin="10,0,0,0"/>
+                                <TextBlock Text="(?)" Foreground="#88CCFF" Cursor="Help" FontWeight="Bold" FontSize="16">
+                                    <TextBlock.ToolTip>
+                                        <ToolTip MaxWidth="300">
+                                            <TextBlock TextWrapping="Wrap" Foreground="Black" FontSize="13">
+                                                Multiplies audio levels to make indicators more or less reactive.
+                                                &#x0a;&#x0a;• Higher (2.0-3.0): Light up more easily, good for quiet games
+                                                &#x0a;• Default (1.0): Normal sensitivity
+                                                &#x0a;• Lower (0.1-0.5): Requires louder sounds, reduces background noise
+                                            </TextBlock>
+                                        </ToolTip>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                <TextBlock Text="Threshold:" Width="80"/>
+                                <Slider x:Name="ThresholdSlider" Width="140" Minimum="0" Maximum="0.3"
+                                        SmallChange="0.01" LargeChange="0.05" IsSnapToTickEnabled="True" TickFrequency="0.01"
+                                        ValueChanged="ThresholdSlider_ValueChanged"
+                                        Thumb.DragCompleted="ThresholdSlider_DragCompleted"/>
+                                <TextBlock x:Name="ThresholdLabel" Text="0.05" Width="35" Margin="10,0,0,0"/>
+                                <TextBlock Text="(?)" Foreground="#88CCFF" Cursor="Help" FontWeight="Bold" FontSize="16">
+                                    <TextBlock.ToolTip>
+                                        <ToolTip MaxWidth="300">
+                                            <TextBlock TextWrapping="Wrap" Foreground="Black" FontSize="13">
+                                                Minimum audio level required before indicators react.
+                                                &#x0a;&#x0a;• Higher (0.10-0.30): Filters out quiet ambient sounds
+                                                &#x0a;• Default (0.05): Balanced filtering
+                                                &#x0a;• Lower (0.00-0.03): More sensitive, may pick up background noise
+                                            </TextBlock>
+                                        </ToolTip>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
+                            </StackPanel>
+                            <CheckBox x:Name="IgnoreBalancedCheckbox" Content="Ignore player sounds (balanced L/R)" Margin="0,14,0,0"
+                                      Checked="IgnoreBalancedCheckbox_Changed" Unchecked="IgnoreBalancedCheckbox_Changed"/>
+                            <TextBlock Text="        Filters out sounds equal on both sides" Foreground="#888888" FontSize="12" Margin="0,4,0,0"/>
+                            <StackPanel x:Name="MaxOpacityPanel" Orientation="Horizontal" Margin="0,14,0,0">
+                                <TextBlock Text="Max Opacity:" Width="80"/>
+                                <Slider x:Name="MaxOpacitySlider" Width="140" Minimum="0.3" Maximum="1.0"
+                                        SmallChange="0.05" LargeChange="0.1" IsSnapToTickEnabled="True" TickFrequency="0.05"
+                                        ValueChanged="MaxOpacitySlider_ValueChanged"
+                                        Thumb.DragCompleted="MaxOpacitySlider_DragCompleted"/>
+                                <TextBlock x:Name="MaxOpacityLabel" Text="100%" Width="45" Margin="10,0,0,0"/>
+                            </StackPanel>
+
+                            <!-- Dual mode specific -->
+                            <StackPanel x:Name="DualModeSettings" Margin="0,16,0,0">
+                                <TextBlock Text="Dual Mode" FontWeight="SemiBold" Foreground="#AAAAAA" FontSize="15" Margin="0,0,0,8"/>
+                                <StackPanel x:Name="DualLayoutPanel" Orientation="Horizontal">
+                                    <TextBlock Text="Layout:" Width="80"/>
+                                    <ComboBox x:Name="DualLayoutComboBox" Width="200" SelectionChanged="DualLayoutComboBox_Changed">
+                                        <ComboBoxItem Content="Vertical (Side Bars)" Tag="Vertical"/>
+                                        <ComboBoxItem Content="Horizontal Line" Tag="HorizontalLine"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <CheckBox x:Name="LockedCheckbox" Content="Link Indicators (move together)" Margin="0,12,0,0"
+                                          Checked="LockedCheckbox_Changed" Unchecked="LockedCheckbox_Changed"/>
+                            </StackPanel>
+
+                            <!-- 7.1 mode specific -->
+                            <StackPanel x:Name="SurroundModeSettings" Margin="0,16,0,0">
+                                <TextBlock Text="7.1 Surround Mode" FontWeight="SemiBold" Foreground="#AAAAAA" FontSize="15" Margin="0,0,0,8"/>
+                                <StackPanel x:Name="SurroundLayoutPanel" Orientation="Horizontal">
+                                    <TextBlock Text="Layout:" Width="80"/>
+                                    <ComboBox x:Name="SurroundLayoutComboBox" Width="200" SelectionChanged="SurroundLayoutComboBox_Changed">
+                                        <ComboBoxItem Content="Spatial (Circle)" Tag="Spatial"/>
+                                        <ComboBoxItem Content="Horizontal Line" Tag="HorizontalLine"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <CheckBox x:Name="HideLfeCheckbox" Content="Hide LFE/subwoofer indicator" Margin="0,12,0,0"
+                                          Checked="HideLfeCheckbox_Changed" Unchecked="HideLfeCheckbox_Changed"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- RIGHT COLUMN: Audio, Layout Settings, General -->
+                <StackPanel Grid.Column="1">
+                    <!-- Audio Section -->
+                    <GroupBox Header="Audio">
+                        <StackPanel Margin="10">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Device:" Width="80"/>
+                                <ComboBox x:Name="AudioDeviceComboBox" Width="260"
+                                          SelectionChanged="AudioDeviceComboBox_Changed"/>
+                            </StackPanel>
+                            <Button Content="Refresh Devices" Margin="0,14,0,0" Click="RefreshDevices_Click"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Layout Settings Section -->
+                    <GroupBox x:Name="LayoutSettingsGroup" Header="Layout Settings">
+                        <StackPanel Margin="10">
+                            <!-- Vertical layout specific (Bar Width) -->
+                            <StackPanel x:Name="VerticalLayoutSettings">
+                                <StackPanel x:Name="BarWidthPanel" Orientation="Horizontal">
+                                    <TextBlock Text="Bar Width:" Width="80"/>
+                                    <Slider x:Name="WidthSlider" Width="140" Minimum="20" Maximum="150"
+                                            SmallChange="1" LargeChange="10" IsSnapToTickEnabled="True" TickFrequency="1"
+                                            ValueChanged="WidthSlider_ValueChanged"
+                                            Thumb.DragCompleted="WidthSlider_DragCompleted"/>
+                                    <TextBlock x:Name="WidthLabel" Text="50" Width="45" Margin="10,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Dual mode position sliders -->
+                            <StackPanel x:Name="PositionSettings" Margin="0,14,0,0">
+                                <StackPanel x:Name="LinkedSpreadPanel" Orientation="Horizontal">
+                                    <TextBlock Text="Spread:" Width="80"/>
+                                    <Slider x:Name="LinkedSpreadSlider" Width="140" Minimum="0.1" Maximum="0.5"
+                                            SmallChange="0.01" LargeChange="0.05" IsSnapToTickEnabled="True" TickFrequency="0.01"
+                                            ValueChanged="LinkedSpreadSlider_ValueChanged"
+                                            Thumb.DragCompleted="LinkedSpreadSlider_DragCompleted"/>
+                                    <TextBlock x:Name="LinkedSpreadLabel" Text="30%" Width="45" Margin="10,0,0,0"/>
+                                    <TextBlock Text="(?)" Foreground="#88CCFF" Cursor="Help" FontWeight="Bold" FontSize="16">
+                                        <TextBlock.ToolTip>
+                                            <ToolTip MaxWidth="300">
+                                                <TextBlock TextWrapping="Wrap" Foreground="Black" FontSize="13">
+                                                    Distance from center for both indicators (linked).
+                                                    &#x0a;&#x0a;Higher values spread the indicators further apart.
+                                                </TextBlock>
+                                            </ToolTip>
+                                        </TextBlock.ToolTip>
+                                    </TextBlock>
+                                </StackPanel>
+                                <StackPanel x:Name="LeftIndicatorPanel" Orientation="Horizontal" Margin="0,14,0,0">
+                                    <TextBlock Text="Left Pos:" Width="80"/>
+                                    <Slider x:Name="LeftIndicatorSlider" Width="140" Minimum="0.05" Maximum="0.45"
+                                            SmallChange="0.01" LargeChange="0.05" IsSnapToTickEnabled="True" TickFrequency="0.01"
+                                            ValueChanged="LeftIndicatorSlider_ValueChanged"
+                                            Thumb.DragCompleted="LeftIndicatorSlider_DragCompleted"/>
+                                    <TextBlock x:Name="LeftIndicatorLabel" Text="35%" Width="45" Margin="10,0,0,0"/>
+                                </StackPanel>
+                                <StackPanel x:Name="RightIndicatorPanel" Orientation="Horizontal" Margin="0,14,0,0">
+                                    <TextBlock Text="Right Pos:" Width="80"/>
+                                    <Slider x:Name="RightIndicatorSlider" Width="140" Minimum="0.55" Maximum="0.95"
+                                            SmallChange="0.01" LargeChange="0.05" IsSnapToTickEnabled="True" TickFrequency="0.01"
+                                            ValueChanged="RightIndicatorSlider_ValueChanged"
+                                            Thumb.DragCompleted="RightIndicatorSlider_DragCompleted"/>
+                                    <TextBlock x:Name="RightIndicatorLabel" Text="65%" Width="45" Margin="10,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- 7.1 Spatial mode scale -->
+                            <StackPanel x:Name="SpatialScalePanel" Orientation="Horizontal" Margin="0,14,0,0">
+                                <TextBlock Text="7.1 Scale:" Width="80"/>
+                                <Slider x:Name="SpatialScaleSlider" Width="140" Minimum="0.5" Maximum="2.0"
+                                        SmallChange="0.1" LargeChange="0.25" IsSnapToTickEnabled="True" TickFrequency="0.1"
+                                        ValueChanged="SpatialScaleSlider_ValueChanged"
+                                        Thumb.DragCompleted="SpatialScaleSlider_DragCompleted"/>
+                                <TextBlock x:Name="SpatialScaleLabel" Text="100%" Width="45" Margin="10,0,0,0"/>
+                                <TextBlock Text="(?)" Foreground="#88CCFF" Cursor="Help" FontWeight="Bold" FontSize="16">
+                                    <TextBlock.ToolTip>
+                                        <ToolTip MaxWidth="300">
+                                            <TextBlock TextWrapping="Wrap" Foreground="Black" FontSize="13">
+                                                Scales the distance from "You" to each speaker in spatial layout.
+                                                &#x0a;&#x0a;• Higher (150-200%): Spread speakers further apart
+                                                &#x0a;• Default (100%): Normal spacing
+                                                &#x0a;• Lower (50-75%): Compact layout
+                                            </TextBlock>
+                                        </ToolTip>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <Button Content="Reset Positions" Margin="0,18,0,0" Click="ResetPositions_Click"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- General Section -->
+                    <GroupBox Header="General">
+                        <StackPanel Margin="10">
+                            <CheckBox x:Name="StartMinimizedCheckbox" Content="Start minimized to tray"
+                                      Checked="StartMinimizedCheckbox_Changed" Unchecked="StartMinimizedCheckbox_Changed"/>
+                            <CheckBox x:Name="StartWithWindowsCheckbox" Content="Start with Windows" Margin="0,8,0,0"
+                                      Checked="StartWithWindowsCheckbox_Changed" Unchecked="StartWithWindowsCheckbox_Changed"/>
+                            <CheckBox x:Name="EnableLoggingCheckbox" Content="Enable audio event logging" Margin="0,14,0,0"
+                                      Checked="EnableLoggingCheckbox_Changed" Unchecked="EnableLoggingCheckbox_Changed"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <TextBlock x:Name="LogSizeLabel" Text="Log size: 0 KB" Width="120"/>
+                                <Button Content="Open Logs" Click="OpenLogFolder_Click" MinWidth="80" Margin="5,0,0,0"/>
+                                <Button Content="Clear Logs" Click="ClearLogs_Click" MinWidth="80" Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- Bottom Buttons (always visible) -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,15">
+            <Button Content="Hide" Click="Hide_Click" Margin="8" MinWidth="120"/>
+            <Button Content="Exit Application" Click="Exit_Click" Margin="8" MinWidth="150"
+                    Background="#8B0000" BorderBrush="#A00000"/>
+        </StackPanel>
+    </Grid>
+</Window>

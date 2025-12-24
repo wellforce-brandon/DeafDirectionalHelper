@@ -1,0 +1,80 @@
+<Window x:Class="DeafDirectionalHelper.View.Full7Point1View"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        Title="DeafDirectionalHelper - 7.1 Surround"
+        WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent"
+        ShowInTaskbar="False">
+
+    <Canvas x:Name="SpeakerCanvas">
+        <!-- Front Left -->
+        <Ellipse x:Name="FrontLeft" Width="60" Height="60"
+                 Fill="{Binding ColorSpeaker1, UpdateSourceTrigger=PropertyChanged}"
+                 Opacity="{Binding OpacitySpeaker1, UpdateSourceTrigger=PropertyChanged}"
+                 Stroke="#333" StrokeThickness="2"/>
+        <TextBlock x:Name="FrontLeftLabel" Text="FL" Foreground="Black" FontWeight="Bold" FontSize="12"
+                   Opacity="{Binding OpacitySpeaker1, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Front Right -->
+        <Ellipse x:Name="FrontRight" Width="60" Height="60"
+                 Fill="{Binding ColorSpeaker2, UpdateSourceTrigger=PropertyChanged}"
+                 Opacity="{Binding OpacitySpeaker2, UpdateSourceTrigger=PropertyChanged}"
+                 Stroke="#333" StrokeThickness="2"/>
+        <TextBlock x:Name="FrontRightLabel" Text="FR" Foreground="Black" FontWeight="Bold" FontSize="12"
+                   Opacity="{Binding OpacitySpeaker2, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Center -->
+        <Ellipse x:Name="Center" Width="70" Height="70"
+                 Fill="{Binding ColorSpeaker3, UpdateSourceTrigger=PropertyChanged}"
+                 Opacity="{Binding OpacitySpeaker3, UpdateSourceTrigger=PropertyChanged}"
+                 Stroke="#333" StrokeThickness="2"/>
+        <TextBlock x:Name="CenterLabel" Text="C" Foreground="Black" FontWeight="Bold" FontSize="14"
+                   Opacity="{Binding OpacitySpeaker3, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- LFE/Subwoofer -->
+        <Ellipse x:Name="LFE" Width="80" Height="80"
+                 Fill="{Binding ColorSpeaker4, UpdateSourceTrigger=PropertyChanged}"
+                 Opacity="{Binding OpacitySpeaker4, UpdateSourceTrigger=PropertyChanged}"
+                 Stroke="#333" StrokeThickness="3"/>
+        <TextBlock x:Name="LFELabel" Text="LFE" Foreground="Black" FontWeight="Bold" FontSize="14"
+                   Opacity="{Binding OpacitySpeaker4, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Rear/Surround Left -->
+        <Ellipse x:Name="RearLeft" Width="50" Height="50"
+                 Fill="{Binding ColorSpeaker5, UpdateSourceTrigger=PropertyChanged}"
+                 Opacity="{Binding OpacitySpeaker5, UpdateSourceTrigger=PropertyChanged}"
+                 Stroke="#333" StrokeThickness="2"/>
+        <TextBlock x:Name="RearLeftLabel" Text="RL" Foreground="Black" FontWeight="Bold" FontSize="11"
+                   Opacity="{Binding OpacitySpeaker5, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Rear/Surround Right -->
+        <Ellipse x:Name="RearRight" Width="50" Height="50"
+                 Fill="{Binding ColorSpeaker6, UpdateSourceTrigger=PropertyChanged}"
+                 Opacity="{Binding OpacitySpeaker6, UpdateSourceTrigger=PropertyChanged}"
+                 Stroke="#333" StrokeThickness="2"/>
+        <TextBlock x:Name="RearRightLabel" Text="RR" Foreground="Black" FontWeight="Bold" FontSize="11"
+                   Opacity="{Binding OpacitySpeaker6, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Side Left -->
+        <Ellipse x:Name="SideLeft" Width="50" Height="50"
+                 Fill="{Binding ColorSpeaker7, UpdateSourceTrigger=PropertyChanged}"
+                 Opacity="{Binding OpacitySpeaker7, UpdateSourceTrigger=PropertyChanged}"
+                 Stroke="#333" StrokeThickness="2"/>
+        <TextBlock x:Name="SideLeftLabel" Text="SL" Foreground="Black" FontWeight="Bold" FontSize="11"
+                   Opacity="{Binding OpacitySpeaker7, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Side Right -->
+        <Ellipse x:Name="SideRight" Width="50" Height="50"
+                 Fill="{Binding ColorSpeaker8, UpdateSourceTrigger=PropertyChanged}"
+                 Opacity="{Binding OpacitySpeaker8, UpdateSourceTrigger=PropertyChanged}"
+                 Stroke="#333" StrokeThickness="2"/>
+        <TextBlock x:Name="SideRightLabel" Text="SR" Foreground="Black" FontWeight="Bold" FontSize="11"
+                   Opacity="{Binding OpacitySpeaker8, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Listener position indicator -->
+        <Ellipse x:Name="Listener" Width="30" Height="30" Fill="#444" Stroke="#666" StrokeThickness="2"/>
+        <TextBlock x:Name="ListenerLabel" Text="YOU" Foreground="White" FontWeight="Bold" FontSize="8"/>
+    </Canvas>
+</Window>

@@ -1,0 +1,31 @@
+<Window x:Class="DeafDirectionalHelper.View.HorizontalDualView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        Title="DeafDirectionalHelper - Horizontal Dual"
+        WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent"
+        ShowInTaskbar="False"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        MouseMove="Window_MouseMove"
+        MouseLeftButtonUp="Window_MouseLeftButtonUp">
+
+    <Canvas x:Name="BarCanvas">
+        <!-- Left Indicator -->
+        <Rectangle x:Name="LeftBar" Width="80" Height="80"
+                   Fill="{Binding ColorLeft, UpdateSourceTrigger=PropertyChanged}"
+                   Opacity="{Binding OpacityLeft, UpdateSourceTrigger=PropertyChanged}"
+                   Stroke="#333" StrokeThickness="2"/>
+        <TextBlock x:Name="LeftLabel" Text="L" Foreground="Black" FontWeight="Bold" FontSize="16"
+                   Opacity="{Binding OpacityLeft, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <!-- Right Indicator -->
+        <Rectangle x:Name="RightBar" Width="80" Height="80"
+                   Fill="{Binding ColorRight, UpdateSourceTrigger=PropertyChanged}"
+                   Opacity="{Binding OpacityRight, UpdateSourceTrigger=PropertyChanged}"
+                   Stroke="#333" StrokeThickness="2"/>
+        <TextBlock x:Name="RightLabel" Text="R" Foreground="Black" FontWeight="Bold" FontSize="16"
+                   Opacity="{Binding OpacityRight, UpdateSourceTrigger=PropertyChanged}"/>
+    </Canvas>
+</Window>

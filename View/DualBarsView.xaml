@@ -1,0 +1,40 @@
+<Window x:Class="DeafDirectionalHelper.View.DualBarsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DeafDirectionalHelper - Dual Bars"
+        WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        MouseMove="Window_MouseMove"
+        MouseLeftButtonUp="Window_MouseLeftButtonUp">
+    <Canvas x:Name="MainCanvas">
+        <!-- Left Bar (3 sections: top, center, bottom) -->
+        <Grid x:Name="LeftBar">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="2.5*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Rectangle Grid.Row="0" Fill="{Binding ColorSpeakerLeftTop, UpdateSourceTrigger=PropertyChanged}"
+                       Opacity="{Binding OpacityLeftTop, UpdateSourceTrigger=PropertyChanged}" />
+            <Rectangle Grid.Row="1" Fill="{Binding ColorSpeakerLeftCenter, UpdateSourceTrigger=PropertyChanged}"
+                       Opacity="{Binding OpacityLeftCenter, UpdateSourceTrigger=PropertyChanged}" />
+            <Rectangle Grid.Row="2" Fill="{Binding ColorSpeakerLeftBottom, UpdateSourceTrigger=PropertyChanged}"
+                       Opacity="{Binding OpacityLeftBottom, UpdateSourceTrigger=PropertyChanged}" />
+        </Grid>
+
+        <!-- Right Bar (3 sections: top, center, bottom) -->
+        <Grid x:Name="RightBar">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="2.5*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Rectangle Grid.Row="0" Fill="{Binding ColorSpeakerRightTop, UpdateSourceTrigger=PropertyChanged}"
+                       Opacity="{Binding OpacityRightTop, UpdateSourceTrigger=PropertyChanged}" />
+            <Rectangle Grid.Row="1" Fill="{Binding ColorSpeakerRightCenter, UpdateSourceTrigger=PropertyChanged}"
+                       Opacity="{Binding OpacityRightCenter, UpdateSourceTrigger=PropertyChanged}" />
+            <Rectangle Grid.Row="2" Fill="{Binding ColorSpeakerRightBottom, UpdateSourceTrigger=PropertyChanged}"
+                       Opacity="{Binding OpacityRightBottom, UpdateSourceTrigger=PropertyChanged}" />
+        </Grid>
+    </Canvas>
+</Window>

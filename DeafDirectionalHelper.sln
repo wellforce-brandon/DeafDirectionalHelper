@@ -1,6 +1,6 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanetisRadar2", "CanetisRadar2.csproj", "{FA4D87A2-4FC6-413A-8519-2CBE5A86911E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeafDirectionalHelper", "DeafDirectionalHelper.csproj", "{FA4D87A2-4FC6-413A-8519-2CBE5A86911E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
