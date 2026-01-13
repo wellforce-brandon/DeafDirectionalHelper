@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using DeafDirectionalHelper.Settings;
 using NAudio.CoreAudioApi;
@@ -45,8 +46,12 @@ namespace DeafDirectionalHelper.Audio
     /// </summary>
     public sealed class Speakers
     {
-        private MMDevice _device;
+        private const long RecoveryIntervalMs = 2000; // Try to recover every 2 seconds
+
+        private MMDevice? _device;
         private readonly MMDeviceEnumerator _enumerator;
+        private readonly Stopwatch _recoveryTimer = new();
+        private bool _deviceLost;
 
         public readonly Speaker Speaker1 = new Speaker();
         public readonly Speaker Speaker2 = new Speaker();
@@ -114,14 +119,61 @@ namespace DeafDirectionalHelper.Audio
             }
 
             _device = selectedDevice;
+
+            if (_deviceLost && _device != null)
+            {
+                _deviceLost = false;
+                Console.WriteLine("Audio device recovered.");
+            }
+        }
+
+        private void TryRecoverDevice()
+        {
+            // Throttle recovery attempts
+            if (_recoveryTimer.IsRunning && _recoveryTimer.ElapsedMilliseconds < RecoveryIntervalMs)
+                return;
+
+            _recoveryTimer.Restart();
+
+            if (!_deviceLost)
+            {
+                _deviceLost = true;
+                Console.WriteLine("Audio device lost. Attempting recovery...");
+            }
+
+            try
+            {
+                SelectDevice();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Device recovery failed: {ex.Message}");
+            }
         }
 
         public void Update()
         {
-            if (_device == null) return;
+            if (_device == null)
+            {
+                TryRecoverDevice();
+                return;
+            }
 
-            var peakValues = _device.AudioMeterInformation.PeakValues;
-            var channelCount = peakValues.Count;
+            AudioMeterInformationChannels peakValues;
+            int channelCount;
+
+            try
+            {
+                peakValues = _device.AudioMeterInformation.PeakValues;
+                channelCount = peakValues.Count;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Audio device error: {ex.Message}");
+                _device = null!;
+                TryRecoverDevice();
+                return;
+            }
 
             float[] rawValues;
 

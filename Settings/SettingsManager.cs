@@ -28,26 +28,43 @@ public class SettingsManager
 
     private AppSettings Load()
     {
-        try
+        var backupPath = _settingsPath + ".bak";
+
+        // Try loading main settings file
+        var settings = TryLoadFromFile(_settingsPath);
+        if (settings != null)
         {
-            if (File.Exists(_settingsPath))
-            {
-                var json = File.ReadAllText(_settingsPath);
-                var settings = JsonSerializer.Deserialize<AppSettings>(json);
-                if (settings != null)
-                {
-                    Console.WriteLine($"Settings loaded from {_settingsPath}");
-                    return settings;
-                }
-            }
+            Console.WriteLine($"Settings loaded from {_settingsPath}");
+            return settings;
         }
-        catch (Exception ex)
+
+        // Try loading from backup if main file failed
+        settings = TryLoadFromFile(backupPath);
+        if (settings != null)
         {
-            Console.WriteLine($"Error loading settings: {ex.Message}");
+            Console.WriteLine($"Settings restored from backup: {backupPath}");
+            return settings;
         }
 
         Console.WriteLine("Using default settings");
         return new AppSettings();
+    }
+
+    private static AppSettings? TryLoadFromFile(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+            {
+                var json = File.ReadAllText(path);
+                return JsonSerializer.Deserialize<AppSettings>(json);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading settings from {path}: {ex.Message}");
+        }
+        return null;
     }
 
     public void Save()
@@ -59,6 +76,21 @@ public class SettingsManager
                 WriteIndented = true
             };
             var json = JsonSerializer.Serialize(_settings, options);
+
+            // Create backup of existing settings before overwriting
+            var backupPath = _settingsPath + ".bak";
+            if (File.Exists(_settingsPath))
+            {
+                try
+                {
+                    File.Copy(_settingsPath, backupPath, overwrite: true);
+                }
+                catch (Exception backupEx)
+                {
+                    Console.WriteLine($"Warning: Could not create settings backup: {backupEx.Message}");
+                }
+            }
+
             File.WriteAllText(_settingsPath, json);
             Console.WriteLine($"Settings saved to {_settingsPath}");
         }
