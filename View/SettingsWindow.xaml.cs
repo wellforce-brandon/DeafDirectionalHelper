@@ -14,20 +14,41 @@ namespace DeafDirectionalHelper.View;
 public partial class SettingsWindow : Window
 {
     private readonly SettingsManager _settingsManager;
+    private readonly ProfileManager _profileManager;
     private bool _isLoading = true;
+    private AppProfile? _currentEditingProfile;
+    private bool _hasUnsavedProfileChanges;
 
     public event EventHandler? ExitRequested;
     public event EventHandler? SettingsUpdated;
     public event EventHandler? ResetPositionsRequested;
+    public event EventHandler? ProfileChanged;
 
     public SettingsWindow()
     {
         InitializeComponent();
         _settingsManager = SettingsManager.Instance;
+        _profileManager = ProfileManager.Instance;
         LoadSettings();
         LoadMonitors();
         LoadAudioDevices();
+        LoadProfiles();
         _isLoading = false;
+
+        // Show auto-switch paused indicator when window is visible
+        IsVisibleChanged += (s, e) =>
+        {
+            if (IsVisible)
+            {
+                _profileManager.AutoSwitchPaused = true;
+                AutoSwitchPausedLabel.Visibility = _profileManager.AutoSwitchEnabled ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                _profileManager.AutoSwitchPaused = false;
+                AutoSwitchPausedLabel.Visibility = Visibility.Collapsed;
+            }
+        };
     }
 
     private void LoadSettings()
@@ -83,6 +104,338 @@ public partial class SettingsWindow : Window
 
         UpdateLogSizeLabel();
     }
+
+    #region Profile Management
+
+    private void LoadProfiles()
+    {
+        _profileManager.EnsureDefaultExists();
+
+        // Load auto-switch checkbox
+        AutoSwitchCheckbox.IsChecked = _settingsManager.Settings.AutoSwitchProfiles;
+
+        // Populate profile combobox
+        RefreshProfileComboBox();
+
+        // Populate profile list
+        RefreshProfileList();
+
+        // Set current editing profile
+        _currentEditingProfile = _profileManager.ActiveProfile;
+        UpdateProfileIndicator();
+        UpdateDeleteButtonState();
+        _hasUnsavedProfileChanges = false;
+    }
+
+    private void RefreshProfileComboBox()
+    {
+        _isLoading = true;
+        ProfileComboBox.Items.Clear();
+
+        foreach (var profile in _profileManager.Profiles)
+        {
+            var item = new ComboBoxItem
+            {
+                Content = profile.IsDefault ? $"★ {profile.Name}" : profile.Name,
+                Tag = profile.Id
+            };
+            ProfileComboBox.Items.Add(item);
+
+            if (profile.Id == _profileManager.ActiveProfile.Id)
+            {
+                ProfileComboBox.SelectedItem = item;
+            }
+        }
+        _isLoading = false;
+    }
+
+    private void RefreshProfileList()
+    {
+        var profiles = _profileManager.Profiles.Select(p => new
+        {
+            p.Id,
+            Name = p.IsDefault ? $"★ {p.Name}" : p.Name,
+            ProcessName = p.ProcessName,
+            IsDefault = p.IsDefault
+        }).ToList();
+
+        ProfileListBox.ItemsSource = profiles;
+    }
+
+    private void UpdateProfileIndicator()
+    {
+        if (_currentEditingProfile != null)
+        {
+            ProfileIndicator.Text = $" - {_currentEditingProfile.Name}";
+            ProfileIndicator.Foreground = _hasUnsavedProfileChanges
+                ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 167, 38)) // Orange
+                : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(100, 181, 246)); // Blue
+        }
+    }
+
+    private void UpdateDeleteButtonState()
+    {
+        DeleteProfileButton.IsEnabled = _currentEditingProfile != null && !_currentEditingProfile.IsDefault;
+    }
+
+    private void MarkProfileDirty()
+    {
+        if (_isLoading || _currentEditingProfile == null) return;
+        _hasUnsavedProfileChanges = true;
+        UpdateProfileIndicator();
+
+        // Highlight save button
+        SaveProfileButton.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(46, 125, 50)); // Green
+        SaveProfileButton.BorderBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(56, 142, 60));
+    }
+
+    private void ClearProfileDirty()
+    {
+        _hasUnsavedProfileChanges = false;
+        UpdateProfileIndicator();
+
+        // Reset save button
+        SaveProfileButton.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(62, 62, 62));
+        SaveProfileButton.BorderBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(94, 94, 94));
+    }
+
+    private bool PromptSaveChanges()
+    {
+        if (!_hasUnsavedProfileChanges || _currentEditingProfile == null) return true;
+
+        var result = ThemedMessageBox.ShowYesNoCancel(
+            $"Save changes to '{_currentEditingProfile.Name}'?",
+            "Unsaved Changes",
+            this);
+
+        if (result == ThemedMessageBoxResult.Yes)
+        {
+            _profileManager.SaveCurrentSettingsToProfile(_currentEditingProfile);
+            ClearProfileDirty();
+            return true;
+        }
+        else if (result == ThemedMessageBoxResult.No)
+        {
+            ClearProfileDirty();
+            return true;
+        }
+        else // Cancel
+        {
+            return false;
+        }
+    }
+
+    private void LoadProfileIntoUI(AppProfile profile)
+    {
+        _isLoading = true;
+
+        // Apply profile settings to app settings first
+        _profileManager.LoadProfileForEditing(profile);
+        _currentEditingProfile = profile;
+
+        // Reload UI from settings
+        var settings = _settingsManager.Settings;
+
+        // Display mode
+        SelectComboBoxByTag(ModeComboBox, settings.Display.Mode.ToString());
+
+        // Bar settings
+        TransparentCheckbox.IsChecked = settings.Bars.TransparentMode;
+        SensitivitySlider.Value = settings.Bars.Sensitivity;
+        SensitivityLabel.Text = settings.Bars.Sensitivity.ToString("F1");
+        ThresholdSlider.Value = settings.Bars.MinThreshold;
+        ThresholdLabel.Text = settings.Bars.MinThreshold.ToString("F2");
+        IgnoreBalancedCheckbox.IsChecked = settings.Bars.IgnoreBalancedSounds;
+        HideLfeCheckbox.IsChecked = settings.Bars.HideLfe;
+        HideYouCheckbox.IsChecked = settings.Bars.HideYou;
+        MaxOpacitySlider.Value = settings.Bars.MaxOpacity;
+        MaxOpacityLabel.Text = $"{(int)(settings.Bars.MaxOpacity * 100)}%";
+        SelectComboBoxByTag(SurroundLayoutComboBox, settings.Bars.SurroundLayout.ToString());
+        SpatialScaleSlider.Value = settings.Bars.SpatialScale;
+        SpatialScaleLabel.Text = $"{(int)(settings.Bars.SpatialScale * 100)}%";
+        SelectComboBoxByTag(DualLayoutComboBox, settings.Bars.DualLayout.ToString());
+        LeftIndicatorSlider.Value = settings.Bars.LeftIndicatorPercent;
+        LeftIndicatorLabel.Text = $"{(int)(settings.Bars.LeftIndicatorPercent * 100)}%";
+        RightIndicatorSlider.Value = settings.Bars.RightIndicatorPercent;
+        RightIndicatorLabel.Text = $"{(int)(settings.Bars.RightIndicatorPercent * 100)}%";
+        WidthSlider.Value = settings.Bars.Width;
+        WidthLabel.Text = settings.Bars.Width.ToString();
+
+        // Update spread slider
+        var spread = 0.5 - settings.Bars.LeftIndicatorPercent;
+        LinkedSpreadSlider.Value = spread;
+        LinkedSpreadLabel.Text = $"{(int)(spread * 100)}%";
+
+        UpdateBarSettingsVisibility(settings.Display.Mode);
+        UpdateProfileIndicator();
+        UpdateDeleteButtonState();
+
+        _isLoading = false;
+        ClearProfileDirty();
+
+        SettingsUpdated?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void AutoSwitchCheckbox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        var enabled = AutoSwitchCheckbox.IsChecked ?? false;
+        _profileManager.AutoSwitchEnabled = enabled;
+        AutoSwitchPausedLabel.Visibility = enabled && IsVisible ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void ProfileComboBox_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isLoading || ProfileComboBox.SelectedItem == null) return;
+
+        var tag = (ProfileComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString();
+        if (string.IsNullOrEmpty(tag)) return;
+
+        var profile = _profileManager.GetProfileById(tag);
+        if (profile == null || profile.Id == _currentEditingProfile?.Id) return;
+
+        if (!PromptSaveChanges())
+        {
+            // User cancelled, revert selection
+            _isLoading = true;
+            foreach (ComboBoxItem item in ProfileComboBox.Items)
+            {
+                if (item.Tag?.ToString() == _currentEditingProfile?.Id)
+                {
+                    ProfileComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+            _isLoading = false;
+            return;
+        }
+
+        LoadProfileIntoUI(profile);
+        ProfileChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void NewProfile_Click(object sender, RoutedEventArgs e)
+    {
+        if (!PromptSaveChanges()) return;
+
+        var editor = new ProfileEditorWindow { Owner = this };
+        editor.IsNewProfile = true;
+        editor.SetProfile("New Profile", null, false);
+
+        if (editor.ShowDialog() == true)
+        {
+            var newProfile = _profileManager.CreateProfile(editor.ProfileName, editor.ExePath);
+            RefreshProfileComboBox();
+            RefreshProfileList();
+            LoadProfileIntoUI(newProfile);
+
+            // Select the new profile in the combobox
+            foreach (ComboBoxItem item in ProfileComboBox.Items)
+            {
+                if (item.Tag?.ToString() == newProfile.Id)
+                {
+                    ProfileComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+
+            ProfileChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private void SaveProfile_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentEditingProfile == null) return;
+
+        _profileManager.SaveCurrentSettingsToProfile(_currentEditingProfile);
+        ClearProfileDirty();
+        ThemedMessageBox.Show($"Saved to '{_currentEditingProfile.Name}'.", "Profile Saved", this);
+    }
+
+    private void DeleteProfile_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentEditingProfile == null || _currentEditingProfile.IsDefault) return;
+
+        if (ThemedMessageBox.ShowYesNo(
+            $"Are you sure you want to delete '{_currentEditingProfile.Name}'?",
+            "Delete Profile",
+            this))
+        {
+            var deletedId = _currentEditingProfile.Id;
+            _profileManager.DeleteProfile(deletedId);
+
+            RefreshProfileComboBox();
+            RefreshProfileList();
+
+            // Switch to default profile
+            var defaultProfile = _profileManager.GetDefaultProfile();
+            LoadProfileIntoUI(defaultProfile);
+
+            // Update combobox selection
+            foreach (ComboBoxItem item in ProfileComboBox.Items)
+            {
+                if (item.Tag?.ToString() == defaultProfile.Id)
+                {
+                    ProfileComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+
+            ProfileChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private void EditProfile_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button) return;
+        var profileId = button.Tag?.ToString();
+        if (string.IsNullOrEmpty(profileId)) return;
+
+        var profile = _profileManager.GetProfileById(profileId);
+        if (profile == null) return;
+
+        var editor = new ProfileEditorWindow { Owner = this };
+        editor.SetProfile(profile.Name, profile.ExePath, profile.IsDefault);
+
+        if (editor.ShowDialog() == true)
+        {
+            _profileManager.UpdateProfile(profile, editor.ProfileName, editor.ExePath);
+            RefreshProfileComboBox();
+            RefreshProfileList();
+            UpdateProfileIndicator();
+            ProfileChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    /// <summary>
+    /// Called by MainWindow when a profile is auto-switched.
+    /// </summary>
+    public void OnProfileAutoSwitched(AppProfile profile)
+    {
+        if (_currentEditingProfile?.Id == profile.Id) return;
+
+        _isLoading = true;
+        _currentEditingProfile = profile;
+        _hasUnsavedProfileChanges = false;
+
+        // Update combobox selection
+        foreach (ComboBoxItem item in ProfileComboBox.Items)
+        {
+            if (item.Tag?.ToString() == profile.Id)
+            {
+                ProfileComboBox.SelectedItem = item;
+                break;
+            }
+        }
+
+        // Reload UI
+        LoadSettings();
+        UpdateProfileIndicator();
+        UpdateDeleteButtonState();
+        _isLoading = false;
+    }
+
+    #endregion
 
     private void UpdateLogRetentionVisibility()
     {
@@ -223,6 +576,7 @@ public partial class SettingsWindow : Window
         {
             _settingsManager.Update(s => s.Display.Mode = mode);
             UpdateBarSettingsVisibility(mode);
+            MarkProfileDirty();
             SettingsUpdated?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -306,6 +660,7 @@ public partial class SettingsWindow : Window
     {
         if (_isLoading) return;
         _settingsManager.Update(s => s.Bars.TransparentMode = TransparentCheckbox.IsChecked ?? false);
+        MarkProfileDirty();
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
@@ -334,6 +689,7 @@ public partial class SettingsWindow : Window
         if (_isLoading) return;
         var width = (int)WidthSlider.Value;
         _settingsManager.Update(s => s.Bars.Width = width);
+        MarkProfileDirty();
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
@@ -342,6 +698,7 @@ public partial class SettingsWindow : Window
         if (_isLoading) return;
         var sensitivity = Math.Round(SensitivitySlider.Value, 1);
         _settingsManager.Update(s => s.Bars.Sensitivity = sensitivity);
+        MarkProfileDirty();
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
@@ -350,6 +707,7 @@ public partial class SettingsWindow : Window
         if (_isLoading) return;
         var threshold = Math.Round(ThresholdSlider.Value, 2);
         _settingsManager.Update(s => s.Bars.MinThreshold = threshold);
+        MarkProfileDirty();
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
@@ -357,6 +715,7 @@ public partial class SettingsWindow : Window
     {
         if (_isLoading) return;
         _settingsManager.Update(s => s.Bars.IgnoreBalancedSounds = IgnoreBalancedCheckbox.IsChecked ?? false);
+        MarkProfileDirty();
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
@@ -364,6 +723,7 @@ public partial class SettingsWindow : Window
     {
         if (_isLoading) return;
         _settingsManager.Update(s => s.Bars.HideLfe = HideLfeCheckbox.IsChecked ?? false);
+        MarkProfileDirty();
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
@@ -371,6 +731,7 @@ public partial class SettingsWindow : Window
     {
         if (_isLoading) return;
         _settingsManager.Update(s => s.Bars.HideYou = HideYouCheckbox.IsChecked ?? false);
+        MarkProfileDirty();
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
@@ -382,6 +743,7 @@ public partial class SettingsWindow : Window
         {
             _settingsManager.Update(s => s.Bars.DualLayout = layout);
             UpdateLayoutSettingsVisibility();
+            MarkProfileDirty();
             SettingsUpdated?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -394,6 +756,7 @@ public partial class SettingsWindow : Window
         {
             _settingsManager.Update(s => s.Bars.SurroundLayout = layout);
             UpdateLayoutSettingsVisibility();
+            MarkProfileDirty();
             SettingsUpdated?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -409,6 +772,7 @@ public partial class SettingsWindow : Window
         if (_isLoading) return;
         var scale = Math.Round(SpatialScaleSlider.Value, 1);
         _settingsManager.Update(s => s.Bars.SpatialScale = scale);
+        MarkProfileDirty();
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
@@ -447,6 +811,7 @@ public partial class SettingsWindow : Window
         LeftIndicatorSlider.Value = leftPos;
         RightIndicatorSlider.Value = rightPos;
 
+        MarkProfileDirty();
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
@@ -460,6 +825,7 @@ public partial class SettingsWindow : Window
     {
         if (_isLoading) return;
         _settingsManager.Update(s => s.Bars.LeftIndicatorPercent = LeftIndicatorSlider.Value);
+        MarkProfileDirty();
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
@@ -473,6 +839,7 @@ public partial class SettingsWindow : Window
     {
         if (_isLoading) return;
         _settingsManager.Update(s => s.Bars.RightIndicatorPercent = RightIndicatorSlider.Value);
+        MarkProfileDirty();
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
@@ -508,6 +875,7 @@ public partial class SettingsWindow : Window
         if (_isLoading) return;
         var maxOpacity = Math.Round(MaxOpacitySlider.Value, 2);
         _settingsManager.Update(s => s.Bars.MaxOpacity = maxOpacity);
+        MarkProfileDirty();
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 

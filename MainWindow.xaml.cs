@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Threading;
 using DeafDirectionalHelper.Audio;
 using DeafDirectionalHelper.Hotkeys;
+using DeafDirectionalHelper.Services;
 using DeafDirectionalHelper.Settings;
 using DeafDirectionalHelper.View;
 using Forms = System.Windows.Forms;
@@ -36,6 +37,8 @@ namespace DeafDirectionalHelper
         private readonly Speakers _speakers;
         private readonly ColoredSpeakers _coloredSpeakers;
         private readonly SettingsManager _settingsManager;
+        private readonly ProfileManager _profileManager;
+        private readonly ProcessMonitor _processMonitor;
 
         private DualBarsView? _dualBarsView;
         private HorizontalDualView? _horizontalDualView;
@@ -52,13 +55,26 @@ namespace DeafDirectionalHelper
             InitializeComponent();
 
             _settingsManager = SettingsManager.Instance;
+            _profileManager = ProfileManager.Instance;
             _speakers = new Speakers();
             _coloredSpeakers = new ColoredSpeakers(_speakers);
+
+            // Setup process monitor for profile auto-switching
+            _processMonitor = new ProcessMonitor();
+            _processMonitor.ActiveProcessChanged += OnActiveProcessChanged;
+            UpdateProcessMonitorWatchList();
+
+            // Subscribe to profile changes to update watch list
+            _profileManager.ProfilesChanged += (_, _) => UpdateProcessMonitorWatchList();
+            _profileManager.ProfileActivated += OnProfileActivated;
 
             SetupSystemTray();
             ShowScreens();
             StartMonitoring();
             SetupHotkeys();
+
+            // Start process monitoring
+            _processMonitor.Start();
 
             // Hide main window (we use system tray)
             Hide();
@@ -70,6 +86,55 @@ namespace DeafDirectionalHelper
             {
                 ShowSettings();
             }
+        }
+
+        private void UpdateProcessMonitorWatchList()
+        {
+            var processNames = _profileManager.GetWatchedProcessNames();
+            _processMonitor.UpdateWatchList(processNames);
+        }
+
+        private void OnActiveProcessChanged(object? sender, string? processName)
+        {
+            // Don't auto-switch if paused (settings window open) or disabled
+            if (_profileManager.AutoSwitchPaused || !_profileManager.AutoSwitchEnabled)
+                return;
+
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, () =>
+            {
+                AppProfile targetProfile;
+
+                if (processName != null)
+                {
+                    var profile = _profileManager.GetProfileForProcess(processName);
+                    targetProfile = profile ?? _profileManager.GetDefaultProfile();
+                }
+                else
+                {
+                    targetProfile = _profileManager.GetDefaultProfile();
+                }
+
+                if (targetProfile.Id != _profileManager.ActiveProfile.Id)
+                {
+                    _profileManager.ActivateProfile(targetProfile);
+                }
+            });
+        }
+
+        private void OnProfileActivated(object? sender, AppProfile profile)
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, () =>
+            {
+                // Update display mode based on new profile
+                UpdateDisplayMode();
+
+                // Show notification
+                _notifyIcon?.ShowBalloonTip(1000, "DeafDirectionalHelper",
+                    $"Profile: {profile.Name}", Forms.ToolTipIcon.Info);
+
+                // Update settings window if open
+                _settingsWindow?.OnProfileAutoSwitched(profile);
+            });
         }
 
         private void SetupHotkeys()
@@ -372,6 +437,10 @@ namespace DeafDirectionalHelper
         {
             // Stop monitoring
             _monitoringCts?.Cancel();
+
+            // Stop process monitor
+            _processMonitor.Stop();
+            _processMonitor.Dispose();
 
             // Dispose hotkey manager
             _hotkeyManager?.Dispose();

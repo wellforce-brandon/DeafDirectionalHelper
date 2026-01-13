@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace DeafDirectionalHelper.Settings;
@@ -18,6 +19,15 @@ public class AppSettings
 
     [JsonPropertyName("general")]
     public GeneralSettings General { get; set; } = new();
+
+    [JsonPropertyName("profiles")]
+    public List<AppProfile> Profiles { get; set; } = new() { AppProfile.CreateDefault() };
+
+    [JsonPropertyName("activeProfileId")]
+    public string ActiveProfileId { get; set; } = "default";
+
+    [JsonPropertyName("autoSwitchProfiles")]
+    public bool AutoSwitchProfiles { get; set; } = true;
 }
 
 public class BarSettings

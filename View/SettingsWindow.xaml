@@ -300,11 +300,23 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header with Hotkeys and About Buttons -->
+        <!-- Header with Profile indicator, Hotkeys and About Buttons -->
         <Grid Grid.Row="0" Margin="15,15,15,10">
-            <TextBlock Text="DeafDirectionalHelper" FontSize="28" FontWeight="Bold"
-                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: Profile indicator (inline with title) -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="DeafDirectionalHelper" FontSize="28" FontWeight="Bold"/>
+                <TextBlock x:Name="ProfileIndicator" Text=" - Default" FontSize="20" FontWeight="Normal"
+                           Foreground="#64B5F6" VerticalAlignment="Bottom" Margin="8,0,0,4"/>
+            </StackPanel>
+
+            <!-- Right: Buttons -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Click="About_Click" MinWidth="70" MinHeight="36" Padding="12,6" Margin="0,0,8,0">
                     <TextBlock Text="About" VerticalAlignment="Center" FontSize="13"/>
                 </Button>
@@ -439,8 +451,62 @@
                     </GroupBox>
                 </StackPanel>
 
-                <!-- RIGHT COLUMN: Audio, Layout Settings, General -->
+                <!-- RIGHT COLUMN: Profiles, Audio, Layout Settings, General -->
                 <StackPanel Grid.Column="1">
+                    <!-- Application Profiles Section -->
+                    <GroupBox Header="Application Profiles">
+                        <StackPanel Margin="10">
+                            <CheckBox x:Name="AutoSwitchCheckbox" Content="Auto-switch when apps are running"
+                                      Checked="AutoSwitchCheckbox_Changed" Unchecked="AutoSwitchCheckbox_Changed"/>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <TextBlock Text="Profile:" Width="60"/>
+                                <ComboBox x:Name="ProfileComboBox" Width="220" SelectionChanged="ProfileComboBox_Changed"/>
+                            </StackPanel>
+
+                            <!-- Profile list -->
+                            <Border Background="#252525" BorderBrush="#3E3E3E" BorderThickness="1"
+                                    CornerRadius="4" Margin="0,12,0,0" MaxHeight="120">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl x:Name="ProfileListBox">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="4,2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Name}" Foreground="White" FontSize="13"/>
+                                                        <TextBlock Text="{Binding ProcessName, StringFormat=' ({0})'}"
+                                                                   Foreground="#888888" FontSize="11"
+                                                                   Visibility="{Binding ProcessName, Converter={x:Null}}"/>
+                                                    </StackPanel>
+                                                    <Button Grid.Column="1" Content="Edit" Tag="{Binding Id}"
+                                                            Click="EditProfile_Click" MinWidth="50" MinHeight="28"
+                                                            Padding="8,4" FontSize="12"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Border>
+
+                            <!-- Profile action buttons -->
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <Button Content="New" Click="NewProfile_Click" MinWidth="70" MinHeight="36" Padding="10,6"/>
+                                <Button x:Name="SaveProfileButton" Content="Save" Click="SaveProfile_Click"
+                                        MinWidth="70" MinHeight="36" Padding="10,6" Margin="8,0,0,0"/>
+                                <Button x:Name="DeleteProfileButton" Content="Delete" Click="DeleteProfile_Click"
+                                        MinWidth="70" MinHeight="36" Padding="10,6" Margin="8,0,0,0"/>
+                            </StackPanel>
+
+                            <!-- Auto-switch paused warning -->
+                            <TextBlock x:Name="AutoSwitchPausedLabel" Text="Auto-switching paused while settings open"
+                                       Foreground="#FFA726" FontSize="11" Margin="0,8,0,0" Visibility="Collapsed"/>
+                        </StackPanel>
+                    </GroupBox>
+
                     <!-- Audio Section -->
                     <GroupBox Header="Audio">
                         <StackPanel Margin="10">
