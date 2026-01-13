@@ -506,7 +506,7 @@ public partial class SettingsWindow : Window
         });
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
         ResetPositionsRequested?.Invoke(this, EventArgs.Empty);
-        MessageBox.Show("All positions have been reset.", "Reset", MessageBoxButton.OK, MessageBoxImage.Information);
+        ThemedMessageBox.Show("All positions have been reset.", "Reset", this);
     }
 
     private void AudioDeviceComboBox_Changed(object sender, SelectionChangedEventArgs e)
@@ -577,21 +577,17 @@ public partial class SettingsWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Could not open log folder: {ex.Message}", "Error",
-                MessageBoxButton.OK, MessageBoxImage.Error);
+            ThemedMessageBox.Show($"Could not open log folder: {ex.Message}", "Error", this);
         }
     }
 
     private void ClearLogs_Click(object sender, RoutedEventArgs e)
     {
-        var result = MessageBox.Show("Are you sure you want to clear all audio logs?",
-            "Clear Logs", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-        if (result == MessageBoxResult.Yes)
+        if (ThemedMessageBox.ShowYesNo("Are you sure you want to clear all audio logs?", "Clear Logs", this))
         {
             AudioEventLogger.Instance.ClearLogs();
             UpdateLogSizeLabel();
-            MessageBox.Show("Logs cleared.", "Clear Logs", MessageBoxButton.OK, MessageBoxImage.Information);
+            ThemedMessageBox.Show("Logs cleared.", "Clear Logs", this);
         }
     }
 
@@ -614,13 +610,7 @@ public partial class SettingsWindow : Window
 
     private void Exit_Click(object sender, RoutedEventArgs e)
     {
-        var result = MessageBox.Show(
-            "Are you sure you want to exit DeafDirectionalHelper?",
-            "Exit Application",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Question);
-
-        if (result == MessageBoxResult.Yes)
+        if (ThemedMessageBox.ShowYesNo("Are you sure you want to exit DeafDirectionalHelper?", "Exit Application", this))
         {
             ExitRequested?.Invoke(this, EventArgs.Empty);
         }

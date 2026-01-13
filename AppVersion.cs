@@ -10,8 +10,10 @@ public static class AppVersion
     // 1.1.1 - README updates
     // 1.2.0 - Thread safety, device recovery, settings backup
     // 1.3.0 - Hide YOU indicator option, About dialog
+    // 1.3.1 - Dark theme for ComboBox dropdowns (better legibility)
+    // 1.3.2 - Themed message boxes (dark theme dialogs)
 
-    public const string Version = "1.3.0";
+    public const string Version = "1.3.2";
     public const string AppName = "DeafDirectionalHelper";
     public const string Description = "Audio visualization tool for deaf and hard-of-hearing gamers";
     public const string GitHubUrl = "https://github.com/wellforce-brandon/DeafDirectionalHelper";
