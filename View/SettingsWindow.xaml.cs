@@ -74,7 +74,21 @@ public partial class SettingsWindow : Window
         StartMinimizedCheckbox.IsChecked = settings.General.StartMinimized;
         StartWithWindowsCheckbox.IsChecked = settings.General.StartWithWindows;
         EnableLoggingCheckbox.IsChecked = settings.General.EnableAudioLogging;
+
+        // Log retention settings
+        SelectComboBoxByTag(LogRetentionTypeComboBox, settings.General.LogRetentionType.ToString());
+        SelectComboBoxByTag(LogRetentionSizeComboBox, settings.General.LogRetentionSizeMB.ToString());
+        SelectComboBoxByTag(LogRetentionDaysComboBox, settings.General.LogRetentionDays.ToString());
+        UpdateLogRetentionVisibility();
+
         UpdateLogSizeLabel();
+    }
+
+    private void UpdateLogRetentionVisibility()
+    {
+        var retentionType = _settingsManager.Settings.General.LogRetentionType;
+        LogRetentionSizePanel.Visibility = retentionType == LogRetentionType.Size ? Visibility.Visible : Visibility.Collapsed;
+        LogRetentionDaysPanel.Visibility = retentionType == LogRetentionType.Date ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void UpdateLogSizeLabel()
@@ -566,6 +580,42 @@ public partial class SettingsWindow : Window
         var enableLogging = EnableLoggingCheckbox.IsChecked ?? false;
         _settingsManager.Update(s => s.General.EnableAudioLogging = enableLogging);
         AudioEventLogger.Instance.IsEnabled = enableLogging;
+    }
+
+    private void LogRetentionTypeComboBox_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isLoading || LogRetentionTypeComboBox.SelectedItem == null) return;
+        var tag = (LogRetentionTypeComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString();
+        if (Enum.TryParse<LogRetentionType>(tag, out var retentionType))
+        {
+            _settingsManager.Update(s => s.General.LogRetentionType = retentionType);
+            UpdateLogRetentionVisibility();
+            AudioEventLogger.Instance.ApplyRetentionSettings();
+        }
+    }
+
+    private void LogRetentionSizeComboBox_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isLoading || LogRetentionSizeComboBox.SelectedItem == null) return;
+        var tag = (LogRetentionSizeComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString();
+        if (int.TryParse(tag, out var sizeMB))
+        {
+            _settingsManager.Update(s => s.General.LogRetentionSizeMB = sizeMB);
+            AudioEventLogger.Instance.ApplyRetentionSettings();
+            UpdateLogSizeLabel();
+        }
+    }
+
+    private void LogRetentionDaysComboBox_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isLoading || LogRetentionDaysComboBox.SelectedItem == null) return;
+        var tag = (LogRetentionDaysComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString();
+        if (int.TryParse(tag, out var days))
+        {
+            _settingsManager.Update(s => s.General.LogRetentionDays = days);
+            AudioEventLogger.Instance.ApplyRetentionSettings();
+            UpdateLogSizeLabel();
+        }
     }
 
     private void OpenLogFolder_Click(object sender, RoutedEventArgs e)

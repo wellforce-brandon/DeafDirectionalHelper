@@ -126,6 +126,12 @@ public class HotkeySettings
     public string ShowSettings { get; set; } = "Ctrl+Shift+S";
 }
 
+public enum LogRetentionType
+{
+    Size,   // Delete logs when total size exceeds limit
+    Date    // Delete logs older than X days
+}
+
 public class GeneralSettings
 {
     [JsonPropertyName("startMinimized")]
@@ -139,4 +145,13 @@ public class GeneralSettings
 
     [JsonPropertyName("enableAudioLogging")]
     public bool EnableAudioLogging { get; set; } = false;
+
+    [JsonPropertyName("logRetentionType")]
+    public LogRetentionType LogRetentionType { get; set; } = LogRetentionType.Size;
+
+    [JsonPropertyName("logRetentionDays")]
+    public int LogRetentionDays { get; set; } = 7; // Keep logs for 7 days (date-based)
+
+    [JsonPropertyName("logRetentionSizeMB")]
+    public int LogRetentionSizeMB { get; set; } = 100; // Max 100 MB total logs (size-based)
 }

@@ -2,9 +2,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DeafDirectionalHelper.Settings;
 
 namespace DeafDirectionalHelper.Audio
 {
@@ -20,9 +22,8 @@ namespace DeafDirectionalHelper.Audio
         private readonly Task _writerTask;
         private readonly object _fileLock = new();
 
-        private const long MaxFileSizeBytes = 500 * 1024 * 1024; // 500 MB per file
-        private const int MaxLogFiles = 2; // 2 files = 1 GB max total
         private const int FlushIntervalMs = 1000;
+        private const long BytesPerMB = 1024 * 1024;
 
         public bool IsEnabled { get; set; } = true;
         public float TriggerThreshold { get; set; } = 0.01f; // Only log events above this level
@@ -251,23 +252,102 @@ namespace DeafDirectionalHelper.Audio
 
         private void RotateLogsIfNeeded()
         {
-            if (!File.Exists(_logFilePath)) return;
+            try
+            {
+                var settings = SettingsManager.Instance.Settings.General;
 
-            var fileInfo = new FileInfo(_logFilePath);
-            if (fileInfo.Length < MaxFileSizeBytes) return;
+                if (settings.LogRetentionType == LogRetentionType.Size)
+                {
+                    // Size-based retention
+                    var maxBytes = settings.LogRetentionSizeMB * BytesPerMB;
+                    var totalSize = GetTotalLogSize();
 
-            // Rotate files
-            var backupPath = Path.Combine(_logDirectory, "audio_events.1.log");
+                    if (totalSize > maxBytes)
+                    {
+                        // Delete oldest log files until under limit
+                        var logFiles = GetLogFilesByAge();
+                        foreach (var file in logFiles)
+                        {
+                            if (GetTotalLogSize() <= maxBytes * 0.8) break; // Keep 20% buffer
+                            try { File.Delete(file); } catch { }
+                        }
+                    }
+                }
+                else
+                {
+                    // Date-based retention
+                    var cutoffDate = DateTime.Now.AddDays(-settings.LogRetentionDays);
+                    var logFiles = Directory.GetFiles(_logDirectory, "audio_events*.log");
 
-            // Delete oldest backup
-            if (File.Exists(backupPath))
-                File.Delete(backupPath);
+                    foreach (var file in logFiles)
+                    {
+                        var fileInfo = new FileInfo(file);
+                        if (fileInfo.LastWriteTime < cutoffDate)
+                        {
+                            try { File.Delete(file); } catch { }
+                        }
+                    }
+                }
 
-            // Move current to backup
-            File.Move(_logFilePath, backupPath);
+                // Also rotate current file if it's getting too large (50MB per file max)
+                if (File.Exists(_logFilePath))
+                {
+                    var currentFileInfo = new FileInfo(_logFilePath);
+                    if (currentFileInfo.Length > 50 * BytesPerMB)
+                    {
+                        // Rotate to timestamped backup
+                        var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                        var backupPath = Path.Combine(_logDirectory, $"audio_events_{timestamp}.log");
+                        File.Move(_logFilePath, backupPath);
+                        LogHeader();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Log rotation error: {ex.Message}");
+            }
+        }
 
-            // Start fresh
-            LogHeader();
+        /// <summary>
+        /// Apply retention settings immediately (called when settings change)
+        /// </summary>
+        public void ApplyRetentionSettings()
+        {
+            lock (_fileLock)
+            {
+                RotateLogsIfNeeded();
+            }
+        }
+
+        private long GetTotalLogSize()
+        {
+            try
+            {
+                return Directory.GetFiles(_logDirectory, "audio_events*.log")
+                    .Sum(f => new FileInfo(f).Length);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Get log files sorted by age (oldest first)
+        /// </summary>
+        private IEnumerable<string> GetLogFilesByAge()
+        {
+            try
+            {
+                return Directory.GetFiles(_logDirectory, "audio_events*.log")
+                    .Where(f => f != _logFilePath) // Don't delete current log file
+                    .OrderBy(f => new FileInfo(f).LastWriteTime);
+            }
+            catch
+            {
+                return Enumerable.Empty<string>();
+            }
         }
 
         public string GetLogFilePath() => _logFilePath;
@@ -276,8 +356,7 @@ namespace DeafDirectionalHelper.Audio
 
         public long GetCurrentLogSize()
         {
-            if (!File.Exists(_logFilePath)) return 0;
-            return new FileInfo(_logFilePath).Length;
+            return GetTotalLogSize();
         }
 
         public void ClearLogs()

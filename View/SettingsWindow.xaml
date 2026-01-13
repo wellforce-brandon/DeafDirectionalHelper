@@ -541,6 +541,34 @@
                                       Checked="StartWithWindowsCheckbox_Changed" Unchecked="StartWithWindowsCheckbox_Changed"/>
                             <CheckBox x:Name="EnableLoggingCheckbox" Content="Enable audio event logging" Margin="0,14,0,0"
                                       Checked="EnableLoggingCheckbox_Changed" Unchecked="EnableLoggingCheckbox_Changed"/>
+                            <StackPanel x:Name="LogRetentionPanel" Margin="0,10,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Auto-cleanup:" Width="90"/>
+                                    <ComboBox x:Name="LogRetentionTypeComboBox" Width="150" SelectionChanged="LogRetentionTypeComboBox_Changed">
+                                        <ComboBoxItem Content="By Size" Tag="Size"/>
+                                        <ComboBoxItem Content="By Age" Tag="Date"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel x:Name="LogRetentionSizePanel" Orientation="Horizontal" Margin="0,10,0,0">
+                                    <TextBlock Text="Max size:" Width="90"/>
+                                    <ComboBox x:Name="LogRetentionSizeComboBox" Width="150" SelectionChanged="LogRetentionSizeComboBox_Changed">
+                                        <ComboBoxItem Content="50 MB" Tag="50"/>
+                                        <ComboBoxItem Content="100 MB" Tag="100"/>
+                                        <ComboBoxItem Content="250 MB" Tag="250"/>
+                                        <ComboBoxItem Content="500 MB" Tag="500"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel x:Name="LogRetentionDaysPanel" Orientation="Horizontal" Margin="0,10,0,0" Visibility="Collapsed">
+                                    <TextBlock Text="Keep for:" Width="90"/>
+                                    <ComboBox x:Name="LogRetentionDaysComboBox" Width="150" SelectionChanged="LogRetentionDaysComboBox_Changed">
+                                        <ComboBoxItem Content="1 day" Tag="1"/>
+                                        <ComboBoxItem Content="3 days" Tag="3"/>
+                                        <ComboBoxItem Content="7 days" Tag="7"/>
+                                        <ComboBoxItem Content="14 days" Tag="14"/>
+                                        <ComboBoxItem Content="30 days" Tag="30"/>
+                                    </ComboBox>
+                                </StackPanel>
+                            </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                                 <TextBlock x:Name="LogSizeLabel" Text="Log size: 0 KB" Width="120"/>
                                 <Button Content="Open Logs" Click="OpenLogFolder_Click" MinWidth="80" Margin="5,0,0,0"/>

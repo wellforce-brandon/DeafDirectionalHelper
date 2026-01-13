@@ -12,8 +12,9 @@ public static class AppVersion
     // 1.3.0 - Hide YOU indicator option, About dialog
     // 1.3.1 - Dark theme for ComboBox dropdowns (better legibility)
     // 1.3.2 - Themed message boxes (dark theme dialogs)
+    // 1.3.3 - Log retention settings (size-based or date-based cleanup)
 
-    public const string Version = "1.3.2";
+    public const string Version = "1.3.3";
     public const string AppName = "DeafDirectionalHelper";
     public const string Description = "Audio visualization tool for deaf and hard-of-hearing gamers";
     public const string GitHubUrl = "https://github.com/wellforce-brandon/DeafDirectionalHelper";
