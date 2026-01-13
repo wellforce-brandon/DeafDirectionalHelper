@@ -64,6 +64,12 @@ namespace DeafDirectionalHelper
             Hide();
             WindowState = WindowState.Minimized;
             ShowInTaskbar = false;
+
+            // Show settings on startup unless "Start minimized" is enabled
+            if (!_settingsManager.Settings.General.StartMinimized)
+            {
+                ShowSettings();
+            }
         }
 
         private void SetupHotkeys()

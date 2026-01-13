@@ -231,18 +231,22 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header with Hotkeys Button -->
+        <!-- Header with Hotkeys and About Buttons -->
         <Grid Grid.Row="0" Margin="15,15,15,10">
             <TextBlock Text="DeafDirectionalHelper" FontSize="28" FontWeight="Bold"
                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <Button Click="Hotkeys_Click" HorizontalAlignment="Right" VerticalAlignment="Center"
-                    MinWidth="80" MinHeight="36" Padding="12,6">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Hotkeys" VerticalAlignment="Center" FontSize="13"/>
-                    <TextBlock Text=" (Ctrl+Shift+H)" FontFamily="Consolas" Foreground="#88CCFF"
-                               FontSize="11" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Button Click="About_Click" MinWidth="70" MinHeight="36" Padding="12,6" Margin="0,0,8,0">
+                    <TextBlock Text="About" VerticalAlignment="Center" FontSize="13"/>
+                </Button>
+                <Button Click="Hotkeys_Click" MinWidth="80" MinHeight="36" Padding="12,6">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Hotkeys" VerticalAlignment="Center" FontSize="13"/>
+                        <TextBlock Text=" (Ctrl+Shift+H)" FontFamily="Consolas" Foreground="#88CCFF"
+                                   FontSize="11" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
         </Grid>
 
         <!-- Two-Column Content -->
@@ -359,6 +363,8 @@
                                 </StackPanel>
                                 <CheckBox x:Name="HideLfeCheckbox" Content="Hide LFE/subwoofer indicator" Margin="0,12,0,0"
                                           Checked="HideLfeCheckbox_Changed" Unchecked="HideLfeCheckbox_Changed"/>
+                                <CheckBox x:Name="HideYouCheckbox" Content="Hide 'YOU' listener indicator" Margin="0,12,0,0"
+                                          Checked="HideYouCheckbox_Changed" Unchecked="HideYouCheckbox_Changed"/>
                             </StackPanel>
                         </StackPanel>
                     </GroupBox>

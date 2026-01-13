@@ -61,6 +61,9 @@ public class BarSettings
     [JsonPropertyName("hideLfe")]
     public bool HideLfe { get; set; } = false; // Hide LFE/subwoofer indicator in 7.1 view
 
+    [JsonPropertyName("hideYou")]
+    public bool HideYou { get; set; } = false; // Hide listener "YOU" indicator in 7.1 spatial view
+
     [JsonPropertyName("maxOpacity")]
     public double MaxOpacity { get; set; } = 1.0; // Maximum opacity for 7.1 indicators (0.5 to 1.0)
 

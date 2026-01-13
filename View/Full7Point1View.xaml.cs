@@ -66,7 +66,7 @@ namespace DeafDirectionalHelper.View
             }
             else
             {
-                PositionSpeakersSpatial(settings.Bars.HideLfe);
+                PositionSpeakersSpatial(settings.Bars.HideLfe, settings.Bars.HideYou);
             }
 
             // Recenter after layout change
@@ -74,7 +74,7 @@ namespace DeafDirectionalHelper.View
             Top = MainWindow.ScreenTop + MainWindow.ScreenHeight - Height - 100;
         }
 
-        private void PositionSpeakersSpatial(bool hideLfe)
+        private void PositionSpeakersSpatial(bool hideLfe, bool hideYou)
         {
             var settings = _settingsManager.Settings;
             var scale = settings.Bars.SpatialScale;
@@ -98,9 +98,9 @@ namespace DeafDirectionalHelper.View
             SideLeft.Width = SideLeft.Height = 50;
             SideRight.Width = SideRight.Height = 50;
 
-            // Show listener in spatial mode
-            Listener.Visibility = Visibility.Visible;
-            ListenerLabel.Visibility = Visibility.Visible;
+            // Show/hide listener based on setting
+            Listener.Visibility = hideYou ? Visibility.Collapsed : Visibility.Visible;
+            ListenerLabel.Visibility = hideYou ? Visibility.Collapsed : Visibility.Visible;
 
             // Base positions relative to listener at scale 1.0 (offsets from cx, cy)
             // These are the original hardcoded positions converted to offsets from center

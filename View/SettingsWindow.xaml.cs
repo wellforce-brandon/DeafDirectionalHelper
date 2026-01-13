@@ -49,6 +49,7 @@ public partial class SettingsWindow : Window
         ThresholdLabel.Text = settings.Bars.MinThreshold.ToString("F2");
         IgnoreBalancedCheckbox.IsChecked = settings.Bars.IgnoreBalancedSounds;
         HideLfeCheckbox.IsChecked = settings.Bars.HideLfe;
+        HideYouCheckbox.IsChecked = settings.Bars.HideYou;
         SelectComboBoxByTag(DualLayoutComboBox, settings.Bars.DualLayout.ToString());
         SelectComboBoxByTag(SurroundLayoutComboBox, settings.Bars.SurroundLayout.ToString());
         SpatialScaleSlider.Value = settings.Bars.SpatialScale;
@@ -352,6 +353,13 @@ public partial class SettingsWindow : Window
         SettingsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
+    private void HideYouCheckbox_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isLoading) return;
+        _settingsManager.Update(s => s.Bars.HideYou = HideYouCheckbox.IsChecked ?? false);
+        SettingsUpdated?.Invoke(this, EventArgs.Empty);
+    }
+
     private void DualLayoutComboBox_Changed(object sender, SelectionChangedEventArgs e)
     {
         if (_isLoading || DualLayoutComboBox.SelectedItem == null) return;
@@ -591,6 +599,12 @@ public partial class SettingsWindow : Window
     {
         var hotkeysWindow = new HotkeysWindow { Owner = this };
         hotkeysWindow.ShowDialog();
+    }
+
+    private void About_Click(object sender, RoutedEventArgs e)
+    {
+        var aboutWindow = new AboutWindow { Owner = this };
+        aboutWindow.ShowDialog();
     }
 
     private void Hide_Click(object sender, RoutedEventArgs e)
