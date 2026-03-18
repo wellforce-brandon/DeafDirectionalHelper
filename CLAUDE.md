@@ -151,3 +151,16 @@ Every plan file MUST end with a **Lessons Learned / Gotchas** section. After imp
 - Manual: create `kb/<tech>/<slug>.md`, update `kb/<tech>/llms.txt`, update the master `llms.txt`
 
 Lessons stored locally stay local. Lessons in LL-G benefit every repo and every technician.
+
+## RULE 3 -- Check BP Before Starting New Work
+
+**When onboarding a repo, starting a new feature, or setting up tooling -- load the BP index and check applicable best practices.**
+
+```
+Step 1: Fetch https://raw.githubusercontent.com/wellforce-brandon/BP/main/llms.txt
+Step 2: For each concern relevant to your task, read its llms.txt index
+Step 3: Load all FOUNDATIONAL entries (these apply to every repo)
+Step 4: Load RECOMMENDED entries whose tech tags match the current project
+```
+
+BP is the complement to LL-G: where LL-G tracks what NOT to do, BP tracks what TO do.
