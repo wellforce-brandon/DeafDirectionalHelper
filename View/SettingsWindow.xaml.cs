@@ -101,6 +101,7 @@ public partial class SettingsWindow : Window
         SelectComboBoxByTag(LogRetentionSizeComboBox, settings.General.LogRetentionSizeMB.ToString());
         SelectComboBoxByTag(LogRetentionDaysComboBox, settings.General.LogRetentionDays.ToString());
         UpdateLogRetentionVisibility();
+        UpdateLogSettingsVisibility();
 
         UpdateLogSizeLabel();
     }
@@ -948,6 +949,13 @@ public partial class SettingsWindow : Window
         var enableLogging = EnableLoggingCheckbox.IsChecked ?? false;
         _settingsManager.Update(s => s.General.EnableAudioLogging = enableLogging);
         AudioEventLogger.Instance.IsEnabled = enableLogging;
+        UpdateLogSettingsVisibility();
+    }
+
+    private void UpdateLogSettingsVisibility()
+    {
+        var enableLogging = EnableLoggingCheckbox.IsChecked ?? false;
+        LogRetentionPanel.Visibility = enableLogging ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void LogRetentionTypeComboBox_Changed(object sender, SelectionChangedEventArgs e)
