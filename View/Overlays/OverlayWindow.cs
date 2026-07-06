@@ -14,8 +14,9 @@ namespace DeafDirectionalHelper.View.Overlays;
 
 /// <summary>
 /// The single overlay host: a borderless, transparent, topmost, click-through
-/// window spanning the target monitor's work area. Runs the 100 ms level tick
-/// and renders the active style (optionally paired with side bars). Move mode
+/// window spanning the target monitor's work area. Runs the level tick at the
+/// configured frame rate (Display.OverlayFps, 30-240) and renders the active
+/// style (optionally paired with side bars). Move mode
 /// (Ctrl+Shift+E) disables click-through for dragging/keyboard positioning.
 /// Cannot render over exclusive-fullscreen games - use borderless windowed.
 /// </summary>
@@ -76,9 +77,10 @@ public sealed class OverlayWindow : Window
         {
             if (_foregroundHook != IntPtr.Zero)
                 UnhookWinEvent(_foregroundHook);
+            SetHighResTimer(false);
         };
 
-        _tick = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(33) };
+        _tick = new DispatcherTimer(DispatcherPriority.Render);
         _tick.Tick += (_, _) => RenderFrame();
 
         _canvas.MouseLeftButtonDown += Canvas_MouseDown;
@@ -139,6 +141,16 @@ public sealed class OverlayWindow : Window
     public void ApplySettings()
     {
         var settings = _settingsManager.Settings;
+
+        var fps = Math.Clamp(settings.Display.OverlayFps, 30, 240);
+        var intervalMs = 1000.0 / fps;
+        _tick.Interval = TimeSpan.FromMilliseconds(intervalMs);
+        _engine.SetTickInterval(intervalMs);
+        _reassertEveryNFrames = Math.Max(1, (int)(2000 / intervalMs));
+        // Windows timers only resolve ~15.6 ms by default, which caps a
+        // DispatcherTimer near 64 Hz. Above 60 fps, request 1 ms resolution.
+        SetHighResTimer(fps > 60);
+
         var screen = MainWindow.TargetScreen;
         _workArea = new Rect(screen.WorkingArea.Left, screen.WorkingArea.Top,
             screen.WorkingArea.Width, screen.WorkingArea.Height);
@@ -195,13 +207,29 @@ public sealed class OverlayWindow : Window
 
     private bool _wasIdle;
     private int _frameCount;
+    private int _reassertEveryNFrames = 60;
+    private bool _highResTimer;
+
+    [System.Runtime.InteropServices.DllImport("winmm.dll")]
+    private static extern uint timeBeginPeriod(uint ms);
+
+    [System.Runtime.InteropServices.DllImport("winmm.dll")]
+    private static extern uint timeEndPeriod(uint ms);
+
+    private void SetHighResTimer(bool on)
+    {
+        if (on == _highResTimer) return;
+        _highResTimer = on;
+        if (on) timeBeginPeriod(1);
+        else timeEndPeriod(1);
+    }
 
     private void RenderFrame()
     {
         // Belt-and-braces: the Win32 topmost band can be silently lost when
         // other app windows are shown/activated; re-assert every 2 s (no-op
         // SetWindowPos when already topmost, never activates).
-        if (++_frameCount % 20 == 0)
+        if (++_frameCount % _reassertEveryNFrames == 0)
             WindowHelper.ReassertTopmost(this);
         var bars = _settingsManager.Settings.Bars;
         _engine.Tick(bars);
@@ -468,13 +496,13 @@ public sealed class OverlayWindow : Window
             var bars = s.Bars;
             if (bar == 0)
             {
-                bars.LeftIndicatorPercent = Math.Clamp(pct, 0.05, 0.45);
+                bars.LeftIndicatorPercent = Math.Clamp(pct, 0.0, 0.45);
                 if (bars.LinkIndicators)
                     bars.RightIndicatorPercent = 1.0 - bars.LeftIndicatorPercent;
             }
             else
             {
-                bars.RightIndicatorPercent = Math.Clamp(pct, 0.55, 0.95);
+                bars.RightIndicatorPercent = Math.Clamp(pct, 0.55, 1.0);
                 if (bars.LinkIndicators)
                     bars.LeftIndicatorPercent = 1.0 - bars.RightIndicatorPercent;
             }

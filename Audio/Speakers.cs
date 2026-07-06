@@ -112,20 +112,20 @@ namespace DeafDirectionalHelper.Audio
 
             if (channelCount >= 8)
             {
-                // Full 7.1 surround
-                Speaker1.Value = peakValues[0]; // Front Left
-                Speaker2.Value = peakValues[1]; // Front Right
-                Speaker3.Value = peakValues[2]; // Center
-                Speaker4.Value = peakValues[3]; // LFE
-                Speaker5.Value = peakValues[4]; // Rear Left
-                Speaker6.Value = peakValues[5]; // Rear Right
-                Speaker7.Value = peakValues[6]; // Side Left
-                Speaker8.Value = peakValues[7]; // Side Right
+                // Full 7.1 surround. NAudio's channel indexer makes a COM
+                // round-trip per access, so read each channel exactly once.
+                rawValues = new float[8];
+                for (int i = 0; i < 8; i++)
+                    rawValues[i] = peakValues[i];
 
-                rawValues = new[] {
-                    peakValues[0], peakValues[1], peakValues[2], peakValues[3],
-                    peakValues[4], peakValues[5], peakValues[6], peakValues[7]
-                };
+                Speaker1.Value = rawValues[0]; // Front Left
+                Speaker2.Value = rawValues[1]; // Front Right
+                Speaker3.Value = rawValues[2]; // Center
+                Speaker4.Value = rawValues[3]; // LFE
+                Speaker5.Value = rawValues[4]; // Rear Left
+                Speaker6.Value = rawValues[5]; // Rear Right
+                Speaker7.Value = rawValues[6]; // Side Left
+                Speaker8.Value = rawValues[7]; // Side Right
             }
             else if (channelCount >= 2)
             {

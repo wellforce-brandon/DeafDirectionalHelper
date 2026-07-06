@@ -205,7 +205,30 @@
             </StackPanel>
         </Border>
 
-        <!-- 10. SIZE & POSITION -->
+        <!-- 10. Frame rate -->
+        <Border Style="{StaticResource SettingsRow}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Frame rate" Style="{StaticResource RowLabelText}"/>
+                    <TextBlock Text="How smoothly indicators animate. Match your monitor's refresh rate."
+                               Style="{StaticResource RowHelperText}" MaxWidth="330"/>
+                </StackPanel>
+                <ListBox x:Name="FpsSegmented" Grid.Column="1" Style="{StaticResource SegmentedControl}"
+                         VerticalAlignment="Center" SelectionChanged="FpsSegmented_Changed"
+                         AutomationProperties.Name="Frame rate">
+                    <ListBoxItem Content="30" Tag="30"/>
+                    <ListBoxItem Content="60" Tag="60"/>
+                    <ListBoxItem Content="144" Tag="144"/>
+                    <ListBoxItem Content="240" Tag="240"/>
+                </ListBox>
+            </Grid>
+        </Border>
+
+        <!-- 11. SIZE & POSITION -->
         <TextBlock Text="SIZE &amp; POSITION" Style="{StaticResource SectionLabelText}" Margin="0,18,0,4"/>
 
         <Border Style="{StaticResource SettingsRow}">
@@ -283,7 +306,7 @@
                         <TextBlock Text="Distance between the two bars." Style="{StaticResource RowHelperText}"/>
                     </StackPanel>
                     <Slider x:Name="SpreadSlider" Grid.Column="1" Style="{StaticResource ThemedSlider}"
-                            Minimum="10" Maximum="50" SmallChange="1" LargeChange="5"
+                            Minimum="10" Maximum="100" SmallChange="1" LargeChange="5"
                             TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"
                             Margin="0,0,14,0" ValueChanged="SpreadSlider_Changed"
                             AutomationProperties.Name="Spread"/>
@@ -302,7 +325,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Left position" Style="{StaticResource RowLabelText}" VerticalAlignment="Center"/>
                         <Slider x:Name="LeftSlider" Grid.Column="1" Style="{StaticResource ThemedSlider}"
-                                Minimum="5" Maximum="45" SmallChange="1" LargeChange="5"
+                                Minimum="0" Maximum="45" SmallChange="1" LargeChange="5"
                                 TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"
                                 Margin="0,0,14,0" ValueChanged="LeftSlider_Changed"
                                 AutomationProperties.Name="Left position"/>
@@ -319,7 +342,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Right position" Style="{StaticResource RowLabelText}" VerticalAlignment="Center"/>
                         <Slider x:Name="RightSlider" Grid.Column="1" Style="{StaticResource ThemedSlider}"
-                                Minimum="55" Maximum="95" SmallChange="1" LargeChange="5"
+                                Minimum="55" Maximum="100" SmallChange="1" LargeChange="5"
                                 TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"
                                 Margin="0,0,14,0" ValueChanged="RightSlider_Changed"
                                 AutomationProperties.Name="Right position"/>
@@ -341,6 +364,7 @@
                 <ListBox x:Name="AnchorSegmented" Grid.Column="1" Style="{StaticResource SegmentedControl}"
                          SelectionChanged="AnchorSegmented_Changed"
                          AutomationProperties.Name="Anchor">
+                    <ListBoxItem Content="None" Tag="None"/>
                     <ListBoxItem Content="Bottom" Tag="Bottom"/>
                     <ListBoxItem Content="Top" Tag="Top"/>
                 </ListBox>

@@ -110,7 +110,7 @@ dotnet build -c Release
 
 ### Audio Processing
 - Polls audio device every 50ms
-- Overlay renders at ~30fps (33ms tick) with asymmetric meter ballistics: fast attack, slow release
+- Overlay renders at a configurable frame rate (30/60/144/240, Display.OverlayFps, default 60) with asymmetric meter ballistics: fast attack, slow release (easing rescaled to tick length in LevelEngine.SetTickInterval)
 - Speaker class holds peak value for 1 second (retention for readability)
 - ColoredSpeakers maps speaker values to WPF Brush properties
 

@@ -156,6 +156,9 @@ public class DisplaySettings
 
     [JsonPropertyName("targetMonitor")]
     public int TargetMonitor { get; set; } = 0; // 0 = primary, 1+ = other monitors
+
+    [JsonPropertyName("overlayFps")]
+    public int OverlayFps { get; set; } = 60; // 30 | 60 | 144 | 240
 }
 
 public enum DisplayMode

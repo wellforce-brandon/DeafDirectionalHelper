@@ -66,6 +66,7 @@ public partial class OverlayPage : UserControl
         SelectByTag(AnchorSegmented, s.Bars.Anchor.ToString());
         SelectByTag(RingsSegmented, s.Bars.RingCount.ToString());
         SelectByTag(MappingSegmented, s.Bars.RingMapping.ToString());
+        SelectByTag(FpsSegmented, s.Display.OverlayFps.ToString());
 
         UpdateAllChipsAndLabels();
         UpdateContextualRows();
@@ -307,6 +308,13 @@ public partial class OverlayPage : UserControl
         if (_isLoading || MappingSegmented.SelectedItem == null) return;
         var mapping = Enum.Parse<RingMapping>((string)((ListBoxItem)MappingSegmented.SelectedItem).Tag);
         Update(s => s.Bars.RingMapping = mapping);
+    }
+
+    private void FpsSegmented_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isLoading || FpsSegmented.SelectedItem == null) return;
+        var fps = int.Parse((string)((ListBoxItem)FpsSegmented.SelectedItem).Tag);
+        Update(s => s.Display.OverlayFps = fps);
     }
 
     private void Reset_Click(object sender, RoutedEventArgs e)

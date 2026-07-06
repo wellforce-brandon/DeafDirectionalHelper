@@ -5,21 +5,25 @@ using DeafDirectionalHelper.Settings;
 namespace DeafDirectionalHelper.View.Overlays;
 
 /// <summary>
-/// The 33 ms UI smoothing tick (plan D6/§1.5): eases raw 50 ms poll values
-/// into display levels and maintains decaying peak trails. Meter ballistics
-/// are asymmetric — rising levels attack fast so new sounds register almost
+/// The UI smoothing tick (plan D6/§1.5): eases raw 50 ms poll values into
+/// display levels and maintains decaying peak trails. Meter ballistics are
+/// asymmetric — rising levels attack fast so new sounds register almost
 /// instantly, falling levels release at the original smooth rate (0.45 per
-/// 100 ms, rescaled to the 33 ms tick).
-///   disp += (target - disp) × (rising ? 0.75 : 0.18), snap to 0 below 0.005
-///   trail = max(trail × 0.976, disp), floor 0.01
+/// 100 ms). The per-tick coefficients are rescaled to the configured frame
+/// rate via SetTickInterval so decay speed is identical at 30 or 240 fps.
+///   disp += (target - disp) × (rising ? attack : release), snap to 0 below 0.005
+///   trail = max(trail × decay, disp), floor 0.01
 /// </summary>
 public sealed class LevelEngine
 {
-    private const double AttackEasing = 0.75;
-    private const double ReleaseEasing = 0.18;
-    private const double TrailDecay = 0.976;
+    // Reference rates the per-tick coefficients are derived from:
+    // attack 0.75 per 33 ms, release 0.45 per 100 ms, trail ×0.93 per 100 ms.
     private const double TrailFloor = 0.01;
     private const double SnapBelow = 0.005;
+
+    private double _attackEasing;
+    private double _releaseEasing;
+    private double _trailDecay;
 
     private readonly Speakers _speakers;
     private readonly double[] _raw = new double[8];
@@ -30,6 +34,15 @@ public sealed class LevelEngine
     public LevelEngine(Speakers speakers)
     {
         _speakers = speakers;
+        SetTickInterval(33);
+    }
+
+    /// <summary>Rescales the easing coefficients to the actual tick length.</summary>
+    public void SetTickInterval(double intervalMs)
+    {
+        _attackEasing = 1 - Math.Pow(0.25, intervalMs / 33.0);
+        _releaseEasing = 1 - Math.Pow(0.55, intervalMs / 100.0);
+        _trailDecay = Math.Pow(0.93, intervalMs / 100.0);
     }
 
     public void Tick(BarSettings bars)
@@ -54,13 +67,13 @@ public sealed class LevelEngine
         {
             var target = filtered ? 0.0 : Process(_raw[i], bars);
 
-            var easing = target > Frame.Levels[i] ? AttackEasing : ReleaseEasing;
+            var easing = target > Frame.Levels[i] ? _attackEasing : _releaseEasing;
             var disp = Frame.Levels[i] + (target - Frame.Levels[i]) * easing;
             if (disp < SnapBelow && target < SnapBelow)
                 disp = 0;
             Frame.Levels[i] = disp;
 
-            Frame.Trails[i] = Math.Max(Frame.Trails[i] * TrailDecay, disp);
+            Frame.Trails[i] = Math.Max(Frame.Trails[i] * _trailDecay, disp);
             if (Frame.Trails[i] < TrailFloor)
                 Frame.Trails[i] = TrailFloor;
 

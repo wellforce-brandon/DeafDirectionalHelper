@@ -29,11 +29,12 @@ public enum RingMapping
     Distance
 }
 
-/// <summary>Screen edge a radial/strip overlay anchors to.</summary>
+/// <summary>Screen edge a radial/strip overlay anchors to. None = centered on screen.</summary>
 public enum OverlayAnchor
 {
     Top,
-    Bottom
+    Bottom,
+    None // appended last: settings serialize enums as numbers
 }
 
 public class AppProfile

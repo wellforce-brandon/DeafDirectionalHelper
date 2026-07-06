@@ -122,9 +122,12 @@ public sealed class CompassStripStyle : IOverlayStyle
 
         var width = 640 * u * s;
         var height = 96 * u * s;
-        var top = settings.Bars.Anchor == OverlayAnchor.Top
-            ? 36 * u
-            : workArea.Height - 36 * u - height;
+        var top = settings.Bars.Anchor switch
+        {
+            OverlayAnchor.Top => 36 * u,
+            OverlayAnchor.Bottom => workArea.Height - 36 * u - height,
+            _ => (workArea.Height - height) / 2
+        };
 
         _strip.Width = width;
         _strip.Height = height;

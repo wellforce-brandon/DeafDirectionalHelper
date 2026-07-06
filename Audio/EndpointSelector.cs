@@ -23,6 +23,7 @@ public sealed class EndpointSelector : IDisposable
 
     private MMDevice? _device;
     private string? _deviceId;
+    private string? _deviceName; // cached: FriendlyName is a slow property-store COM read
     private volatile bool _devicesDirty = true; // force initial selection
     private bool _disposed;
 
@@ -34,7 +35,7 @@ public sealed class EndpointSelector : IDisposable
 
     public MMDevice? Current => _device;
     public string? CurrentDeviceId => _deviceId;
-    public string CurrentDeviceName => _device?.FriendlyName ?? "None";
+    public string CurrentDeviceName => _deviceName ?? "None";
 
     /// <summary>Raised after the selected endpoint actually changed.</summary>
     public event EventHandler? DeviceChanged;
@@ -68,6 +69,7 @@ public sealed class EndpointSelector : IDisposable
     {
         _device = null;
         _deviceId = null;
+        _deviceName = null;
         _devicesDirty = true;
     }
 
@@ -107,7 +109,8 @@ public sealed class EndpointSelector : IDisposable
             {
                 _device = selected;
                 _deviceId = selected.ID;
-                Console.WriteLine($"Capture endpoint: {selected.FriendlyName} ({selected.AudioMeterInformation.PeakValues.Count} channels, mode {mode})");
+                _deviceName = selected.FriendlyName;
+                Console.WriteLine($"Capture endpoint: {_deviceName} ({selected.AudioMeterInformation.PeakValues.Count} channels, mode {mode})");
                 DeviceChanged?.Invoke(this, EventArgs.Empty);
             }
         }
@@ -146,7 +149,8 @@ public sealed class EndpointSelector : IDisposable
             var device = _enumerator.GetDevice(deviceId);
             _device = device;
             _deviceId = deviceId;
-            Console.WriteLine($"Capture endpoint: {device.FriendlyName} ({device.AudioMeterInformation.PeakValues.Count} channels, {reason})");
+            _deviceName = device.FriendlyName;
+            Console.WriteLine($"Capture endpoint: {_deviceName} ({device.AudioMeterInformation.PeakValues.Count} channels, {reason})");
             DeviceChanged?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)

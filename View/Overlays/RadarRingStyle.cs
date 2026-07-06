@@ -60,9 +60,12 @@ public sealed class RadarRingStyle : IOverlayStyle
         var size = 220 * u * s;
         var r = size / 2;
 
-        var centerY = settings.Bars.Anchor == OverlayAnchor.Bottom
-            ? workArea.Height - 70 * u - r
-            : 70 * u + r;
+        var centerY = settings.Bars.Anchor switch
+        {
+            OverlayAnchor.Bottom => workArea.Height - 70 * u - r,
+            OverlayAnchor.Top => 70 * u + r,
+            _ => workArea.Height / 2
+        };
         var center = new Point(workArea.Width / 2, centerY);
 
         _base.Width = size;

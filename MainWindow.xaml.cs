@@ -503,25 +503,37 @@ namespace DeafDirectionalHelper
 
             Task.Run(() =>
             {
+                var pollCount = 0;
                 while (!token.IsCancellationRequested)
                 {
                     Thread.Sleep(50);
 
-                    if (_isMonitoring)
+                    if (!_isMonitoring)
+                        continue;
+
+                    try
                     {
-                        Dispatcher.BeginInvoke(DispatcherPriority.Normal, () =>
+                        // Stays on this thread: the WASAPI meter reads are COM
+                        // calls too slow for the dispatcher at this cadence —
+                        // queued at Normal priority they starve render/input
+                        // and freeze the app.
+                        _speakers.Update();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error updating speakers: {ex.Message}");
+                    }
+
+                    // SignalDoctor shows UI from its event, so it ticks on the
+                    // dispatcher; its 10 s silence window needs no more than
+                    // the original 200 ms cadence.
+                    if (++pollCount % 4 == 0)
+                    {
+                        Dispatcher.BeginInvoke(DispatcherPriority.Background, () =>
                         {
-                            try
-                            {
-                                _speakers.Update();
-                                _signalDoctor?.Tick(_speakers.LastRawPeak,
-                                    _speakers.Endpoint.CurrentDeviceId,
-                                    _speakers.Endpoint.CurrentDeviceName);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine($"Error updating speakers: {ex.Message}");
-                            }
+                            _signalDoctor?.Tick(_speakers.LastRawPeak,
+                                _speakers.Endpoint.CurrentDeviceId,
+                                _speakers.Endpoint.CurrentDeviceName);
                         });
                     }
                 }

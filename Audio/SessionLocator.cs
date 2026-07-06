@@ -40,6 +40,9 @@ public sealed class SessionLocator : IDisposable
 
     private readonly Timer _pollTimer;
     private readonly Dictionary<uint, string> _pidNameCache = new();
+    // FriendlyName is a slow property-store COM read and channel count doesn't
+    // change while a device is active, so cache both per device ID.
+    private readonly Dictionary<string, (string Name, int Channels)> _deviceInfoCache = new();
     private volatile List<AudibleSession> _snapshot = new();
     private int _polling;
     private bool _disposed;
@@ -117,8 +120,14 @@ public sealed class SessionLocator : IDisposable
         if (sessions == null) return;
 
         var deviceId = device.ID;
-        var deviceName = device.FriendlyName;
-        var channels = device.AudioMeterInformation.PeakValues.Count;
+        if (!_deviceInfoCache.TryGetValue(deviceId, out var info))
+        {
+            info = (device.FriendlyName, device.AudioMeterInformation.PeakValues.Count);
+            if (_deviceInfoCache.Count > 64)
+                _deviceInfoCache.Clear();
+            _deviceInfoCache[deviceId] = info;
+        }
+        var (deviceName, channels) = info;
 
         for (int i = 0; i < sessions.Count; i++)
         {

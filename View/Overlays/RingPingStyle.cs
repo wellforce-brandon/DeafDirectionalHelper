@@ -66,9 +66,12 @@ public sealed class RingPingStyle : IOverlayStyle
         var box = 280 * u * s;
         _ringCount = Math.Clamp(settings.Bars.RingCount, 3, 7);
 
-        var centerY = settings.Bars.Anchor == OverlayAnchor.Bottom
-            ? workArea.Height - 70 * u - box / 2
-            : 70 * u + box / 2;
+        var centerY = settings.Bars.Anchor switch
+        {
+            OverlayAnchor.Bottom => workArea.Height - 70 * u - box / 2,
+            OverlayAnchor.Top => 70 * u + box / 2,
+            _ => workArea.Height / 2
+        };
         var center = new Point(workArea.Width / 2, centerY);
 
         RemoveRings(_canvas);
