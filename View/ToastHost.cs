@@ -30,22 +30,131 @@ public sealed class ToastHost
 
     // --- Public API -------------------------------------------------------
 
-    /// <summary>Unknown-game card: Create profile / Not now / Ignore / Exclude.</summary>
-    public void ShowUnknownGame(string processName, string? exePath, Action onCreate, Action onIgnore, Action onExclude)
+    /// <summary>
+    /// Unknown-game card: Create profile / Add to existing profile / Not now /
+    /// Ignore / Exclude. The merge option exists because anti-cheat-wrapped
+    /// games surface a different exe than the one stored in their profile.
+    /// </summary>
+    public void ShowUnknownGame(string processName, string? exePath,
+        System.Collections.Generic.IReadOnlyList<AppProfile> mergeTargets, Action<AppProfile> onMerge,
+        Action onCreate, Action onIgnore, Action onExclude)
     {
-        var card = BuildBigCard(
-            iconExePath: exePath,
-            title: "New game detected",
-            body: $"{processName}.exe is running and making sound. Give it its own profile? " +
-                  "Overlay style, colors and positions will switch automatically every time it runs.",
-            primaryText: $"Create {processName} profile",
-            onPrimary: onCreate,
-            secondaryText: "Not now",
-            linkText: "Ignore this game",
-            onLink: onIgnore,
-            link2Text: "Not a game? Exclude",
-            onLink2: onExclude);
+        var card = BuildCardShell(padding: new Thickness(24));
+        var content = new StackPanel();
 
+        var headerRow = new StackPanel { Orientation = Orientation.Horizontal };
+        headerRow.Children.Add(BuildExeIcon(exePath));
+        headerRow.Children.Add(new TextBlock
+        {
+            Text = "New game detected",
+            FontSize = 17,
+            FontWeight = FontWeights.Bold,
+            Foreground = Brush("Text"),
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(14, 0, 0, 0)
+        });
+        content.Children.Add(headerRow);
+
+        // --- Main panel: the standard choices ---
+        var mainPanel = new StackPanel();
+        mainPanel.Children.Add(new TextBlock
+        {
+            Text = $"{processName}.exe is running and making sound. Give it its own profile? " +
+                   "Overlay style, colors and positions will switch automatically every time it runs.",
+            TextWrapping = TextWrapping.Wrap,
+            FontSize = 13.5,
+            Foreground = Brush("TextSecondary"),
+            Margin = new Thickness(0, 12, 0, 16)
+        });
+
+        var buttonRow = new WrapPanel { Orientation = Orientation.Horizontal };
+
+        var create = new Button
+        {
+            Content = $"Create {processName} profile",
+            Style = (Style)Application.Current.FindResource("PrimaryButton"),
+            MinHeight = 38
+        };
+        create.Click += (_, _) => { onCreate(); Dismiss(card); };
+        buttonRow.Children.Add(create);
+
+        var notNow = new Button
+        {
+            Content = "Not now",
+            Style = (Style)Application.Current.FindResource("SecondaryButton"),
+            MinHeight = 38,
+            Margin = new Thickness(10, 0, 0, 0)
+        };
+        notNow.Click += (_, _) => Dismiss(card);
+        buttonRow.Children.Add(notNow);
+
+        var ignore = MakeLinkButton("Ignore this game", Brush("TextMuted"));
+        ignore.Margin = new Thickness(14, 0, 0, 0);
+        ignore.VerticalAlignment = VerticalAlignment.Center;
+        ignore.Click += (_, _) => { onIgnore(); Dismiss(card); };
+        buttonRow.Children.Add(ignore);
+
+        var exclude = MakeLinkButton("Not a game? Exclude", Brush("TextMuted"));
+        exclude.Margin = new Thickness(14, 0, 0, 0);
+        exclude.VerticalAlignment = VerticalAlignment.Center;
+        exclude.Click += (_, _) => { onExclude(); Dismiss(card); };
+        buttonRow.Children.Add(exclude);
+
+        mainPanel.Children.Add(buttonRow);
+        content.Children.Add(mainPanel);
+
+        // --- Merge panel: pick which existing profile this exe belongs to ---
+        if (mergeTargets.Count > 0)
+        {
+            var mergePanel = new StackPanel { Visibility = Visibility.Collapsed };
+            mergePanel.Children.Add(new TextBlock
+            {
+                Text = $"Add {processName}.exe to which profile? It will activate that profile from now on.",
+                TextWrapping = TextWrapping.Wrap,
+                FontSize = 13.5,
+                Foreground = Brush("TextSecondary"),
+                Margin = new Thickness(0, 12, 0, 12)
+            });
+
+            foreach (var profile in mergeTargets)
+            {
+                var pick = new Button
+                {
+                    Content = $"{profile.Name}  ·  {profile.ProcessName}.exe",
+                    Style = (Style)Application.Current.FindResource("SecondaryButton"),
+                    MinHeight = 38,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Margin = new Thickness(0, 0, 0, 8)
+                };
+                var captured = profile;
+                pick.Click += (_, _) => { onMerge(captured); Dismiss(card); };
+                mergePanel.Children.Add(pick);
+            }
+
+            var back = MakeLinkButton("← Back", Brush("TextMuted"));
+            back.HorizontalAlignment = HorizontalAlignment.Left;
+            back.Margin = new Thickness(0, 4, 0, 0);
+            mergePanel.Children.Add(back);
+            content.Children.Add(mergePanel);
+
+            var mergeLink = MakeLinkButton("This is a game I already have a profile for", Brush("Interactive"));
+            mergeLink.HorizontalAlignment = HorizontalAlignment.Left;
+            mergeLink.Margin = new Thickness(0, 12, 0, 0);
+            mainPanel.Children.Add(mergeLink);
+
+            mergeLink.Click += (_, _) =>
+            {
+                mainPanel.Visibility = Visibility.Collapsed;
+                mergePanel.Visibility = Visibility.Visible;
+            };
+            back.Click += (_, _) =>
+            {
+                mergePanel.Visibility = Visibility.Collapsed;
+                mainPanel.Visibility = Visibility.Visible;
+            };
+        }
+
+        card.Child = content;
         AddToast(card, autoDismiss: false);
     }
 

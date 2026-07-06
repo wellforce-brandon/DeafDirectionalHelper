@@ -50,6 +50,39 @@ public class AppProfile
     [JsonPropertyName("processName")]
     public string? ProcessName { get; set; }
 
+    /// <summary>
+    /// Extra process names (without .exe) that also activate this profile.
+    /// Needed for anti-cheat-wrapped games where the launcher the user browses
+    /// to (e.g. GZWClientEAC) is not the process that owns the audio session
+    /// (e.g. GZWClientSteam-Win64-Shipping).
+    /// </summary>
+    [JsonPropertyName("additionalProcessNames")]
+    public System.Collections.Generic.List<string> AdditionalProcessNames { get; set; } = new();
+
+    /// <summary>Primary + additional process names, without .exe.</summary>
+    [JsonIgnore]
+    public System.Collections.Generic.IEnumerable<string> AllProcessNames
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(ProcessName))
+                yield return ProcessName;
+            foreach (var name in AdditionalProcessNames)
+                if (!string.IsNullOrEmpty(name))
+                    yield return name;
+        }
+    }
+
+    public bool MatchesProcess(string processName)
+    {
+        foreach (var name in AllProcessNames)
+        {
+            if (string.Equals(name, processName, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
+    }
+
     [JsonIgnore]
     public bool IsDefault => Id == "default";
 

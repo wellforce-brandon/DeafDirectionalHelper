@@ -46,7 +46,7 @@ public sealed class SignalDoctor
         endpoint.DeviceChanged += (_, _) => Reset();
     }
 
-    /// <summary>Feed each audio poll (200 ms) with the selected endpoint's peak.</summary>
+    /// <summary>Feed each audio poll (50 ms) with the selected endpoint's peak.</summary>
     public void Tick(float selectedPeak, string? selectedDeviceId, string selectedDeviceName)
     {
         if (selectedDeviceId == null)

@@ -121,12 +121,14 @@ public partial class ProfilesPage : UserControl
         }
         content.Children.Add(nameRow);
 
+        var exeNames = profile.AllProcessNames.Select(n => $"{n}.exe").ToList();
         content.Children.Add(new TextBlock
         {
-            Text = profile.ProcessName != null ? $"{profile.ProcessName}.exe" : "always available",
+            Text = exeNames.Count > 0 ? string.Join(", ", exeNames) : "always available",
             FontFamily = new FontFamily("Consolas"),
             FontSize = 12,
             Foreground = (Brush)FindResource("TextSecondary"),
+            TextWrapping = TextWrapping.Wrap,
             Margin = new Thickness(0, 2, 0, 8)
         });
 
@@ -212,7 +214,10 @@ public partial class ProfilesPage : UserControl
         editor.SetProfile("New Profile", null, false);
         if (editor.ShowDialog() == true)
         {
-            _profileManager.CreateProfile(editor.ProfileName, editor.ExePath);
+            var profile = _profileManager.CreateProfile(editor.ProfileName, editor.ExePath);
+            if (editor.AdditionalProcessNames.Count > 0)
+                _profileManager.UpdateProfile(profile, profile.Name, profile.ExePath,
+                    editor.AdditionalProcessNames);
             _notifyChanged();
         }
     }
@@ -220,10 +225,11 @@ public partial class ProfilesPage : UserControl
     private void EditProfile(AppProfile profile)
     {
         var editor = new ProfileEditorWindow { Owner = Window.GetWindow(this) };
-        editor.SetProfile(profile.Name, profile.ExePath, profile.IsDefault);
+        editor.SetProfile(profile.Name, profile.ExePath, profile.IsDefault, profile.AdditionalProcessNames);
         if (editor.ShowDialog() == true)
         {
-            _profileManager.UpdateProfile(profile, editor.ProfileName, editor.ExePath);
+            _profileManager.UpdateProfile(profile, editor.ProfileName, editor.ExePath,
+                editor.AdditionalProcessNames);
             _notifyChanged();
         }
     }

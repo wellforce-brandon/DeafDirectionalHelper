@@ -24,6 +24,17 @@
                     Click="Browse_Click" Margin="10,0,0,0" MinHeight="46"/>
         </Grid>
 
+        <StackPanel x:Name="AdditionalSection" Margin="0,16,0,0">
+            <TextBlock Text="Also matches (optional)" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{StaticResource Text}"/>
+            <TextBlock Text="Some games run under a different exe than their launcher (anti-cheat wrappers). Any of these also activate this profile."
+                       FontSize="12.5" Foreground="{StaticResource TextSecondary}"
+                       TextWrapping="Wrap" Margin="0,4,0,8"/>
+            <StackPanel x:Name="AdditionalList"/>
+            <Button Content="Add another .exe…" Style="{StaticResource SecondaryButton}"
+                    HorizontalAlignment="Left" MinHeight="38" Click="AddAdditional_Click"/>
+        </StackPanel>
+
         <TextBlock x:Name="InfoText" FontSize="13" Foreground="{StaticResource TextSecondary}"
                    TextWrapping="Wrap" Margin="0,10,0,20"/>
 

@@ -88,13 +88,27 @@ public class ProfileManager
     }
 
     /// <summary>
-    /// Gets a profile that matches the given process name.
+    /// Gets a profile that matches the given process name (primary or additional).
     /// </summary>
     public AppProfile? GetProfileForProcess(string processName)
     {
         return _settingsManager.Settings.Profiles
-            .Where(p => !p.IsDefault && !string.IsNullOrEmpty(p.ProcessName))
-            .FirstOrDefault(p => string.Equals(p.ProcessName, processName, StringComparison.OrdinalIgnoreCase));
+            .Where(p => !p.IsDefault)
+            .FirstOrDefault(p => p.MatchesProcess(processName));
+    }
+
+    /// <summary>
+    /// Adds an extra process name to a profile's match list (the toast's
+    /// "add to existing profile" flow for anti-cheat-wrapped games).
+    /// </summary>
+    public void AddProcessToProfile(AppProfile profile, string processName)
+    {
+        if (profile.MatchesProcess(processName))
+            return;
+
+        profile.AdditionalProcessNames.Add(processName);
+        _settingsManager.Save();
+        ProfilesChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -183,6 +197,7 @@ public class ProfileManager
     public AppProfile DuplicateProfile(AppProfile source)
     {
         var copy = AppProfile.CreateFrom(source, $"{source.Name} copy", source.ExePath);
+        copy.AdditionalProcessNames = new List<string>(source.AdditionalProcessNames);
         _settingsManager.Settings.Profiles.Add(copy);
         _settingsManager.Save();
         ProfilesChanged?.Invoke(this, EventArgs.Empty);
@@ -190,13 +205,20 @@ public class ProfileManager
     }
 
     /// <summary>
-    /// Updates a profile's name and exe path.
+    /// Updates a profile's name, exe path, and (optionally) its extra process names.
     /// </summary>
-    public void UpdateProfile(AppProfile profile, string name, string? exePath)
+    public void UpdateProfile(AppProfile profile, string name, string? exePath,
+        IEnumerable<string>? additionalProcessNames = null)
     {
         profile.Name = name;
         profile.ExePath = exePath;
         profile.ProcessName = !string.IsNullOrEmpty(exePath) ? System.IO.Path.GetFileNameWithoutExtension(exePath) : null;
+        if (additionalProcessNames != null)
+            profile.AdditionalProcessNames = additionalProcessNames
+                .Where(n => !string.IsNullOrWhiteSpace(n) &&
+                            !string.Equals(n, profile.ProcessName, StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
         _settingsManager.Save();
         ProfilesChanged?.Invoke(this, EventArgs.Empty);
     }
@@ -225,12 +247,13 @@ public class ProfileManager
     }
 
     /// <summary>
-    /// Gets all process names that are being watched for auto-switching.
+    /// Gets all process names (primary + additional) watched for auto-switching.
     /// </summary>
     public IEnumerable<string> GetWatchedProcessNames()
     {
         return _settingsManager.Settings.Profiles
-            .Where(p => !p.IsDefault && !string.IsNullOrEmpty(p.ProcessName))
-            .Select(p => p.ProcessName!);
+            .Where(p => !p.IsDefault)
+            .SelectMany(p => p.AllProcessNames)
+            .Distinct(StringComparer.OrdinalIgnoreCase);
     }
 }

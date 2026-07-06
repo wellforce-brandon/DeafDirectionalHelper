@@ -78,7 +78,7 @@ public sealed class OverlayWindow : Window
                 UnhookWinEvent(_foregroundHook);
         };
 
-        _tick = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(100) };
+        _tick = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(33) };
         _tick.Tick += (_, _) => RenderFrame();
 
         _canvas.MouseLeftButtonDown += Canvas_MouseDown;

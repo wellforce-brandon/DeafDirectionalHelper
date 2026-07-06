@@ -65,6 +65,20 @@
             </StackPanel>
         </Border>
 
+        <!-- Program exclude list: populated live from audible audio sessions -->
+        <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Border}"
+                BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Text="Excluded programs" Style="{StaticResource RowLabelText}" FontWeight="SemiBold"/>
+                <TextBlock Text="Programs playing audio appear here automatically. Excluded programs never trigger game detection and their sound is never followed. Useful for browsers and meeting apps."
+                           Style="{StaticResource RowHelperText}" TextWrapping="Wrap" Margin="0,4,0,10"/>
+                <TextBlock x:Name="ExcludeEmptyNote"
+                           Text="Nothing is playing audio right now. Programs are added as they make sound."
+                           Style="{StaticResource RowHelperText}" TextWrapping="Wrap"/>
+                <StackPanel x:Name="ExcludeList"/>
+            </StackPanel>
+        </Border>
+
         <Button Content="Refresh devices" Style="{StaticResource SecondaryButton}"
                 HorizontalAlignment="Left" Click="RefreshDevices_Click"/>
     </StackPanel>

@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -17,7 +20,9 @@ public partial class AudioDevicePage : UserControl
     private readonly Speakers _speakers;
     private readonly Action _notifyChanged;
     private readonly DispatcherTimer _meterTimer;
+    private readonly DispatcherTimer _excludeTimer;
     private readonly Border[] _meterFills = new Border[8];
+    private readonly Dictionary<string, CheckBox> _excludeRows = new(StringComparer.OrdinalIgnoreCase);
     private bool _isLoading = true;
 
     public AudioDevicePage(Speakers speakers, Action notifyChanged)
@@ -31,10 +36,16 @@ public partial class AudioDevicePage : UserControl
 
         _meterTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
         _meterTimer.Tick += (_, _) => UpdateMeters();
+
+        // Matches the SessionLocator poll cadence; adds newly audible programs
+        // to the exclude list while the page is open (Krisp-style).
+        _excludeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+        _excludeTimer.Tick += (_, _) => DiscoverAudiblePrograms();
+
         IsVisibleChanged += (_, _) =>
         {
-            if (IsVisible) _meterTimer.Start();
-            else _meterTimer.Stop();
+            if (IsVisible) { _meterTimer.Start(); _excludeTimer.Start(); }
+            else { _meterTimer.Stop(); _excludeTimer.Stop(); }
         };
     }
 
@@ -47,7 +58,86 @@ public partial class AudioDevicePage : UserControl
         FixedDeviceCard.IsChecked = mode == CaptureMode.FixedDevice;
         DeviceCombo.IsEnabled = mode == CaptureMode.FixedDevice;
         LoadDevices();
+        RebuildExcludeList();
         _isLoading = false;
+    }
+
+    // --- Program exclude list -------------------------------------------
+
+    private void RebuildExcludeList()
+    {
+        ExcludeList.Children.Clear();
+        _excludeRows.Clear();
+
+        var excluded = _settingsManager.Settings.ExcludedPrograms;
+        var names = new SortedSet<string>(excluded, StringComparer.OrdinalIgnoreCase);
+        foreach (var session in _speakers.Sessions.GetAudibleSessions())
+            names.Add(session.ProcessName);
+
+        foreach (var name in names)
+            AddExcludeRow(name, excluded.Contains(name, StringComparer.OrdinalIgnoreCase));
+
+        ExcludeEmptyNote.Visibility = names.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void DiscoverAudiblePrograms()
+    {
+        foreach (var session in _speakers.Sessions.GetAudibleSessions())
+        {
+            if (!_excludeRows.ContainsKey(session.ProcessName))
+                AddExcludeRow(session.ProcessName, isExcluded: false);
+        }
+
+        if (_excludeRows.Count > 0)
+            ExcludeEmptyNote.Visibility = Visibility.Collapsed;
+    }
+
+    private void AddExcludeRow(string processName, bool isExcluded)
+    {
+        var row = new Grid { Margin = new Thickness(0, 0, 0, 8) };
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        var label = new TextBlock
+        {
+            Text = $"{processName}.exe",
+            Style = (Style)FindResource("RowLabelText"),
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        row.Children.Add(label);
+
+        var toggle = new CheckBox
+        {
+            Style = (Style)FindResource("ToggleSwitch"),
+            IsChecked = isExcluded,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        AutomationProperties.SetName(toggle, $"Exclude {processName}");
+        toggle.Checked += (_, _) => SetExcluded(processName, true);
+        toggle.Unchecked += (_, _) => SetExcluded(processName, false);
+        Grid.SetColumn(toggle, 1);
+        row.Children.Add(toggle);
+
+        ExcludeList.Children.Add(row);
+        _excludeRows[processName] = toggle;
+    }
+
+    private void SetExcluded(string processName, bool excluded)
+    {
+        if (_isLoading) return;
+        _settingsManager.Update(s =>
+        {
+            if (excluded)
+            {
+                if (!s.ExcludedPrograms.Contains(processName, StringComparer.OrdinalIgnoreCase))
+                    s.ExcludedPrograms.Add(processName);
+            }
+            else
+            {
+                s.ExcludedPrograms.RemoveAll(p =>
+                    string.Equals(p, processName, StringComparison.OrdinalIgnoreCase));
+            }
+        });
     }
 
     private void LoadDevices()

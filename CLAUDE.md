@@ -109,7 +109,8 @@ dotnet build -c Release
 - Colors indicate volume: White (silent) -> Yellow -> Red (loud)
 
 ### Audio Processing
-- Polls audio device every 200ms
+- Polls audio device every 50ms
+- Overlay renders at ~30fps (33ms tick) with asymmetric meter ballistics: fast attack, slow release
 - Speaker class holds peak value for 1 second (retention for readability)
 - ColoredSpeakers maps speaker values to WPF Brush properties
 

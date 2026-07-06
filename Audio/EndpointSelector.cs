@@ -72,7 +72,7 @@ public sealed class EndpointSelector : IDisposable
     }
 
     /// <summary>
-    /// Called from the 200 ms poll. Cheap when nothing changed: FollowGame checks
+    /// Called from the 50 ms poll. Cheap when nothing changed: FollowGame checks
     /// the SessionLocator snapshot (in-memory), everything else waits for the
     /// dirty flag set by settings changes or device notifications.
     /// </summary>

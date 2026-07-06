@@ -11,6 +11,12 @@ public class AppSettings
     [JsonPropertyName("ignoredGames")]
     public List<string> IgnoredGames { get; set; } = new();
 
+    // Process names (no extension). Excluded programs never trigger the
+    // unknown-game offer and their audio sessions are invisible to
+    // follow-game capture (weaker IgnoredGames only suppresses the offer).
+    [JsonPropertyName("excludedPrograms")]
+    public List<string> ExcludedPrograms { get; set; } = new();
+
     [JsonPropertyName("firstRunCompleted")]
     public bool FirstRunCompleted { get; set; } = false;
 

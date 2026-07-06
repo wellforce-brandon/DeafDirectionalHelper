@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using DeafDirectionalHelper.Settings;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 
@@ -76,6 +77,13 @@ public sealed class SessionLocator : IDisposable
         {
             var result = new List<AudibleSession>();
 
+            // Excluded programs are invisible as audio sources: they never
+            // appear in the snapshot, so follow-game capture, the unknown-game
+            // offer and SignalDoctor all skip them at this single choke point.
+            var excluded = new HashSet<string>(
+                SettingsManager.Instance.Settings.ExcludedPrograms.Select(TrimExe),
+                StringComparer.OrdinalIgnoreCase);
+
             // Fresh enumeration each poll: avoids NAudio's cached session lists
             // and picks up devices/sessions created since the last poll.
             using var enumerator = new MMDeviceEnumerator();
@@ -83,7 +91,7 @@ public sealed class SessionLocator : IDisposable
             {
                 try
                 {
-                    CollectSessions(device, result);
+                    CollectSessions(device, excluded, result);
                 }
                 catch
                 {
@@ -103,7 +111,7 @@ public sealed class SessionLocator : IDisposable
         }
     }
 
-    private void CollectSessions(MMDevice device, List<AudibleSession> result)
+    private void CollectSessions(MMDevice device, HashSet<string> excluded, List<AudibleSession> result)
     {
         var sessions = device.AudioSessionManager.Sessions;
         if (sessions == null) return;
@@ -125,6 +133,7 @@ public sealed class SessionLocator : IDisposable
 
                 var name = ResolveProcessName(pid);
                 if (name == null) continue;
+                if (excluded.Contains(name)) continue;
 
                 // Per-session meter is a COM QI on the session control; if it is
                 // flaky we skip the session rather than crash (endpoint meters

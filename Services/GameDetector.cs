@@ -152,6 +152,11 @@ public sealed class GameDetector : IDisposable
         if (settings.IgnoredGames.Any(g => string.Equals(g, candidate.ProcessName, StringComparison.OrdinalIgnoreCase)))
             return;
 
+        // Excluded programs never appear in the session snapshot, but keep an
+        // explicit check in case the filtering point ever moves.
+        if (settings.ExcludedPrograms.Any(g => string.Equals(g, candidate.ProcessName, StringComparison.OrdinalIgnoreCase)))
+            return;
+
         if (ProfileManager.Instance.GetProfileForProcess(candidate.ProcessName) != null)
             return;
 

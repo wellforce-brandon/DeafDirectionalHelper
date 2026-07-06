@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -221,7 +222,15 @@ namespace DeafDirectionalHelper
         {
             Dispatcher.BeginInvoke(DispatcherPriority.Normal, () =>
             {
+                var mergeTargets = _profileManager.Profiles.Where(p => !p.IsDefault).ToList();
+
                 _toastHost.ShowUnknownGame(e.ProcessName, e.ExePath,
+                    mergeTargets,
+                    onMerge: profile =>
+                    {
+                        _profileManager.AddProcessToProfile(profile, e.ProcessName);
+                        _toastHost.ShowInfo($"{e.ProcessName}.exe now activates the {profile.Name} profile");
+                    },
                     onCreate: () =>
                     {
                         var editor = new ProfileEditorWindow { IsNewProfile = true };
@@ -230,8 +239,11 @@ namespace DeafDirectionalHelper
                         {
                             // Seeded from current settings + detected exe; auto-switch
                             // picks it up on the next detection poll.
-                            _profileManager.CreateProfile(editor.ProfileName,
+                            var profile = _profileManager.CreateProfile(editor.ProfileName,
                                 editor.ExePath ?? e.ExePath ?? e.ProcessName + ".exe");
+                            if (editor.AdditionalProcessNames.Count > 0)
+                                _profileManager.UpdateProfile(profile, profile.Name, profile.ExePath,
+                                    editor.AdditionalProcessNames);
                         }
                     },
                     onIgnore: () =>
@@ -240,6 +252,14 @@ namespace DeafDirectionalHelper
                         {
                             if (!s.IgnoredGames.Contains(e.ProcessName))
                                 s.IgnoredGames.Add(e.ProcessName);
+                        });
+                    },
+                    onExclude: () =>
+                    {
+                        _settingsManager.Update(s =>
+                        {
+                            if (!s.ExcludedPrograms.Contains(e.ProcessName, StringComparer.OrdinalIgnoreCase))
+                                s.ExcludedPrograms.Add(e.ProcessName);
                         });
                     });
             });
@@ -485,7 +505,7 @@ namespace DeafDirectionalHelper
             {
                 while (!token.IsCancellationRequested)
                 {
-                    Thread.Sleep(200);
+                    Thread.Sleep(50);
 
                     if (_isMonitoring)
                     {
