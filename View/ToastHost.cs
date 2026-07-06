@@ -30,8 +30,8 @@ public sealed class ToastHost
 
     // --- Public API -------------------------------------------------------
 
-    /// <summary>Unknown-game card: Create profile / Not now / Ignore this game.</summary>
-    public void ShowUnknownGame(string processName, string? exePath, Action onCreate, Action onIgnore)
+    /// <summary>Unknown-game card: Create profile / Not now / Ignore / Exclude.</summary>
+    public void ShowUnknownGame(string processName, string? exePath, Action onCreate, Action onIgnore, Action onExclude)
     {
         var card = BuildBigCard(
             iconExePath: exePath,
@@ -42,7 +42,9 @@ public sealed class ToastHost
             onPrimary: onCreate,
             secondaryText: "Not now",
             linkText: "Ignore this game",
-            onLink: onIgnore);
+            onLink: onIgnore,
+            link2Text: "Not a game? Exclude",
+            onLink2: onExclude);
 
         AddToast(card, autoDismiss: false);
     }
@@ -67,25 +69,61 @@ public sealed class ToastHost
     public void ShowInfo(string text)
     {
         var card = BuildCardShell(padding: new Thickness(16, 12, 16, 12));
-        var row = new StackPanel { Orientation = Orientation.Horizontal };
-        row.Children.Add(new Ellipse
+        var content = new StackPanel();
+
+        var row = new Grid();
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        var dot = new Ellipse
         {
             Width = 10, Height = 10,
             Fill = Brush("Success"),
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(0, 0, 10, 0)
-        });
-        row.Children.Add(new TextBlock
+        };
+        Grid.SetColumn(dot, 0);
+        row.Children.Add(dot);
+
+        var textBlock = new TextBlock
         {
             Text = text,
             TextWrapping = TextWrapping.Wrap,
             FontSize = 13.5,
             Foreground = Brush("Text"),
-            VerticalAlignment = VerticalAlignment.Center,
-            MaxWidth = CardWidth - 60
-        });
-        card.Child = row;
-        AddToast(card, autoDismiss: true);
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        Grid.SetColumn(textBlock, 1);
+        row.Children.Add(textBlock);
+
+        var close = MakeLinkButton("✕", Brush("TextMuted"));
+        close.Margin = new Thickness(12, 0, 0, 0);
+        close.VerticalAlignment = VerticalAlignment.Center;
+        Grid.SetColumn(close, 2);
+        row.Children.Add(close);
+
+        content.Children.Add(row);
+
+        // 6 px progress bar along the bottom, draining over the dismiss window
+        var progress = new Border
+        {
+            Height = 6,
+            CornerRadius = new CornerRadius(3),
+            Background = Brush("Border"),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Width = CardWidth - 32,
+            Margin = new Thickness(0, 10, 0, 0)
+        };
+        content.Children.Add(progress);
+
+        card.Child = content;
+
+        var toast = AddToast(card, autoDismiss: true);
+        close.Click += (_, _) => Dismiss(toast);
+
+        var drain = new DoubleAnimation(progress.Width, 0, TimeSpan.FromSeconds(AutoDismissSeconds));
+        progress.BeginAnimation(FrameworkElement.WidthProperty, drain);
     }
 
     /// <summary>Compact auto-switched card with Undo; auto-dismisses after 6 s.</summary>
@@ -150,7 +188,8 @@ public sealed class ToastHost
 
     private Border BuildBigCard(string? iconExePath, string title, string body,
         string primaryText, Action onPrimary, string secondaryText,
-        string? linkText, Action? onLink)
+        string? linkText, Action? onLink,
+        string? link2Text = null, Action? onLink2 = null)
     {
         var card = BuildCardShell(padding: new Thickness(24));
         var content = new StackPanel();
@@ -179,7 +218,8 @@ public sealed class ToastHost
             Margin = new Thickness(0, 12, 0, 16)
         });
 
-        var buttonRow = new StackPanel { Orientation = Orientation.Horizontal };
+        // WrapPanel: with two link actions the row can exceed the card width.
+        var buttonRow = new WrapPanel { Orientation = Orientation.Horizontal };
 
         var primary = new Button
         {
@@ -207,6 +247,15 @@ public sealed class ToastHost
             buttonRow.Children.Add(link);
         }
 
+        Button? link2 = null;
+        if (link2Text != null)
+        {
+            link2 = MakeLinkButton(link2Text, Brush("TextMuted"));
+            link2.Margin = new Thickness(14, 0, 0, 0);
+            link2.VerticalAlignment = VerticalAlignment.Center;
+            buttonRow.Children.Add(link2);
+        }
+
         content.Children.Add(buttonRow);
         card.Child = content;
 
@@ -215,6 +264,8 @@ public sealed class ToastHost
         secondary.Click += (_, _) => Dismiss(card);
         if (link != null && onLink != null)
             link.Click += (_, _) => { onLink(); Dismiss(card); };
+        if (link2 != null && onLink2 != null)
+            link2.Click += (_, _) => { onLink2(); Dismiss(card); };
 
         return card;
     }
