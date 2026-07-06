@@ -1,0 +1,25 @@
+<view:ThemedDialog x:Class="DeafDirectionalHelper.View.ExitConfirmDialog"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:view="clr-namespace:DeafDirectionalHelper.View"
+                   Title="Exit the app?"
+                   Width="440">
+
+    <StackPanel Margin="24">
+        <TextBlock Text="Exit the app?" FontSize="17" FontWeight="Bold"
+                   Foreground="{StaticResource Text}"/>
+        <TextBlock FontSize="14.5" Foreground="{StaticResource TextSecondary}"
+                   TextWrapping="Wrap" Margin="0,10,0,20">
+            <Run Text="Sound indicators stop until you start it again. To just hide this window, use "/>
+            <Run Text="Hide" FontWeight="Bold" Foreground="{StaticResource Text}"/>
+            <Run Text=" instead."/>
+        </TextBlock>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="StayOpenButton" Content="Stay open"
+                    Style="{StaticResource SecondaryButton}"
+                    IsDefault="True" IsCancel="True" Margin="0,0,10,0"/>
+            <Button Content="Exit app" Style="{StaticResource DangerButton}"
+                    Click="Exit_Click"/>
+        </StackPanel>
+    </StackPanel>
+</view:ThemedDialog>

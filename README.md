@@ -32,25 +32,45 @@ DeafDirectionalHelper reads audio levels from your sound card's output using Win
 
 ## Features
 
-### Display Modes
+### Overlay styles
 
-1. **Side Bars** - Two vertical bars (left/right) with sections for front/side/rear
-2. **7.1 Surround View** - Visual representation of all 8 speaker positions
-3. **Both** - Show both views simultaneously
+1. **Side bars** - Two vertical bars at the screen edges with front / side / rear segments and decaying peak marks
+2. **Radar ring** - A compass donut near the screen bottom; sectors light toward the sound
+3. **Ring ping** - Concentric rings; by default loud sounds ping close to the center (distance mapping), or fill outward like a meter
+4. **Compass** - A slim strip of channel meters (RL SL FL C FR SR RR + LFE) along the top edge
+5. **Edge glow** - The screen edges themselves glow toward the sound; nothing sits in your view
 
-### Visual Indicators
+Any radial/strip style can be **paired with side bars**. Cycle styles anytime with `Ctrl+Shift+M`, and reposition/resize on screen with move mode (`Ctrl+Shift+E`).
 
-- White = Silent
-- Yellow = Quiet sound
-- Orange = Medium sound
-- Red = Loud sound
+### Loudness color scales
+
+Loudness is triple-encoded: fill amount + ramp color + a peak mark, so hue is never the only signal. Silence renders nothing.
+
+- **Thermal** (default) - yellow → amber → vermillion (Okabe-Ito, colorblind-safe)
+- **Ice** - white → sky blue → deep blue (single hue, safest for all CVD)
+- **Violet** - white → orchid → plum (for red/green-heavy games)
+- **Classic** - the original yellow → orange → red
+
+### Audio capture modes
+
+- **Follow the game** (recommended) - reads the game's own audio session on whichever device it plays to; zero setup
+- **Windows default device** - follows headphone ↔ speaker swaps
+- **One specific device** - best for full 7.1 via an 8-channel virtual cable (Voicemeeter, VB-Cable)
+
+If the overlay is armed but silent while a game plays audio to a different device, the **Signal Doctor** pops up with live meters and two one-click fixes.
+
+### Game detection & profiles
+
+- Games are discovered by their audio sessions; an unknown fullscreen game making sound triggers a one-time toast offering a profile
+- Per-game profiles carry the full presentation (style, colors, size, positions, sensitivity) and switch automatically - silently, with an undoable toast, or ask-first
+- First-run wizard picks your device, style and shows the hotkeys; afterwards the app lives in the system tray with a themed flyout
 
 ### Settings
 
-- Sensitivity and threshold adjustments
-- Transparent mode (indicators appear only when sound detected)
-- Per-speaker opacity in 7.1 view
-- Hide LFE/subwoofer indicator option
+- Sensitivity, noise floor and overlay strength with live preview
+- Transparent mode (indicators appear only when sound plays, with fade in/out)
+- Balanced-sound filter to hide your own footsteps
+- Overlay size 50-200 %, per-style position controls, keyboard-navigable settings window
 - Global hotkeys for quick control
 
 ## Requirements
@@ -70,10 +90,16 @@ DeafDirectionalHelper reads audio levels from your sound card's output using Win
 
 | Hotkey | Action |
 |--------|--------|
-| Ctrl+Shift+R | Toggle enable/disable |
-| Ctrl+Shift+M | Toggle display mode |
-| Ctrl+Shift+S | Show settings |
+| Ctrl+Shift+R | Overlay on / off |
+| Ctrl+Shift+M | Next overlay style |
+| Ctrl+Shift+S | Open settings |
 | Ctrl+Shift+P | Reset positions |
+| Ctrl+Shift+H | Show the hotkey card |
+| Ctrl+Shift+E | Move mode (drag, arrow keys, +/- size, Enter saves, Esc reverts) |
+
+Hotkeys are global - they work while a game has focus.
+
+> **Note**: like all overlay tools, the indicators cannot render over exclusive-fullscreen games. Use borderless windowed mode.
 
 ## Screenshots
 

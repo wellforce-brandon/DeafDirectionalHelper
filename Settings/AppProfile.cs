@@ -3,6 +3,39 @@ using System.Text.Json.Serialization;
 
 namespace DeafDirectionalHelper.Settings;
 
+/// <summary>The five overlay styles (plan D2); rendered in Phase 4.</summary>
+public enum OverlayStyle
+{
+    SideBars,
+    RadarRing,
+    RingPing,
+    CompassStrip,
+    EdgeGlow
+}
+
+/// <summary>Loudness color ramps (§1.4). Thermal is the colorblind-safe default.</summary>
+public enum ColorScale
+{
+    Thermal,
+    Ice,
+    Violet,
+    Classic
+}
+
+/// <summary>How ring-ping maps loudness to rings (plan D3).</summary>
+public enum RingMapping
+{
+    Meter,
+    Distance
+}
+
+/// <summary>Screen edge a radial/strip overlay anchors to.</summary>
+public enum OverlayAnchor
+{
+    Top,
+    Bottom
+}
+
 public class AppProfile
 {
     [JsonPropertyName("id")]
@@ -63,6 +96,29 @@ public class AppProfile
     [JsonPropertyName("width")]
     public int Width { get; set; } = 50;
 
+    // --- v2 presentation fields (plan Phase 2; rendered by Phase 4 overlays) ---
+
+    [JsonPropertyName("overlayStyle")]
+    public OverlayStyle OverlayStyle { get; set; } = OverlayStyle.SideBars;
+
+    [JsonPropertyName("pairWithSideBars")]
+    public bool PairWithSideBars { get; set; } = false;
+
+    [JsonPropertyName("colorScale")]
+    public ColorScale ColorScale { get; set; } = ColorScale.Thermal;
+
+    [JsonPropertyName("overlaySize")]
+    public double OverlaySize { get; set; } = 1.0; // 0.5 to 2.0
+
+    [JsonPropertyName("ringCount")]
+    public int RingCount { get; set; } = 5; // 3 | 5 | 7
+
+    [JsonPropertyName("ringMapping")]
+    public RingMapping RingMapping { get; set; } = RingMapping.Distance;
+
+    [JsonPropertyName("anchor")]
+    public OverlayAnchor Anchor { get; set; } = OverlayAnchor.Bottom;
+
     /// <summary>
     /// Creates the default profile with standard settings.
     /// </summary>
@@ -109,6 +165,13 @@ public class AppProfile
         LeftIndicatorPercent = other.LeftIndicatorPercent;
         RightIndicatorPercent = other.RightIndicatorPercent;
         Width = other.Width;
+        OverlayStyle = other.OverlayStyle;
+        PairWithSideBars = other.PairWithSideBars;
+        ColorScale = other.ColorScale;
+        OverlaySize = other.OverlaySize;
+        RingCount = other.RingCount;
+        RingMapping = other.RingMapping;
+        Anchor = other.Anchor;
     }
 
     /// <summary>
@@ -130,6 +193,13 @@ public class AppProfile
         bars.LeftIndicatorPercent = LeftIndicatorPercent;
         bars.RightIndicatorPercent = RightIndicatorPercent;
         bars.Width = Width;
+        bars.OverlayStyle = OverlayStyle;
+        bars.PairWithSideBars = PairWithSideBars;
+        bars.ColorScale = ColorScale;
+        bars.OverlaySize = OverlaySize;
+        bars.RingCount = RingCount;
+        bars.RingMapping = RingMapping;
+        bars.Anchor = Anchor;
     }
 
     /// <summary>
@@ -151,5 +221,12 @@ public class AppProfile
         LeftIndicatorPercent = bars.LeftIndicatorPercent;
         RightIndicatorPercent = bars.RightIndicatorPercent;
         Width = bars.Width;
+        OverlayStyle = bars.OverlayStyle;
+        PairWithSideBars = bars.PairWithSideBars;
+        ColorScale = bars.ColorScale;
+        OverlaySize = bars.OverlaySize;
+        RingCount = bars.RingCount;
+        RingMapping = bars.RingMapping;
+        Anchor = bars.Anchor;
     }
 }

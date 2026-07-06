@@ -28,6 +28,7 @@ namespace DeafDirectionalHelper.Hotkeys
         private const uint VK_S = 0x53; // S key
         private const uint VK_P = 0x50; // P key
         private const uint VK_H = 0x48; // H key
+        private const uint VK_E = 0x45; // E key
 
         private IntPtr _windowHandle;
         private HwndSource? _source;
@@ -39,12 +40,14 @@ namespace DeafDirectionalHelper.Hotkeys
         private const int HOTKEY_SHOW_SETTINGS = 3;
         private const int HOTKEY_RESET_POSITIONS = 4;
         private const int HOTKEY_SHOW_HOTKEYS = 5;
+        private const int HOTKEY_MOVE_MODE = 6;
 
         public event Action? ToggleEnabledPressed;
         public event Action? ToggleModePressed;
         public event Action? ShowSettingsPressed;
         public event Action? ResetPositionsPressed;
         public event Action? ShowHotkeysPressed;
+        public event Action? MoveModePressed;
 
         public void Initialize(Window window)
         {
@@ -74,13 +77,17 @@ namespace DeafDirectionalHelper.Hotkeys
             // Ctrl+Shift+H - Show Hotkeys
             var success5 = RegisterHotKey(_windowHandle, HOTKEY_SHOW_HOTKEYS, MOD_CONTROL | MOD_SHIFT, VK_H);
 
-            _isRegistered = success1 || success2 || success3 || success4 || success5;
+            // Ctrl+Shift+E - Move mode
+            var success6 = RegisterHotKey(_windowHandle, HOTKEY_MOVE_MODE, MOD_CONTROL | MOD_SHIFT, VK_E);
+
+            _isRegistered = success1 || success2 || success3 || success4 || success5 || success6;
 
             if (!success1) Console.WriteLine("Failed to register Ctrl+Shift+R hotkey");
             if (!success2) Console.WriteLine("Failed to register Ctrl+Shift+M hotkey");
             if (!success3) Console.WriteLine("Failed to register Ctrl+Shift+S hotkey");
             if (!success4) Console.WriteLine("Failed to register Ctrl+Shift+P hotkey");
             if (!success5) Console.WriteLine("Failed to register Ctrl+Shift+H hotkey");
+            if (!success6) Console.WriteLine("Failed to register Ctrl+Shift+E hotkey");
 
             return _isRegistered;
         }
@@ -94,6 +101,7 @@ namespace DeafDirectionalHelper.Hotkeys
             UnregisterHotKey(_windowHandle, HOTKEY_SHOW_SETTINGS);
             UnregisterHotKey(_windowHandle, HOTKEY_RESET_POSITIONS);
             UnregisterHotKey(_windowHandle, HOTKEY_SHOW_HOTKEYS);
+            UnregisterHotKey(_windowHandle, HOTKEY_MOVE_MODE);
 
             _isRegistered = false;
         }
@@ -123,6 +131,10 @@ namespace DeafDirectionalHelper.Hotkeys
                         break;
                     case HOTKEY_SHOW_HOTKEYS:
                         ShowHotkeysPressed?.Invoke();
+                        handled = true;
+                        break;
+                    case HOTKEY_MOVE_MODE:
+                        MoveModePressed?.Invoke();
                         handled = true;
                         break;
                 }

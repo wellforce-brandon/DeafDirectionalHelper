@@ -33,6 +33,17 @@ This application uses **standard Windows audio APIs** to visualize audio output:
 - Peak values per channel (0.0 to 1.0 representing volume level)
 - The same data that Windows volume meters display
 
+### Audio Session Awareness
+
+To find game audio automatically ("Follow the game" capture mode) and to offer
+per-game profiles, the app also uses the Windows **audio session** APIs
+(`IAudioSessionManager2` / `IAudioSessionControl2`). These expose exactly two
+things per session: **which process owns it** (its process ID) and its **output
+meter level** - the same information the Windows Volume Mixer shows next to
+each app. This is still entirely output-side: nothing reads game memory,
+injects code, or hooks any process. Game detection additionally looks only at
+public window information (is the window foreground and near-fullscreen).
+
 ### What We Do NOT Do
 
 | Action | This Tool |
@@ -78,8 +89,10 @@ The application sits at the end of the audio chain, reading output levels the sa
 ## Relevant Code Files
 
 - `Audio/Speakers.cs` - Core audio reading implementation with detailed documentation
+- `Audio/SessionLocator.cs` - Maps audio sessions to owning processes (Volume-Mixer-level data only)
+- `Audio/EndpointSelector.cs` - Chooses which output device to read per capture mode
 - `App.xaml.cs` - Application entry point with accessibility notice
-- `View/ColoredSpeakers.cs` - Converts audio levels to visual colors
+- `View/Overlays/` - Converts audio levels to the visual overlays
 
 ## Comparison to Built-in Accessibility Features
 

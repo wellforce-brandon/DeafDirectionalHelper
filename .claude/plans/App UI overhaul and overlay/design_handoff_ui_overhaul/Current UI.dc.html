@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<title>DeafDirectionalHelper — Current UI recreation</title>
+<script src="image-slot.js"></script>
+<style>
+body{margin:0;background:#ECEAE4;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+.wpfscroll{scrollbar-width:thin;scrollbar-color:#4d4d4d #2b2b2b}
+.wpfscroll::-webkit-scrollbar{width:14px;background:#2b2b2b}
+.wpfscroll::-webkit-scrollbar-thumb{background:#4d4d4d;border:3px solid #2b2b2b;border-radius:7px}
+</style>
+</helmet>
+
+<section id="t1" data-screen-label="Current UI recreation" style="padding:36px 44px 48px">
+
+  <div style="display:flex;align-items:baseline;gap:10px;margin:0 0 14px">
+    <a href="#t1" style="font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none">1</a>
+    <span style="font:600 14px/1.2 'Segoe UI',system-ui,sans-serif;color:#1a1a1a">Current UI — faithful recreation (baseline before redesign)</span>
+  </div>
+
+  <div style="max-width:880px;background:#FBFAF7;border:1px solid rgba(0,0,0,0.09);border-radius:8px;padding:16px 20px;margin:0 0 26px;font-size:12.5px;line-height:1.55;color:#3a3a38">
+    <div style="font-weight:600;margin-bottom:6px;color:#1a1a1a">Context &amp; assumptions</div>
+    <div>· Recreated from <span style="font-family:ui-monospace,Menlo,monospace">wellforce-brandon/DeafDirectionalHelper@main</span> (WPF / .NET 8) — all values lifted from the XAML + code-behind, at default settings: mode <b>Dual (vertical)</b>, profile <b>★ Default</b>, indicators linked, so the 7.1-only settings panels are collapsed exactly as <span style="font-family:ui-monospace,Menlo,monospace">UpdateBarSettingsVisibility()</span> hides them.</div>
+    <div>· Overlays are <b>live</b>: a simulated 200&#8202;ms audio poll with 1&#8202;s peak retention (matching <span style="font-family:ui-monospace,Menlo,monospace">Speakers.cs</span>) drives the white → yellow → red gradient from <span style="font-family:ui-monospace,Menlo,monospace">ColorGradient.cs</span>. Drop a real game screenshot onto any overlay demo.</div>
+    <div>· Title bars: the app never opts into dark Win32 chrome, so the real windows get the stock <b>light</b> title bar on a dark body — recreated as-is (a redesign fix candidate).</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+    <!-- ================================ 1a SETTINGS WINDOW ================================ -->
+    <div id="1a" data-screen-label="Settings window (current)" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55)">
+        <a href="#1a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">1a</a>
+        Settings window — 820×620, defaults (Dual mode, linked indicators)
+      </div>
+      <div style="width:822px;background:#1E1E1E;border:1px solid #999;box-shadow:0 22px 55px rgba(0,0,0,0.4);overflow:hidden">
+        <!-- stock light Win32 title bar -->
+        <div style="height:32px;background:#FFFFFF;display:flex;align-items:center;border-bottom:1px solid #D9D9D9">
+          <img src="Icons/Icon32.png" alt="" style="width:16px;height:16px;margin:0 8px 0 10px"/>
+          <span style="flex:1;font-size:12px;color:#000000">DeafDirectionalHelper Settings</span>
+          <div style="width:46px;height:32px;display:flex;align-items:center;justify-content:center;color:#000;font-size:12px">&#x2500;</div>
+          <div style="width:46px;height:32px;display:flex;align-items:center;justify-content:center;color:#000;font-size:11px">&#x25A1;</div>
+          <div style="width:46px;height:32px;display:flex;align-items:center;justify-content:center;color:#000;font-size:12px">&#x2715;</div>
+        </div>
+        <!-- header row -->
+        <div style="display:flex;align-items:center;margin:15px 15px 10px">
+          <div style="display:flex;align-items:flex-end">
+            <span style="font-size:28px;font-weight:700;color:#FFFFFF;line-height:1.2">DeafDirectionalHelper</span>
+            <span style="font-size:20px;font-weight:400;color:#64B5F6;margin:0 0 4px 8px;line-height:1.2">- Default</span>
+          </div>
+          <div style="flex:1"></div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="display:inline-flex;align-items:center;justify-content:center;min-width:70px;min-height:36px;padding:6px 12px;background:#3E3E3E;border:2px solid #5E5E5E;border-radius:6px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;box-sizing:border-box">About</div>
+            <div style="display:inline-flex;align-items:center;justify-content:center;min-width:80px;min-height:36px;padding:6px 12px;background:#3E3E3E;border:2px solid #5E5E5E;border-radius:6px;cursor:pointer;box-sizing:border-box"><span style="color:#fff;font-size:13px;font-weight:600">Hotkeys</span><span style="font-family:Consolas,ui-monospace,monospace;color:#88CCFF;font-size:11px;font-weight:600">&nbsp;(Ctrl+Shift+H)</span></div>
+          </div>
+        </div>
+        <!-- scrollable two-column content -->
+        <div class="wpfscroll" style="height:450px;overflow-y:scroll;padding:0 5px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;margin:5px">
+            <!-- LEFT COLUMN -->
+            <div style="min-width:0">
+              <!-- Display -->
+              <div style="position:relative;border:2px solid #3E3E3E;margin:14px 10px 8px;padding:8px">
+                <div style="position:absolute;top:-12px;left:8px;background:#1E1E1E;padding:0 5px;font-size:16px;font-weight:600;color:#88CCFF">Display</div>
+                <div style="margin:10px">
+                  <div style="display:flex;align-items:center;min-height:36px;padding:6px 8px;box-sizing:border-box">
+                    <div style="width:24px;height:24px;background:#2E2E2E;border:2px solid #4CAF50;border-radius:4px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex:none"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M9.86 18l-5.86-5.86 1.41-1.41 4.45 4.45 9.59-9.59 1.41 1.41z" fill="#4CAF50"></path></svg></div>
+                    <span style="margin-left:12px;font-size:14px;color:#FFFFFF">Sound Indicators Enabled</span>
+                  </div>
+                  <div style="display:flex;align-items:center;margin-top:12px">
+                    <span style="width:80px;flex:none;font-size:14px;color:#FFFFFF">Mode:</span>
+                    <div style="display:flex;align-items:center;width:200px;min-height:36px;background:#2E2E2E;border:2px solid #5E5E5E;border-radius:4px;box-sizing:border-box;flex:none"><span style="flex:1;margin:6px 0 6px 12px;font-size:14px;color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Dual</span><div style="width:30px;flex:none;display:flex;justify-content:center"><svg width="9" height="6" viewBox="0 0 9 6"><path d="M0.5 0.5 L4.5 4.5 L8.5 0.5" fill="none" stroke="#FFFFFF" stroke-width="1.5"></path></svg></div></div>
+                  </div>
+                  <div style="display:flex;align-items:center;margin-top:12px">
+                    <span style="width:80px;flex:none;font-size:14px;color:#FFFFFF">Monitor:</span>
+                    <div style="display:flex;align-items:center;width:200px;min-height:36px;background:#2E2E2E;border:2px solid #5E5E5E;border-radius:4px;box-sizing:border-box;flex:none"><span style="flex:1;margin:6px 0 6px 12px;font-size:14px;color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Monitor 1 (Primary) - 2560x1440</span><div style="width:30px;flex:none;display:flex;justify-content:center"><svg width="9" height="6" viewBox="0 0 9 6"><path d="M0.5 0.5 L4.5 4.5 L8.5 0.5" fill="none" stroke="#FFFFFF" stroke-width="1.5"></path></svg></div></div>
+                  </div>
+                </div>
+              </div>
+              <!-- Mode Settings -->
+              <div style="position:relative;border:2px solid #3E3E3E;margin:16px 10px 8px;padding:8px">
+                <div style="position:absolute;top:-12px;left:8px;background:#1E1E1E;padding:0 5px;font-size:16px;font-weight:600;color:#88CCFF">Mode Settings</div>
+                <div style="margin:10px">
+                  <div style="display:flex;align-items:center;min-height:36px;padding:6px 8px;box-sizing:border-box">
+                    <div style="width:24px;height:24px;background:#2E2E2E;border:2px solid #5E5E5E;border-radius:4px;box-sizing:border-box;flex:none"></div>
+                    <span style="margin-left:12px;font-size:14px;color:#FFFFFF">Transparent until sound</span>
+                  </div>
+                  <div style="display:flex;align-items:center;margin-top:14px">
+                    <span style="width:80px;flex:none;font-size:14px;color:#FFFFFF">Sensitivity:</span>
+                    <div style="position:relative;width:140px;height:32px;flex:none">
+                      <div style="position:absolute;left:0;right:0;top:12px;height:8px;border-radius:4px;background:#3E3E3E"></div>
+                      <div style="position:absolute;left:0;width:31%;top:12px;height:8px;border-radius:4px;background:#4CAF50"></div>
+                      <div style="position:absolute;left:calc(31% - 14px);top:2px;width:28px;height:28px;border-radius:50%;background:#64B5F6;border:2px solid #FFFFFF;box-sizing:border-box"></div>
+                    </div>
+                    <span style="width:35px;margin-left:10px;font-size:14px;color:#FFFFFF">1.0</span>
+                    <span style="color:#88CCFF;font-weight:700;font-size:16px;cursor:help">(?)</span>
+                  </div>
+                  <div style="display:flex;align-items:center;margin-top:14px">
+                    <span style="width:80px;flex:none;font-size:14px;color:#FFFFFF">Threshold:</span>
+                    <div style="position:relative;width:140px;height:32px;flex:none">
+                      <div style="position:absolute;left:0;right:0;top:12px;height:8px;border-radius:4px;background:#3E3E3E"></div>
+                      <div style="position:absolute;left:0;width:17%;top:12px;height:8px;border-radius:4px;background:#4CAF50"></div>
+                      <div style="position:absolute;left:calc(17% - 14px);top:2px;width:28px;height:28px;border-radius:50%;background:#64B5F6;border:2px solid #FFFFFF;box-sizing:border-box"></div>
+                    </div>
+                    <span style="width:35px;margin-left:10px;font-size:14px;color:#FFFFFF">0.05</span>
+                    <span style="color:#88CCFF;font-weight:700;font-size:16px;cursor:help">(?)</span>
+                  </div>
+                  <div style="display:flex;align-items:center;min-height:36px;padding:6px 8px;margin-top:14px;box-sizing:border-box">
+                    <div style="width:24px;height:24px;background:#2E2E2E;border:2px solid #5E5E5E;border-radius:4px;box-sizing:border-box;flex:none"></div>
+                    <span style="margin-left:12px;font-size:14px;color:#FFFFFF">Ignore player sounds (balanced L/R)</span>
+                  </div>
+                  <div style="padding-left:32px;margin-top:4px;font-size:12px;color:#888888">Filters out sounds equal on both sides</div>
+                  <div style="display:flex;align-items:center;margin-top:14px">
+                    <span style="width:80px;flex:none;font-size:14px;color:#FFFFFF">Max Opacity:</span>
+                    <div style="position:relative;width:140px;height:32px;flex:none">
+                      <div style="position:absolute;left:0;right:0;top:12px;height:8px;border-radius:4px;background:#3E3E3E"></div>
+                      <div style="position:absolute;left:0;width:100%;top:12px;height:8px;border-radius:4px;background:#4CAF50"></div>
+                      <div style="position:absolute;left:calc(100% - 26px);top:2px;width:28px;height:28px;border-radius:50%;background:#64B5F6;border:2px solid #FFFFFF;box-sizing:border-box"></div>
+                    </div>
+                    <span style="width:45px;margin-left:10px;font-size:14px;color:#FFFFFF">100%</span>
+                  </div>
+                  <div style="margin-top:16px">
+                    <div style="font-weight:600;color:#AAAAAA;font-size:15px;margin-bottom:8px">Dual Mode</div>
+                    <div style="display:flex;align-items:center">
+                      <span style="width:80px;flex:none;font-size:14px;color:#FFFFFF">Layout:</span>
+                      <div style="display:flex;align-items:center;width:200px;min-height:36px;background:#2E2E2E;border:2px solid #5E5E5E;border-radius:4px;box-sizing:border-box;flex:none"><span style="flex:1;margin:6px 0 6px 12px;font-size:14px;color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Vertical (Side Bars)</span><div style="width:30px;flex:none;display:flex;justify-content:center"><svg width="9" height="6" viewBox="0 0 9 6"><path d="M0.5 0.5 L4.5 4.5 L8.5 0.5" fill="none" stroke="#FFFFFF" stroke-width="1.5"></path></svg></div></div>
+                    </div>
+                    <div style="display:flex;align-items:center;min-height:36px;padding:6px 8px;margin-top:12px;box-sizing:border-box">
+                      <div style="width:24px;height:24px;background:#2E2E2E;border:2px solid #4CAF50;border-radius:4px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex:none"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M9.86 18l-5.86-5.86 1.41-1.41 4.45 4.45 9.59-9.59 1.41 1.41z" fill="#4CAF50"></path></svg></div>
+                      <span style="margin-left:12px;font-size:14px;color:#FFFFFF">Link Indicators (move together)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- RIGHT COLUMN -->
+            <div style="min-width:0">
+              <!-- Application Profiles -->
+              <div style="position:relative;border:2px solid #3E3E3E;margin:14px 10px 8px;padding:8px">
+                <div style="position:absolute;top:-12px;left:8px;background:#1E1E1E;padding:0 5px;font-size:16px;font-weight:600;color:#88CCFF">Application Profiles</div>
+                <div style="margin:10px">
+                  <div style="display:flex;align-items:center;min-height:36px;padding:6px 8px;box-sizing:border-box">
+                    <div style="width:24px;height:24px;background:#2E2E2E;border:2px solid #4CAF50;border-radius:4px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex:none"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M9.86 18l-5.86-5.86 1.41-1.41 4.45 4.45 9.59-9.59 1.41 1.41z" fill="#4CAF50"></path></svg></div>
+                    <span style="margin-left:12px;font-size:14px;color:#FFFFFF">Auto-switch when apps are running</span>
+                  </div>
+                  <div style="display:flex;align-items:center;margin-top:12px">
+                    <span style="width:60px;flex:none;font-size:14px;color:#FFFFFF">Profile:</span>
+                    <div style="display:flex;align-items:center;width:220px;min-height:36px;background:#2E2E2E;border:2px solid #5E5E5E;border-radius:4px;box-sizing:border-box;flex:none"><span style="flex:1;margin:6px 0 6px 12px;font-size:14px;color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">&#9733; Default</span><div style="width:30px;flex:none;display:flex;justify-content:center"><svg width="9" height="6" viewBox="0 0 9 6"><path d="M0.5 0.5 L4.5 4.5 L8.5 0.5" fill="none" stroke="#FFFFFF" stroke-width="1.5"></path></svg></div></div>
+                  </div>
+                  <div style="background:#252525;border:1px solid #3E3E3E;border-radius:4px;margin-top:12px;max-height:120px;overflow:hidden">
+                    <div style="display:flex;align-items:center;margin:2px 4px">
+                      <span style="flex:1;font-size:13px;color:#FFFFFF">&#9733; Default</span>
+                      <div style="display:inline-flex;align-items:center;justify-content:center;min-width:50px;min-height:28px;padding:4px 8px;background:#3E3E3E;border:2px solid #5E5E5E;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;box-sizing:border-box">Edit</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;margin-top:12px">
+                    <div style="display:inline-flex;align-items:center;justify-content:center;min-width:70px;min-height:36px;padding:6px 10px;background:#3E3E3E;border:2px solid #5E5E5E;border-radius:6px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box">New</div>
+                    <div style="display:inline-flex;align-items:center;justify-content:center;min-width:70px;min-height:36px;padding:6px 10px;background:#3E3E3E;border:2px solid #5E5E5E;border-radius:6px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box;margin-left:8px">Save</div>
+                    <div style="display:inline-flex;align-items:center;justify-content:center;min-width:70px;min-height:36px;padding:6px 10px;background:#3E3E3E;border:2px solid #5E5E5E;border-radius:6px;color:#9a9a9a;font-size:14px;font-weight:600;box-sizing:border-box;margin-left:8px">Delete</div>
+                  </div>
+                  <div style="margin-top:8px;font-size:11px;color:#FFA726">Auto-switching paused while settings open</div>
+                </div>
+              </div>
+              <!-- Audio -->
+              <div style="position:relative;border:2px solid #3E3E3E;margin:16px 10px 8px;padding:8px">
+                <div style="position:absolute;top:-12px;left:8px;background:#1E1E1E;padding:0 5px;font-size:16px;font-weight:600;color:#88CCFF">Audio</div>
+                <div style="margin:10px">
+                  <div style="display:flex;align-items:center">
+                    <span style="width:80px;flex:none;font-size:14px;color:#FFFFFF">Device:</span>
+                    <div style="display:flex;align-items:center;width:260px;min-height:36px;background:#2E2E2E;border:2px solid #5E5E5E;border-radius:4px;box-sizing:border-box;flex:none;min-width:0"><span style="flex:1;margin:6px 0 6px 12px;font-size:14px;color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">(Auto-detect 8-channel device)</span><div style="width:30px;flex:none;display:flex;justify-content:center"><svg width="9" height="6" viewBox="0 0 9 6"><path d="M0.5 0.5 L4.5 4.5 L8.5 0.5" fill="none" stroke="#FFFFFF" stroke-width="1.5"></path></svg></div></div>
+                  </div>
+                  <div style="display:inline-flex;align-items:center;justify-content:center;min-width:100px;min-height:44px;padding:10px 20px;background:#3E3E3E;border:2px solid #5E5E5E;border-radius:6px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box;margin-top:14px">Refresh Devices</div>
+                </div>
+              </div>
+              <!-- Layout Settings -->
+              <div style="position:relative;border:2px solid #3E3E3E;margin:16px 10px 8px;padding:8px">
+                <div style="position:absolute;top:-12px;left:8px;background:#1E1E1E;padding:0 5px;font-size:16px;font-weight:600;color:#88CCFF">Layout Settings</div>
+                <div style="margin:10px">
+                  <div style="display:flex;align-items:center">
+                    <span style="width:80px;flex:none;font-size:14px;color:#FFFFFF">Bar Width:</span>
+                    <div style="position:relative;width:140px;height:32px;flex:none">
+                      <div style="position:absolute;left:0;right:0;top:12px;height:8px;border-radius:4px;background:#3E3E3E"></div>
+                      <div style="position:absolute;left:0;width:23%;top:12px;height:8px;border-radius:4px;background:#4CAF50"></div>
+                      <div style="position:absolute;left:calc(23% - 14px);top:2px;width:28px;height:28px;border-radius:50%;background:#64B5F6;border:2px solid #FFFFFF;box-sizing:border-box"></div>
+                    </div>
+                    <span style="width:45px;margin-left:10px;font-size:14px;color:#FFFFFF">50</span>
+                  </div>
+                  <div style="display:flex;align-items:center;margin-top:14px">
+                    <span style="width:80px;flex:none;font-size:14px;color:#FFFFFF">Spread:</span>
+                    <div style="position:relative;width:140px;height:32px;flex:none">
+                      <div style="position:absolute;left:0;right:0;top:12px;height:8px;border-radius:4px;background:#3E3E3E"></div>
+                      <div style="position:absolute;left:0;width:13%;top:12px;height:8px;border-radius:4px;background:#4CAF50"></div>
+                      <div style="position:absolute;left:calc(13% - 14px);top:2px;width:28px;height:28px;border-radius:50%;background:#64B5F6;border:2px solid #FFFFFF;box-sizing:border-box"></div>
+                    </div>
+                    <span style="width:45px;margin-left:10px;font-size:14px;color:#FFFFFF">15%</span>
+                    <span style="color:#88CCFF;font-weight:700;font-size:16px;cursor:help">(?)</span>
+                  </div>
+                  <div style="display:inline-flex;align-items:center;justify-content:center;min-width:100px;min-height:44px;padding:10px 20px;background:#3E3E3E;border:2px solid #5E5E5E;border-radius:6px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box;margin-top:18px">Reset Positions</div>
+                </div>
+              </div>
+              <!-- General -->
+              <div style="position:relative;border:2px solid #3E3E3E;margin:16px 10px 8px;padding:8px">
+                <div style="position:absolute;top:-12px;left:8px;background:#1E1E1E;padding:0 5px;font-size:16px;font-weight:600;color:#88CCFF">General</div>
+                <div style="margin:10px">
+                  <div style="display:flex;align-items:center;min-height:36px;padding:6px 8px;box-sizing:border-box">
+                    <div style="width:24px;height:24px;background:#2E2E2E;border:2px solid #5E5E5E;border-radius:4px;box-sizing:border-box;flex:none"></div>
+                    <span style="margin-left:12px;font-size:14px;color:#FFFFFF">Start minimized to tray</span>
+                  </div>
+                  <div style="display:flex;align-items:center;min-height:36px;padding:6px 8px;margin-top:8px;box-sizing:border-box">
+                    <div style="width:24px;height:24px;background:#2E2E2E;border:2px solid #5E5E5E;border-radius:4px;box-sizing:border-box;flex:none"></div>
+                    <span style="margin-left:12px;font-size:14px;color:#FFFFFF">Start with Windows</span>
+                  </div>
+                  <div style="display:flex;align-items:center;min-height:36px;padding:6px 8px;margin-top:14px;box-sizing:border-box">
+                    <div style="width:24px;height:24px;background:#2E2E2E;border:2px solid #5E5E5E;border-radius:4px;box-sizing:border-box;flex:none"></div>
+                    <span style="margin-left:12px;font-size:14px;color:#FFFFFF">Enable audio event logging</span>
+                  </div>
+                  <div style="display:flex;align-items:center;margin-top:10px">
+                    <span style="width:120px;flex:none;font-size:14px;color:#FFFFFF">Log size: 0 B</span>
+                    <div style="display:inline-flex;align-items:center;justify-content:center;min-width:80px;min-height:44px;padding:10px 20px;background:#3E3E3E;border:2px solid #5E5E5E;border-radius:6px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box;margin-left:5px">Open Logs</div>
+                    <div style="display:inline-flex;align-items:center;justify-content:center;min-width:80px;min-height:44px;padding:10px 20px;background:#3E3E3E;border:2px solid #5E5E5E;border-radius:6px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box;margin-left:8px">Clear Logs</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- bottom buttons -->
+        <div style="position:relative;display:flex;align-items:center;justify-content:center;padding:15px 0">
+          <div style="display:inline-flex;align-items:center;justify-content:center;min-width:120px;min-height:44px;padding:10px 20px;background:#3E3E3E;border:2px solid #5E5E5E;border-radius:6px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box;margin:8px">Hide</div>
+          <div style="display:inline-flex;align-items:center;justify-content:center;min-width:150px;min-height:44px;padding:10px 20px;background:#8B0000;border:2px solid #A00000;border-radius:6px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box;margin:8px">Exit Application</div>
+          <svg width="12" height="12" viewBox="0 0 12 12" style="position:absolute;right:3px;bottom:3px"><circle cx="10" cy="10" r="1.2" fill="#5E5E5E"></circle><circle cx="10" cy="5.5" r="1.2" fill="#5E5E5E"></circle><circle cx="5.5" cy="10" r="1.2" fill="#5E5E5E"></circle><circle cx="10" cy="1" r="1.2" fill="#5E5E5E"></circle><circle cx="1" cy="10" r="1.2" fill="#5E5E5E"></circle><circle cx="5.5" cy="5.5" r="1.2" fill="#5E5E5E"></circle></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================ 1b DUAL BARS OVERLAY ================================ -->
+    <div id="1b" data-screen-label="Overlay — Dual vertical bars (current)" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55)">
+        <a href="#1b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">1b</a>
+        Dual mode, Vertical (Side Bars) — live sim · bars at 35% / 65%, width 50, sections front / side / rear
+      </div>
+      <div style="width:866px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden;background:#101216">
+        <div style="width:864px;height:486px;overflow:hidden;position:relative">
+          <div style="width:1920px;height:1080px;transform:scale(0.45);transform-origin:0 0;position:absolute;left:0;top:0;background:#15181D">
+            <image-slot id="game-shot-1b" shape="rect" placeholder="Drop a game screenshot (1920×1080)" style="position:absolute;left:0;top:0;width:1920px;height:1080px"></image-slot>
+            <div style="position:absolute;left:948px;top:539px;width:24px;height:2px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:959px;top:528px;width:2px;height:24px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <!-- left bar -->
+            <div style="position:absolute;left:647px;top:0;width:50px;height:1080px;display:flex;flex-direction:column;pointer-events:none">
+              <div style="height:240px;background:{{barL}};opacity:{{oLT}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <div style="height:600px;background:{{barL}};opacity:{{oLC}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <div style="height:240px;background:{{barL}};opacity:{{oLB}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+            </div>
+            <!-- right bar -->
+            <div style="position:absolute;left:1223px;top:0;width:50px;height:1080px;display:flex;flex-direction:column;pointer-events:none">
+              <div style="height:240px;background:{{barR}};opacity:{{oRT}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <div style="height:600px;background:{{barR}};opacity:{{oRC}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <div style="height:240px;background:{{barR}};opacity:{{oRB}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================ 1c 7.1 SPATIAL OVERLAY ================================ -->
+    <div id="1c" data-screen-label="Overlay — 7.1 Spatial (current)" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55)">
+        <a href="#1c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">1c</a>
+        7.1 Surround, Spatial (Circle) — 400×350 canvas, bottom-center, scale 100%
+      </div>
+      <div style="width:866px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden;background:#101216">
+        <div style="width:864px;height:486px;overflow:hidden;position:relative">
+          <div style="width:1920px;height:1080px;transform:scale(0.45);transform-origin:0 0;position:absolute;left:0;top:0;background:#15181D">
+            <image-slot id="game-shot-1c" shape="rect" placeholder="Drop a game screenshot (1920×1080)" style="position:absolute;left:0;top:0;width:1920px;height:1080px"></image-slot>
+            <div style="position:absolute;left:948px;top:539px;width:24px;height:2px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:959px;top:528px;width:2px;height:24px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:760px;top:630px;width:400px;height:350px;pointer-events:none">
+              <div style="position:absolute;left:70px;top:20px;width:60px;height:60px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c1}};opacity:{{o1}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:92px;top:43px;font-size:12px;font-weight:700;color:#000;opacity:{{o1}}">FL</span>
+              <div style="position:absolute;left:270px;top:20px;width:60px;height:60px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c2}};opacity:{{o2}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:292px;top:43px;font-size:12px;font-weight:700;color:#000;opacity:{{o2}}">FR</span>
+              <div style="position:absolute;left:165px;top:10px;width:70px;height:70px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c3}};opacity:{{o3}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:195px;top:35px;font-size:14px;font-weight:700;color:#000;opacity:{{o3}}">C</span>
+              <div style="position:absolute;left:160px;top:90px;width:80px;height:80px;border-radius:50%;border:3px solid #333;box-sizing:border-box;background:{{c4}};opacity:{{o4}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:188px;top:120px;font-size:14px;font-weight:700;color:#000;opacity:{{o4}}">LFE</span>
+              <div style="position:absolute;left:20px;top:180px;width:50px;height:50px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c7}};opacity:{{o7}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:35px;top:198px;font-size:11px;font-weight:700;color:#000;opacity:{{o7}}">SL</span>
+              <div style="position:absolute;left:330px;top:180px;width:50px;height:50px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c8}};opacity:{{o8}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:345px;top:198px;font-size:11px;font-weight:700;color:#000;opacity:{{o8}}">SR</span>
+              <div style="position:absolute;left:50px;top:270px;width:50px;height:50px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c5}};opacity:{{o5}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:65px;top:287px;font-size:11px;font-weight:700;color:#000;opacity:{{o5}}">RL</span>
+              <div style="position:absolute;left:300px;top:270px;width:50px;height:50px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c6}};opacity:{{o6}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:315px;top:287px;font-size:11px;font-weight:700;color:#000;opacity:{{o6}}">RR</span>
+              <div style="position:absolute;left:185px;top:190px;width:30px;height:30px;border-radius:50%;background:#444;border:2px solid #666;box-sizing:border-box"></div>
+              <span style="position:absolute;left:188px;top:200px;font-size:8px;font-weight:700;color:#FFF">YOU</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================ 1d 7.1 HORIZONTAL LINE ================================ -->
+    <div id="1d" data-screen-label="Overlay — 7.1 Horizontal Line (current)" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55)">
+        <a href="#1d" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">1d</a>
+        7.1 Surround, Horizontal Line — RL·SL·FL &#8202;|&#8202; C·LFE &#8202;|&#8202; FR·SR·RR, bottom-center
+      </div>
+      <div style="width:866px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden;background:#101216">
+        <div style="width:864px;height:486px;overflow:hidden;position:relative">
+          <div style="width:1920px;height:1080px;transform:scale(0.45);transform-origin:0 0;position:absolute;left:0;top:0;background:#15181D">
+            <image-slot id="game-shot-1d" shape="rect" placeholder="Drop a game screenshot (1920×1080)" style="position:absolute;left:0;top:0;width:1920px;height:1080px"></image-slot>
+            <div style="position:absolute;left:948px;top:539px;width:24px;height:2px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:959px;top:528px;width:2px;height:24px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:535px;top:880px;width:850px;height:100px;pointer-events:none">
+              <div style="position:absolute;left:20px;top:10px;width:60px;height:60px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c5}};opacity:{{o5}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:40px;top:32px;font-size:11px;font-weight:700;color:#000;opacity:{{o5}}">RL</span>
+              <div style="position:absolute;left:120px;top:10px;width:60px;height:60px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c7}};opacity:{{o7}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:140px;top:32px;font-size:11px;font-weight:700;color:#000;opacity:{{o7}}">SL</span>
+              <div style="position:absolute;left:220px;top:10px;width:60px;height:60px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c1}};opacity:{{o1}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:240px;top:32px;font-size:12px;font-weight:700;color:#000;opacity:{{o1}}">FL</span>
+              <div style="position:absolute;left:360px;top:10px;width:60px;height:60px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c3}};opacity:{{o3}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:385px;top:32px;font-size:14px;font-weight:700;color:#000;opacity:{{o3}}">C</span>
+              <div style="position:absolute;left:430px;top:10px;width:60px;height:60px;border-radius:50%;border:3px solid #333;box-sizing:border-box;background:{{c4}};opacity:{{o4}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:448px;top:32px;font-size:14px;font-weight:700;color:#000;opacity:{{o4}}">LFE</span>
+              <div style="position:absolute;left:570px;top:10px;width:60px;height:60px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c2}};opacity:{{o2}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:590px;top:32px;font-size:12px;font-weight:700;color:#000;opacity:{{o2}}">FR</span>
+              <div style="position:absolute;left:670px;top:10px;width:60px;height:60px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c8}};opacity:{{o8}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:690px;top:32px;font-size:11px;font-weight:700;color:#000;opacity:{{o8}}">SR</span>
+              <div style="position:absolute;left:770px;top:10px;width:60px;height:60px;border-radius:50%;border:2px solid #333;box-sizing:border-box;background:{{c6}};opacity:{{o6}};transition:background-color 180ms linear,opacity 300ms ease"></div>
+              <span style="position:absolute;left:790px;top:32px;font-size:11px;font-weight:700;color:#000;opacity:{{o6}}">RR</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================ 1e HORIZONTAL DUAL ================================ -->
+    <div id="1e" data-screen-label="Overlay — Horizontal Dual (current)" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55)">
+        <a href="#1e" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">1e</a>
+        Dual mode, Horizontal Line — two 80×80 squares near bottom, at 35% / 65%
+      </div>
+      <div style="width:866px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden;background:#101216">
+        <div style="width:864px;height:486px;overflow:hidden;position:relative">
+          <div style="width:1920px;height:1080px;transform:scale(0.45);transform-origin:0 0;position:absolute;left:0;top:0;background:#15181D">
+            <image-slot id="game-shot-1e" shape="rect" placeholder="Drop a game screenshot (1920×1080)" style="position:absolute;left:0;top:0;width:1920px;height:1080px"></image-slot>
+            <div style="position:absolute;left:948px;top:539px;width:24px;height:2px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:959px;top:528px;width:2px;height:24px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:632px;top:940px;width:80px;height:80px;border:2px solid #333;box-sizing:border-box;background:{{barL}};opacity:{{oL}};transition:background-color 180ms linear,opacity 300ms ease;pointer-events:none"></div>
+            <span style="position:absolute;left:664px;top:982px;font-size:16px;font-weight:700;color:#000;opacity:{{oL}};pointer-events:none">L</span>
+            <div style="position:absolute;left:1208px;top:940px;width:80px;height:80px;border:2px solid #333;box-sizing:border-box;background:{{barR}};opacity:{{oR}};transition:background-color 180ms linear,opacity 300ms ease;pointer-events:none"></div>
+            <span style="position:absolute;left:1240px;top:982px;font-size:16px;font-weight:700;color:#000;opacity:{{oR}};pointer-events:none">R</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================ 1f DIALOGS ================================ -->
+    <div id="1f" data-screen-label="Dialogs (current)" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55)">
+        <a href="#1f" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">1f</a>
+        Dialogs — Hotkeys, About, Profile editor, themed message box
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;max-width:960px">
+        <!-- Hotkeys 400x360 -->
+        <div style="width:402px;background:#1E1E1E;border:1px solid #999;box-shadow:0 16px 40px rgba(0,0,0,0.35);overflow:hidden">
+          <div style="height:28px;background:#FFFFFF;display:flex;align-items:center;border-bottom:1px solid #D9D9D9">
+            <span style="flex:1;font-size:12px;color:#000;margin-left:10px">Keyboard Shortcuts</span>
+            <div style="width:40px;height:28px;display:flex;align-items:center;justify-content:center;color:#000;font-size:11px">&#x2715;</div>
+          </div>
+          <div style="padding:20px">
+            <div style="text-align:center;font-size:20px;font-weight:700;color:#88CCFF;margin-bottom:20px">Keyboard Shortcuts</div>
+            <div style="display:grid;grid-template-columns:auto 1fr;align-items:center">
+              <span style="font-family:Consolas,ui-monospace,monospace;color:#88CCFF;font-size:16px;margin:8px 0">Ctrl+Shift+R</span><span style="font-size:14px;color:#FFF;margin:8px 0 8px 20px">Toggle enable/disable</span>
+              <span style="font-family:Consolas,ui-monospace,monospace;color:#88CCFF;font-size:16px;margin:8px 0">Ctrl+Shift+M</span><span style="font-size:14px;color:#FFF;margin:8px 0 8px 20px">Toggle display mode</span>
+              <span style="font-family:Consolas,ui-monospace,monospace;color:#88CCFF;font-size:16px;margin:8px 0">Ctrl+Shift+S</span><span style="font-size:14px;color:#FFF;margin:8px 0 8px 20px">Show settings</span>
+              <span style="font-family:Consolas,ui-monospace,monospace;color:#88CCFF;font-size:16px;margin:8px 0">Ctrl+Shift+P</span><span style="font-size:14px;color:#FFF;margin:8px 0 8px 20px">Reset positions</span>
+              <span style="font-family:Consolas,ui-monospace,monospace;color:#88CCFF;font-size:16px;margin:8px 0">Ctrl+Shift+H</span><span style="font-size:14px;color:#FFF;margin:8px 0 8px 20px">Show hotkeys</span>
+            </div>
+            <div style="display:flex;justify-content:center;margin-top:20px">
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-width:100px;min-height:44px;padding:10px 20px;background:#3E3E3E;border:2px solid #5E5E5E;border-radius:6px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box">Close</div>
+            </div>
+          </div>
+        </div>
+        <!-- About 400x200 -->
+        <div style="width:402px;background:#1E1E1E;border:1px solid #999;box-shadow:0 16px 40px rgba(0,0,0,0.35);overflow:hidden">
+          <div style="height:28px;background:#FFFFFF;display:flex;align-items:center;border-bottom:1px solid #D9D9D9">
+            <span style="flex:1;font-size:12px;color:#000;margin-left:10px">About DeafDirectionalHelper</span>
+            <div style="width:40px;height:28px;display:flex;align-items:center;justify-content:center;color:#000;font-size:11px">&#x2715;</div>
+          </div>
+          <div style="padding:20px;display:flex;flex-direction:column;align-items:center">
+            <div style="font-size:24px;font-weight:700;color:#FFFFFF">DeafDirectionalHelper</div>
+            <div style="font-size:14px;color:#AAAAAA;margin:5px 0 10px">Version 1.0.0</div>
+            <div style="font-size:12px;color:#CCCCCC;text-align:center">Audio visualization tool for deaf and hard-of-hearing gamers</div>
+            <div style="font-size:13px;color:#6CA0DC;text-decoration:underline;margin-top:10px;cursor:pointer">View on GitHub</div>
+            <div style="display:inline-flex;align-items:center;justify-content:center;width:80px;height:28px;background:#3E3E3E;border:1px solid #555;color:#fff;font-size:12px;cursor:pointer;box-sizing:border-box;margin-top:14px">OK</div>
+          </div>
+        </div>
+        <!-- Profile editor 500x220 -->
+        <div style="width:502px;background:#1E1E1E;border:1px solid #999;box-shadow:0 16px 40px rgba(0,0,0,0.35);overflow:hidden">
+          <div style="height:28px;background:#FFFFFF;display:flex;align-items:center;border-bottom:1px solid #D9D9D9">
+            <span style="flex:1;font-size:12px;color:#000;margin-left:10px">Edit Profile</span>
+            <div style="width:40px;height:28px;display:flex;align-items:center;justify-content:center;color:#000;font-size:11px">&#x2715;</div>
+          </div>
+          <div style="padding:20px">
+            <div style="display:flex;align-items:center;margin-bottom:16px">
+              <span style="width:100px;flex:none;font-size:14px;color:#FFF">Name:</span>
+              <div style="flex:1;min-height:36px;background:#2E2E2E;border:2px solid #5E5E5E;box-sizing:border-box;display:flex;align-items:center;padding:6px 8px;font-size:14px;color:#FFF">New Profile</div>
+            </div>
+            <div style="display:flex;align-items:center;margin-bottom:16px">
+              <span style="width:100px;flex:none;font-size:14px;color:#FFF">Executable:</span>
+              <div style="flex:1;min-height:36px;background:#2E2E2E;border:2px solid #5E5E5E;box-sizing:border-box;display:flex;align-items:center;padding:6px 8px;font-size:14px;color:#888"></div>
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-width:80px;height:40px;padding:8px 16px;background:#3E3E3E;border:2px solid #5E5E5E;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box;margin-left:8px">Browse...</div>
+            </div>
+            <div style="min-height:30px"></div>
+            <div style="display:flex;justify-content:flex-end">
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-width:90px;height:40px;padding:8px 16px;background:#3E3E3E;border:2px solid #5E5E5E;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box;margin-right:12px">Cancel</div>
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-width:90px;height:40px;padding:8px 16px;background:#2E7D32;border:2px solid #388E3C;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box">OK</div>
+            </div>
+          </div>
+        </div>
+        <!-- ThemedMessageBox 400x180 -->
+        <div style="width:402px;background:#1E1E1E;border:1px solid #999;box-shadow:0 16px 40px rgba(0,0,0,0.35);overflow:hidden">
+          <div style="height:28px;background:#FFFFFF;display:flex;align-items:center;border-bottom:1px solid #D9D9D9">
+            <span style="flex:1;font-size:12px;color:#000;margin-left:10px">Exit Application</span>
+            <div style="width:40px;height:28px;display:flex;align-items:center;justify-content:center;color:#000;font-size:11px">&#x2715;</div>
+          </div>
+          <div style="padding:20px;display:flex;flex-direction:column;min-height:132px;box-sizing:border-box">
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:16px;color:#FFF;text-align:center">Are you sure you want to exit DeafDirectionalHelper?</div>
+            <div style="display:flex;justify-content:center;margin-top:12px">
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-width:90px;height:40px;padding:8px 16px;background:#2E7D32;border:2px solid #388E3C;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box">Yes</div>
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-width:90px;height:40px;padding:8px 16px;background:#3E3E3E;border:2px solid #5E5E5E;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-sizing:border-box;margin-left:12px">No</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================ 1g TRAY ================================ -->
+    <div id="1g" data-screen-label="Tray experience (current)" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55)">
+        <a href="#1g" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">1g</a>
+        Tray — WinForms context menu + balloon tip on profile switch (no first-run flow today; settings opens on launch)
+      </div>
+      <div style="width:420px;height:300px;position:relative;background:#15181D;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden">
+        <div style="position:absolute;left:0;right:0;bottom:0;height:44px;background:#1c1f24;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:flex-end;padding:0 12px;gap:10px">
+          <span style="font-size:11px;color:rgba(255,255,255,0.45)">&#x25B4;</span>
+          <img src="Icons/Icon32.png" alt="" style="width:18px;height:18px"/>
+          <span style="font-size:11px;color:rgba(255,255,255,0.65)">9:41 PM</span>
+        </div>
+        <!-- balloon tip -->
+        <div style="position:absolute;right:12px;top:56px;width:280px;background:#2B2B2B;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,0.5);padding:12px 14px;display:flex;gap:10px;align-items:flex-start">
+          <img src="Icons/Icon32.png" alt="" style="width:28px;height:28px;margin-top:2px"/>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:#FFF">DeafDirectionalHelper</div>
+            <div style="font-size:12px;color:#BBB;margin-top:2px">Profile: Default</div>
+          </div>
+          <span style="color:#888;font-size:11px">&#x2715;</span>
+        </div>
+        <!-- context menu -->
+        <div style="position:absolute;right:26px;bottom:56px;width:170px;background:#FBFBFB;border:1px solid #CCCCCC;box-shadow:2px 4px 12px rgba(0,0,0,0.35);padding:2px">
+          <div style="display:flex;align-items:center;height:26px;padding:0 8px 0 32px;font-size:12px;color:#111;background:#DFE9F5">Settings</div>
+          <div style="display:flex;align-items:center;height:26px;padding:0 8px 0 32px;font-size:12px;color:#111">Enable/Disable</div>
+          <div style="height:1px;background:#D7D7D7;margin:3px 28px 3px 32px"></div>
+          <div style="display:flex;align-items:center;height:26px;padding:0 8px 0 32px;font-size:12px;color:#111">Exit</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p style="margin:24px 0 0;font:12px/1.5 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.5)">This is the baseline. The redesign directions live in <a href="Redesign.dc.html" style="color:#1a1a1a;font-weight:700">Redesign.dc.html</a> — try "pause the simulation" or "preview transparent mode" via Tweaks on this file.</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;simulate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;transparentMode&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Demo&quot;}}">
+class Component extends DCLogic {
+  state = { l: [0, 0, 0, 0, 0, 0, 0, 0] };
+
+  componentDidMount() {
+    this._peaks = new Array(8).fill(0);
+    this._times = new Array(8).fill(0);
+    this._timer = setInterval(() => this.tick(), 200);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._timer);
+  }
+
+  // Simulated 200ms audio poll with 1s peak retention (Speaker.cs behavior)
+  tick() {
+    if ((this.props.simulate ?? true) === false) return;
+    const now = Date.now();
+    const inst = Array.from({ length: 8 }, () => Math.random() * 0.03);
+    // occasional directional event: FL=0 FR=1 C=2 LFE=3 RL=4 RR=5 SL=6 SR=7
+    if (Math.random() < 0.3) {
+      const groups = [[0], [1], [4], [5], [6], [7], [0, 6], [1, 7], [4, 6], [5, 7]];
+      const pick = groups[Math.floor(Math.random() * groups.length)];
+      const loud = 0.12 + Math.random() * 0.8;
+      pick.forEach((c, i) => { inst[c] = Math.max(inst[c], loud * (i === 0 ? 1 : 0.7)); });
+    }
+    if (Math.random() < 0.12) inst[2] = 0.15 + Math.random() * 0.5;
+    if (Math.random() < 0.1) inst[3] = 0.2 + Math.random() * 0.7;
+    const l = inst.map((v, i) => {
+      if (v >= this._peaks[i] || now - this._times[i] > 1000) {
+        this._peaks[i] = v;
+        this._times[i] = now;
+      }
+      return this._peaks[i];
+    });
+    this.setState({ l });
+  }
+
+  // ColoredSpeakers.ApplySettings: threshold 0.05, sensitivity 1.0
+  ap(v) {
+    if (v < 0.05) return 0;
+    return Math.min(1, Math.max(0, v));
+  }
+
+  // ColorGradient.cs: 0–0.005 white, 0.005–0.6 yellow→red, 0.6–1 red
+  grad(v) {
+    if (v < 0.005) return '#FFFFFF';
+    if (v >= 0.6) return '#FF0000';
+    const t = (v - 0.005) / 0.595;
+    return 'rgb(255,' + Math.round(255 * (1 - t)) + ',0)';
+  }
+
+  // GetSpeakerOpacity: maxOpacity 1.0; transparent mode scales 0.3→1 by level
+  op(raw) {
+    if (!(this.props.transparentMode ?? false)) return 1;
+    const level = this.ap(raw);
+    if (level < 0.01) return 0;
+    return Math.min(1, level * 2 + 0.3);
+  }
+
+  opAct(activity) {
+    if (!(this.props.transparentMode ?? false)) return 1;
+    if (activity < 0.01) return 0;
+    return Math.min(1, activity * 2 + 0.3);
+  }
+
+  renderVals() {
+    const l = this.state.l;
+    const L = this.ap(Math.max(l[0], l[4], l[6]));
+    const R = this.ap(Math.max(l[1], l[5], l[7]));
+    const g = (i) => this.grad(this.ap(l[i]));
+    return {
+      barL: this.grad(L),
+      barR: this.grad(R),
+      oL: this.opAct(L),
+      oR: this.opAct(R),
+      c1: g(0), c2: g(1), c3: g(2), c4: g(3), c5: g(4), c6: g(5), c7: g(6), c8: g(7),
+      o1: this.op(l[0]), o2: this.op(l[1]), o3: this.op(l[2]), o4: this.op(l[3]),
+      o5: this.op(l[4]), o6: this.op(l[5]), o7: this.op(l[6]), o8: this.op(l[7]),
+      oLT: this.op(l[0]), oLC: this.op(l[6]), oLB: this.op(l[4]),
+      oRT: this.op(l[1]), oRC: this.op(l[7]), oRB: this.op(l[5])
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@ using Microsoft.Win32;
 
 namespace DeafDirectionalHelper.View;
 
-public partial class ProfileEditorWindow : Window
+public partial class ProfileEditorWindow : ThemedDialog
 {
     /// <summary>
     /// The profile name entered by the user.
@@ -29,6 +29,7 @@ public partial class ProfileEditorWindow : Window
     public ProfileEditorWindow()
     {
         InitializeComponent();
+        Loaded += (_, _) => ProfileNameTextBox.Focus();
     }
 
     /// <summary>
@@ -46,19 +47,32 @@ public partial class ProfileEditorWindow : Window
         if (isDefault)
         {
             ExePathTextBox.IsEnabled = false;
-            InfoText.Text = "The Default profile is used when no other profiled application is running.";
-            Title = "Edit Default Profile";
+            InfoText.Text = "The Default profile is used when no other profiled game is running.";
+            Title = "Edit Default profile";
+            OkButton.Content = "Save";
         }
         else if (IsNewProfile)
         {
-            Title = "New Profile";
-            InfoText.Text = "Select an executable to automatically switch to this profile when it's running.";
+            Title = "New profile";
+            OkButton.Content = "Create profile";
+            UpdateHelperText();
         }
         else
         {
-            Title = "Edit Profile";
-            InfoText.Text = "Change the profile name or select a different executable.";
+            Title = "Edit profile";
+            OkButton.Content = "Save";
+            UpdateHelperText();
         }
+    }
+
+    private void UpdateHelperText()
+    {
+        var exe = string.IsNullOrEmpty(ExePath)
+            ? null
+            : System.IO.Path.GetFileName(ExePath);
+        InfoText.Text = exe != null
+            ? $"When {exe} is running, this profile switches on automatically."
+            : "Pick the game's .exe and this profile will switch on automatically whenever it runs.";
     }
 
     private void Browse_Click(object sender, RoutedEventArgs e)
@@ -74,6 +88,7 @@ public partial class ProfileEditorWindow : Window
         {
             ExePath = dialog.FileName;
             ExePathTextBox.Text = dialog.FileName;
+            UpdateHelperText();
 
             // Auto-fill name if empty or still default
             if (string.IsNullOrWhiteSpace(ProfileNameTextBox.Text) ||
@@ -103,12 +118,6 @@ public partial class ProfileEditorWindow : Window
         }
 
         DialogResult = true;
-        Close();
-    }
-
-    private void Cancel_Click(object sender, RoutedEventArgs e)
-    {
-        DialogResult = false;
         Close();
     }
 }

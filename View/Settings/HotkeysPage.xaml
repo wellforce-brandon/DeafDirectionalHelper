@@ -1,0 +1,12 @@
+<UserControl x:Class="DeafDirectionalHelper.View.Settings.HotkeysPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel>
+        <TextBlock Text="Hotkeys" Style="{StaticResource PageTitleText}"/>
+        <TextBlock Text="These work everywhere — even while a game has focus."
+                   Style="{StaticResource PageSubtitleText}" Margin="0,4,0,16"/>
+
+        <StackPanel x:Name="HotkeyList"/>
+    </StackPanel>
+</UserControl>

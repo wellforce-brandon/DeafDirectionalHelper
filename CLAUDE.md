@@ -38,22 +38,37 @@
 ## Project Structure
 
 ```
-CanetisRadar2/
-├── Audio/                    # Audio capture and processing
-│   ├── Speaker.cs            # Individual channel with value retention
-│   └── Speakers.cs           # 7.1 channel management via NAudio
-├── View/                     # WPF views
-│   ├── ColoredSpeakers.cs    # Data binding (audio -> colors)
-│   ├── LeftScreen.xaml       # Left edge display
-│   └── RightScreen.xaml      # Right edge display
-├── ColorGradient.cs          # Color interpolation
-├── MainWindow.xaml.cs        # App coordinator
-├── App.xaml                  # WPF entry point
-├── .claude/                  # Claude Code configuration
-│   ├── commands/             # Custom slash commands
-│   ├── skills/               # Development guidelines
-│   └── hooks/                # Automation scripts
-└── CLAUDE.md                 # This file
+DeafDirectionalHelper/
+├── Audio/                       # Capture and processing
+│   ├── Speaker.cs               # Individual channel with value retention
+│   ├── Speakers.cs              # Channel mapping; owns Sessions + Endpoint
+│   ├── CaptureMode.cs           # FollowGame / WindowsDefault / FixedDevice
+│   ├── EndpointSelector.cs      # Which device to read, per capture mode
+│   ├── SessionLocator.cs        # Audio session -> owning process mapping
+│   ├── SignalDoctor.cs          # "Armed but silent on wrong device" detector
+│   └── AudioEventLogger.cs      # Optional troubleshooting logs
+├── Services/
+│   └── GameDetector.cs          # Known-game watch + unknown-game heuristic
+├── Settings/                    # AppSettings/AppProfile + manager (v3 schema,
+│                                #   migration + backups in SettingsManager)
+├── Theme/
+│   ├── Theme.xaml               # Design tokens (colors, typography)
+│   └── Controls.xaml            # Control templates (toggle, segmented, ...)
+├── View/
+│   ├── Overlays/                # OverlayWindow + LevelEngine + 5 style renderers
+│   ├── Settings/                # SettingsShell + 6 pages (2a sidebar design)
+│   ├── ScaleEngine.cs           # Loudness color ramps (Thermal/Ice/Violet/Classic)
+│   ├── ToastHost.cs             # Toast layer (game detection, status)
+│   ├── TrayFlyout.cs            # WPF tray menu
+│   ├── FirstRunWizard.xaml      # 3-step onboarding
+│   ├── ThemedDialog.cs          # Dialog base (ExitConfirm/Hotkeys/ProfileEditor)
+│   └── SignalDoctorWindow.xaml  # One-click capture fixes
+├── Helpers/                     # DarkChrome (title bars), WindowHelper (click-through)
+├── Hotkeys/                     # Global hotkey registration
+├── MainWindow.xaml.cs           # App coordinator (hidden window)
+├── App.xaml                     # WPF entry point + merged theme dictionaries
+├── .claude/                     # Claude Code configuration + plan (PROGRESS.md)
+└── CLAUDE.md                    # This file
 ```
 
 ## Custom Commands

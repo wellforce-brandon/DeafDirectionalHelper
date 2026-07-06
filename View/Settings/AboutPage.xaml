@@ -1,0 +1,19 @@
+<UserControl x:Class="DeafDirectionalHelper.View.Settings.AboutPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel>
+        <TextBlock Text="About" Style="{StaticResource PageTitleText}"/>
+        <TextBlock x:Name="VersionText" Text="Version" Style="{StaticResource PageSubtitleText}" Margin="0,4,0,16"/>
+
+        <TextBlock Style="{StaticResource RowLabelText}" Text="DeafDirectionalHelper" FontWeight="Bold"/>
+        <TextBlock Style="{StaticResource RowHelperText}" Margin="0,6,0,14" MaxWidth="520" HorizontalAlignment="Left"
+                   Text="An accessibility tool for deaf and hard-of-hearing gamers. It visualizes which direction game sounds come from by reading audio output levels — the same data the Windows volume mixer shows. It never reads game memory, injects code, or hooks games."/>
+
+        <Button x:Name="GitHubButton" Content="GitHub — wellforce-brandon/DeafDirectionalHelper"
+                Style="{StaticResource LinkButton}" HorizontalAlignment="Left" Click="GitHub_Click"/>
+
+        <TextBlock Style="{StaticResource RowHelperText}" Margin="0,18,0,0"
+                   Text="Based on CanetisRadar2 by Maxime Bonvin (MIT license)."/>
+    </StackPanel>
+</UserControl>

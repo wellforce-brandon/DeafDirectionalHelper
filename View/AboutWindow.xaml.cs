@@ -9,6 +9,7 @@ public partial class AboutWindow : Window
     public AboutWindow()
     {
         InitializeComponent();
+        Helpers.DarkChrome.Apply(this);
         VersionText.Text = $"Version {AppVersion.Version}";
     }
 

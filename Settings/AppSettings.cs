@@ -6,7 +6,13 @@ namespace DeafDirectionalHelper.Settings;
 public class AppSettings
 {
     [JsonPropertyName("version")]
-    public int Version { get; set; } = 1;
+    public int Version { get; set; } = 3;
+
+    [JsonPropertyName("ignoredGames")]
+    public List<string> IgnoredGames { get; set; } = new();
+
+    [JsonPropertyName("firstRunCompleted")]
+    public bool FirstRunCompleted { get; set; } = false;
 
     [JsonPropertyName("bars")]
     public BarSettings Bars { get; set; } = new();
@@ -28,6 +34,20 @@ public class AppSettings
 
     [JsonPropertyName("autoSwitchProfiles")]
     public bool AutoSwitchProfiles { get; set; } = true;
+
+    [JsonPropertyName("profileSwitchBehavior")]
+    public ProfileSwitchBehavior ProfileSwitchBehavior { get; set; } = ProfileSwitchBehavior.SwitchWithToast;
+
+    [JsonPropertyName("offerProfileForUnknownGames")]
+    public bool OfferProfileForUnknownGames { get; set; } = true;
+}
+
+/// <summary>What happens when a profiled game starts (plan 3d).</summary>
+public enum ProfileSwitchBehavior
+{
+    Silent,
+    SwitchWithToast,
+    AskFirst
 }
 
 public class BarSettings
@@ -91,6 +111,33 @@ public class BarSettings
 
     [JsonPropertyName("rightIndicatorPercent")]
     public double RightIndicatorPercent { get; set; } = 0.65; // 0.5 to 1.0 (right side of screen)
+
+    // --- v2 presentation (edited by the new settings shell, rendered by the
+    //     Phase 4 overlays; profiles carry per-game copies of these) ---
+
+    [JsonPropertyName("overlayStyle")]
+    public OverlayStyle OverlayStyle { get; set; } = OverlayStyle.SideBars;
+
+    [JsonPropertyName("pairWithSideBars")]
+    public bool PairWithSideBars { get; set; } = false;
+
+    [JsonPropertyName("colorScale")]
+    public ColorScale ColorScale { get; set; } = ColorScale.Thermal;
+
+    [JsonPropertyName("overlaySize")]
+    public double OverlaySize { get; set; } = 1.0; // 0.5 to 2.0
+
+    [JsonPropertyName("ringCount")]
+    public int RingCount { get; set; } = 5; // 3 | 5 | 7
+
+    [JsonPropertyName("ringMapping")]
+    public RingMapping RingMapping { get; set; } = RingMapping.Distance;
+
+    [JsonPropertyName("anchor")]
+    public OverlayAnchor Anchor { get; set; } = OverlayAnchor.Bottom;
+
+    [JsonPropertyName("linkIndicators")]
+    public bool LinkIndicators { get; set; } = true; // mirrored left/right positions
 }
 
 public class DisplaySettings
@@ -152,6 +199,9 @@ public class GeneralSettings
 
     [JsonPropertyName("audioDevice")]
     public string? AudioDevice { get; set; } = null; // null = auto-detect
+
+    [JsonPropertyName("captureMode")]
+    public Audio.CaptureMode CaptureMode { get; set; } = Audio.CaptureMode.FollowGame;
 
     [JsonPropertyName("enableAudioLogging")]
     public bool EnableAudioLogging { get; set; } = false;

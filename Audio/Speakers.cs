@@ -46,13 +46,6 @@ namespace DeafDirectionalHelper.Audio
     /// </summary>
     public sealed class Speakers
     {
-        private const long RecoveryIntervalMs = 2000; // Try to recover every 2 seconds
-
-        private MMDevice? _device;
-        private readonly MMDeviceEnumerator _enumerator;
-        private readonly Stopwatch _recoveryTimer = new();
-        private bool _deviceLost;
-
         public readonly Speaker Speaker1 = new Speaker();
         public readonly Speaker Speaker2 = new Speaker();
         public readonly Speaker Speaker3 = new Speaker();
@@ -62,116 +55,56 @@ namespace DeafDirectionalHelper.Audio
         public readonly Speaker Speaker7 = new Speaker();
         public readonly Speaker Speaker8 = new Speaker();
 
-        public string CurrentDeviceName => _device?.FriendlyName ?? "None";
-        public int CurrentChannelCount => _device?.AudioMeterInformation.PeakValues.Count ?? 0;
+        /// <summary>Session-to-process mapping across all render endpoints (2 s poll).</summary>
+        public SessionLocator Sessions { get; }
+
+        /// <summary>Owns which endpoint is read, per the configured CaptureMode.</summary>
+        public EndpointSelector Endpoint { get; }
+
+        /// <summary>Max raw channel peak from the last successful Update; feeds SignalDoctor.</summary>
+        public float LastRawPeak { get; private set; }
+
+        public string CurrentDeviceName => Endpoint.CurrentDeviceName;
+        public int CurrentChannelCount => Endpoint.Current?.AudioMeterInformation.PeakValues.Count ?? 0;
 
         public Speakers()
         {
-            _enumerator = new MMDeviceEnumerator();
-            SelectDevice();
-
-            // Subscribe to settings changes to switch devices
-            SettingsManager.Instance.SettingsChanged += (_, _) => SelectDevice();
-        }
-
-        public void SelectDevice()
-        {
-            // List all audio devices for diagnostics
+            // List all audio devices once for diagnostics
             Console.WriteLine("=== Available Audio Devices ===");
-            var devices = _enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
-            foreach (var d in devices)
+            using (var enumerator = new MMDeviceEnumerator())
             {
-                Console.WriteLine($"  {d.FriendlyName} - Channels: {d.AudioMeterInformation.PeakValues.Count}");
+                foreach (var d in enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
+                {
+                    Console.WriteLine($"  {d.FriendlyName} - Channels: {d.AudioMeterInformation.PeakValues.Count}");
+                }
             }
             Console.WriteLine("===============================");
 
-            var settings = SettingsManager.Instance.Settings;
-            var preferredDevice = settings.General.AudioDevice;
-
-            MMDevice? selectedDevice = null;
-
-            // If a specific device is configured, try to find it
-            if (!string.IsNullOrEmpty(preferredDevice))
-            {
-                selectedDevice = devices.FirstOrDefault(d => d.FriendlyName.Contains(preferredDevice));
-                if (selectedDevice != null)
-                {
-                    Console.WriteLine($"Using configured device: {selectedDevice.FriendlyName} ({selectedDevice.AudioMeterInformation.PeakValues.Count} channels)");
-                }
-            }
-
-            // Fall back to auto-detection if no device configured or not found
-            if (selectedDevice == null)
-            {
-                // Try to find any device with 8 channels
-                selectedDevice = devices.FirstOrDefault(d => d.AudioMeterInformation.PeakValues.Count == 8);
-
-                if (selectedDevice != null)
-                {
-                    Console.WriteLine($"Auto-selected 8-channel device: {selectedDevice.FriendlyName}");
-                }
-                else
-                {
-                    // Last resort: use default device
-                    selectedDevice = _enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
-                    Console.WriteLine($"No 8-channel device found. Using default: {selectedDevice.FriendlyName} ({selectedDevice.AudioMeterInformation.PeakValues.Count} channels)");
-                }
-            }
-
-            _device = selectedDevice;
-
-            if (_deviceLost && _device != null)
-            {
-                _deviceLost = false;
-                Console.WriteLine("Audio device recovered.");
-            }
-        }
-
-        private void TryRecoverDevice()
-        {
-            // Throttle recovery attempts
-            if (_recoveryTimer.IsRunning && _recoveryTimer.ElapsedMilliseconds < RecoveryIntervalMs)
-                return;
-
-            _recoveryTimer.Restart();
-
-            if (!_deviceLost)
-            {
-                _deviceLost = true;
-                Console.WriteLine("Audio device lost. Attempting recovery...");
-            }
-
-            try
-            {
-                SelectDevice();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Device recovery failed: {ex.Message}");
-            }
+            Sessions = new SessionLocator();
+            Endpoint = new EndpointSelector(Sessions);
+            Endpoint.EnsureSelected();
         }
 
         public void Update()
         {
-            if (_device == null)
-            {
-                TryRecoverDevice();
+            Endpoint.EnsureSelected();
+
+            var device = Endpoint.Current;
+            if (device == null)
                 return;
-            }
 
             AudioMeterInformationChannels peakValues;
             int channelCount;
 
             try
             {
-                peakValues = _device.AudioMeterInformation.PeakValues;
+                peakValues = device.AudioMeterInformation.PeakValues;
                 channelCount = peakValues.Count;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Audio device error: {ex.Message}");
-                _device = null!;
-                TryRecoverDevice();
+                Endpoint.MarkDeviceLost();
                 return;
             }
 
@@ -230,6 +163,8 @@ namespace DeafDirectionalHelper.Audio
             {
                 return;
             }
+
+            LastRawPeak = rawValues.Max();
 
             // Log the audio event
             LogAudioEvent(rawValues);

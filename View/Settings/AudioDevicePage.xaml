@@ -1,0 +1,71 @@
+<UserControl x:Class="DeafDirectionalHelper.View.Settings.AudioDevicePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel>
+        <TextBlock Text="Audio &amp; device" Style="{StaticResource PageTitleText}"/>
+        <TextBlock Text="Where the app listens. It reads output levels only — the same data as the Windows volume mixer."
+                   Style="{StaticResource PageSubtitleText}" Margin="0,4,0,16"/>
+
+        <!-- Capture mode radio cards -->
+        <RadioButton x:Name="FollowGameCard" GroupName="Capture" Style="{StaticResource RadioCard}"
+                     Margin="0,0,0,10" Checked="CaptureMode_Checked" Tag="FollowGame"
+                     AutomationProperties.Name="Capture mode: Follow the game">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Follow the game" Style="{StaticResource RowLabelText}" FontWeight="SemiBold"/>
+                    <ContentControl Style="{StaticResource Pill}" Content="RECOMMENDED"
+                                    Background="{StaticResource Success}" Foreground="{StaticResource OnSuccess}"
+                                    Margin="10,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Text="Reads the game's own audio session on whichever device it plays to. Zero setup — fixes 'overlay never lights up'."
+                           Style="{StaticResource RowHelperText}" Margin="0,4,0,0"/>
+            </StackPanel>
+        </RadioButton>
+
+        <RadioButton x:Name="WindowsDefaultCard" GroupName="Capture" Style="{StaticResource RadioCard}"
+                     Margin="0,0,0,10" Checked="CaptureMode_Checked" Tag="WindowsDefault"
+                     AutomationProperties.Name="Capture mode: Windows default device">
+            <StackPanel>
+                <TextBlock Text="Windows default device" Style="{StaticResource RowLabelText}" FontWeight="SemiBold"/>
+                <TextBlock Text="Follows whatever Windows is playing to — survives headphone ↔ speaker swaps."
+                           Style="{StaticResource RowHelperText}" Margin="0,4,0,0"/>
+            </StackPanel>
+        </RadioButton>
+
+        <RadioButton x:Name="FixedDeviceCard" GroupName="Capture" Style="{StaticResource RadioCard}"
+                     Margin="0,0,0,16" Checked="CaptureMode_Checked" Tag="FixedDevice"
+                     AutomationProperties.Name="Capture mode: One specific device">
+            <StackPanel>
+                <TextBlock Text="One specific device" Style="{StaticResource RowLabelText}" FontWeight="SemiBold"/>
+                <TextBlock Text="Best for full 7.1 via an 8-channel virtual cable (Voicemeeter, VB-Cable)."
+                           Style="{StaticResource RowHelperText}" Margin="0,4,0,0"/>
+                <ComboBox x:Name="DeviceCombo" Style="{StaticResource ThemedComboBox}"
+                          Margin="0,10,0,0" MaxWidth="420" HorizontalAlignment="Left" MinWidth="360"
+                          SelectionChanged="DeviceCombo_Changed"
+                          AutomationProperties.Name="Fixed capture device"/>
+            </StackPanel>
+        </RadioButton>
+
+        <!-- Live signal check -->
+        <Border Background="{StaticResource Panel}" BorderBrush="{StaticResource Border}"
+                BorderThickness="1" CornerRadius="10" Padding="16" Margin="0,0,0,12">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <Ellipse Width="10" Height="10" Fill="{StaticResource Success}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="SignalCheckLabel" Text="Live signal check"
+                               Style="{StaticResource RowLabelText}" FontWeight="SemiBold"
+                               Margin="8,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel x:Name="MeterPanel" Orientation="Horizontal"/>
+                <TextBlock x:Name="StereoNote"
+                           Text="Stereo source: directions collapse to left / right. Route to an 8-channel device for full surround."
+                           FontSize="12.5" Foreground="{StaticResource Warn}" Margin="0,10,0,0"
+                           Visibility="Collapsed" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <Button Content="Refresh devices" Style="{StaticResource SecondaryButton}"
+                HorizontalAlignment="Left" Click="RefreshDevices_Click"/>
+    </StackPanel>
+</UserControl>

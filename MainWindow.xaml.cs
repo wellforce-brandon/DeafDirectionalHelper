@@ -35,33 +35,45 @@ namespace DeafDirectionalHelper
         }
 
         private readonly Speakers _speakers;
-        private readonly ColoredSpeakers _coloredSpeakers;
         private readonly SettingsManager _settingsManager;
         private readonly ProfileManager _profileManager;
-        private readonly ProcessMonitor _processMonitor;
+        private readonly GameDetector _gameDetector;
+        private readonly ToastHost _toastHost = new();
+        private string? _profileBeforeAutoSwitch;
 
-        private DualBarsView? _dualBarsView;
-        private HorizontalDualView? _horizontalDualView;
-        private Full7Point1View? _full7Point1View;
-        private SettingsWindow? _settingsWindow;
+        private View.Overlays.OverlayWindow? _overlayWindow;
+        private View.Settings.SettingsShell? _settingsWindow;
+        private TrayFlyout? _trayFlyout;
         private Forms.NotifyIcon? _notifyIcon;
 
         private bool _isMonitoring = true;
         private CancellationTokenSource? _monitoringCts;
         private GlobalHotkeyManager? _hotkeyManager;
+        private SignalDoctor? _signalDoctor;
+        private SignalDoctorWindow? _signalDoctorWindow;
 
         public MainWindow()
         {
             InitializeComponent();
+            Helpers.DarkChrome.Apply(this);
 
             _settingsManager = SettingsManager.Instance;
             _profileManager = ProfileManager.Instance;
+            RevertStaleProfile();
             _speakers = new Speakers();
-            _coloredSpeakers = new ColoredSpeakers(_speakers);
 
-            // Setup process monitor for profile auto-switching
-            _processMonitor = new ProcessMonitor();
-            _processMonitor.ActiveProcessChanged += OnActiveProcessChanged;
+            // Signal doctor: catches "overlay armed but silent on the wrong device"
+            _signalDoctor = new SignalDoctor(_speakers.Sessions, _speakers.Endpoint)
+            {
+                IsTrackedProcess = name => _profileManager.GetProfileForProcess(name) != null
+            };
+            _signalDoctor.MismatchDetected += OnAudioMismatchDetected;
+
+            // Game detection: known games by process, unknown games by audible
+            // session + fullscreen-ish foreground window (plan D7)
+            _gameDetector = new GameDetector(_speakers.Sessions);
+            _gameDetector.ActiveProcessChanged += OnActiveProcessChanged;
+            _gameDetector.UnknownGameDetected += OnUnknownGameDetected;
             UpdateProcessMonitorWatchList();
 
             // Subscribe to profile changes to update watch list
@@ -73,29 +85,88 @@ namespace DeafDirectionalHelper
             StartMonitoring();
             SetupHotkeys();
 
-            // Start process monitoring
-            _processMonitor.Start();
+            // Start game detection
+            _gameDetector.Start();
 
             // Hide main window (we use system tray)
             Hide();
             WindowState = WindowState.Minimized;
             ShowInTaskbar = false;
 
-            // Show settings on startup unless "Start minimized" is enabled
-            if (!_settingsManager.Settings.General.StartMinimized)
+            // First run: wizard once, then live in the tray (plan D8)
+            if (!_settingsManager.Settings.FirstRunCompleted)
+            {
+                new FirstRunWizard().ShowDialog();
+                _overlayWindow?.ApplySettings();
+                _toastHost.ShowInfo("Running in the tray — Ctrl+Shift+S opens settings");
+            }
+            else if (_settingsManager.Settings.General.StartMinimized)
+            {
+                _toastHost.ShowInfo("Running in the tray — Ctrl+Shift+S opens settings");
+            }
+            else
             {
                 ShowSettings();
             }
         }
 
+        /// <summary>
+        /// The settings file remembers the last-active profile. If the app was
+        /// closed while a game ran (or the machine rebooted), that game profile
+        /// would stay active forever - revert to Default unless its process is
+        /// actually running right now.
+        /// </summary>
+        private void RevertStaleProfile()
+        {
+            var active = _profileManager.ActiveProfile;
+            if (active.IsDefault || string.IsNullOrEmpty(active.ProcessName))
+                return;
+
+            try
+            {
+                var processes = System.Diagnostics.Process.GetProcessesByName(active.ProcessName);
+                var running = processes.Length > 0;
+                foreach (var process in processes)
+                    process.Dispose();
+                if (running)
+                    return;
+            }
+            catch
+            {
+                return; // can't tell - leave the profile alone
+            }
+
+            Console.WriteLine($"Profile '{active.Name}' was active but {active.ProcessName}.exe is not running - reverting to Default");
+            _profileManager.ActivateProfile(_profileManager.GetDefaultProfile());
+        }
+
         private void UpdateProcessMonitorWatchList()
         {
             var processNames = _profileManager.GetWatchedProcessNames();
-            _processMonitor.UpdateWatchList(processNames);
+            _gameDetector.UpdateWatchList(processNames);
+        }
+
+        private void OnAudioMismatchDetected(object? sender, MismatchEventArgs e)
+        {
+            // Tick runs on the dispatcher, so we're already on the UI thread.
+            if (_signalDoctorWindow != null && _signalDoctorWindow.IsVisible)
+                return;
+
+            _signalDoctorWindow = new SignalDoctorWindow(e);
+            _signalDoctorWindow.Closed += (_, _) =>
+            {
+                _signalDoctorWindow = null;
+                _signalDoctor?.Suppress(e.GameProcess);
+            };
+            _signalDoctorWindow.Show();
+            _signalDoctorWindow.Activate();
         }
 
         private void OnActiveProcessChanged(object? sender, string? processName)
         {
+            // Follow-game capture tracks whichever profiled process is running
+            _speakers.Endpoint.TrackedProcessName = processName;
+
             // Don't auto-switch if paused (settings window open) or disabled
             if (_profileManager.AutoSwitchPaused || !_profileManager.AutoSwitchEnabled)
                 return;
@@ -114,10 +185,63 @@ namespace DeafDirectionalHelper
                     targetProfile = _profileManager.GetDefaultProfile();
                 }
 
-                if (targetProfile.Id != _profileManager.ActiveProfile.Id)
+                if (targetProfile.Id == _profileManager.ActiveProfile.Id)
+                    return;
+
+                // Reverting to Default (game stopped) is always silent.
+                var behavior = targetProfile.IsDefault
+                    ? ProfileSwitchBehavior.Silent
+                    : _settingsManager.Settings.ProfileSwitchBehavior;
+
+                switch (behavior)
                 {
-                    _profileManager.ActivateProfile(targetProfile);
+                    case ProfileSwitchBehavior.Silent:
+                        _profileManager.ActivateProfile(targetProfile);
+                        break;
+
+                    case ProfileSwitchBehavior.SwitchWithToast:
+                        _profileBeforeAutoSwitch = _profileManager.ActiveProfile.Id;
+                        _profileManager.ActivateProfile(targetProfile);
+                        _toastHost.ShowProfileSwitched(targetProfile, onUndo: () =>
+                        {
+                            if (_profileBeforeAutoSwitch != null)
+                                _profileManager.ActivateProfile(_profileBeforeAutoSwitch);
+                        });
+                        break;
+
+                    case ProfileSwitchBehavior.AskFirst:
+                        _toastHost.ShowAskSwitch(targetProfile,
+                            onSwitch: () => _profileManager.ActivateProfile(targetProfile));
+                        break;
                 }
+            });
+        }
+
+        private void OnUnknownGameDetected(object? sender, UnknownGameEventArgs e)
+        {
+            Dispatcher.BeginInvoke(DispatcherPriority.Normal, () =>
+            {
+                _toastHost.ShowUnknownGame(e.ProcessName, e.ExePath,
+                    onCreate: () =>
+                    {
+                        var editor = new ProfileEditorWindow { IsNewProfile = true };
+                        editor.SetProfile(e.ProcessName, e.ExePath, false);
+                        if (editor.ShowDialog() == true)
+                        {
+                            // Seeded from current settings + detected exe; auto-switch
+                            // picks it up on the next detection poll.
+                            _profileManager.CreateProfile(editor.ProfileName,
+                                editor.ExePath ?? e.ExePath ?? e.ProcessName + ".exe");
+                        }
+                    },
+                    onIgnore: () =>
+                    {
+                        _settingsManager.Update(s =>
+                        {
+                            if (!s.IgnoredGames.Contains(e.ProcessName))
+                                s.IgnoredGames.Add(e.ProcessName);
+                        });
+                    });
             });
         }
 
@@ -128,11 +252,8 @@ namespace DeafDirectionalHelper
                 // Update display mode based on new profile
                 UpdateDisplayMode();
 
-                // Show notification
-                _notifyIcon?.ShowBalloonTip(1000, "DeafDirectionalHelper",
-                    $"Profile: {profile.Name}", Forms.ToolTipIcon.Info);
-
-                // Update settings window if open
+                // Update settings window if open (switch feedback now comes
+                // from ToastHost per ProfileSwitchBehavior, not balloon tips)
                 _settingsWindow?.OnProfileAutoSwitched(profile);
             });
         }
@@ -167,39 +288,63 @@ namespace DeafDirectionalHelper
                 Dispatcher.BeginInvoke(DispatcherPriority.Normal, ShowHotkeys);
             };
 
+            _hotkeyManager.MoveModePressed += () =>
+            {
+                Dispatcher.BeginInvoke(DispatcherPriority.Normal, ToggleMoveMode);
+            };
+
             if (_hotkeyManager.RegisterHotkeys())
             {
                 Console.WriteLine("Global hotkeys registered successfully");
                 Console.WriteLine("  Ctrl+Shift+R: Toggle enable/disable");
-                Console.WriteLine("  Ctrl+Shift+M: Toggle display mode");
+                Console.WriteLine("  Ctrl+Shift+M: Next overlay style");
                 Console.WriteLine("  Ctrl+Shift+S: Show settings");
                 Console.WriteLine("  Ctrl+Shift+P: Reset positions");
                 Console.WriteLine("  Ctrl+Shift+H: Show hotkeys");
+                Console.WriteLine("  Ctrl+Shift+E: Move mode");
             }
         }
 
         private void ToggleDisplayMode()
         {
-            var settings = _settingsManager.Settings;
-            var newMode = settings.Display.Mode switch
-            {
-                Settings.DisplayMode.Bars => Settings.DisplayMode.Full7Point1,
-                Settings.DisplayMode.Full7Point1 => Settings.DisplayMode.Both,
-                Settings.DisplayMode.Both => Settings.DisplayMode.Bars,
-                _ => Settings.DisplayMode.Bars
-            };
+            // Ctrl+Shift+M cycles the five overlay styles (plan D2)
+            var current = _settingsManager.Settings.Bars.OverlayStyle;
+            var next = (Settings.OverlayStyle)(((int)current + 1) % 5);
 
-            _settingsManager.Update(s => s.Display.Mode = newMode);
-            UpdateDisplayMode();
+            _settingsManager.Update(s => s.Bars.OverlayStyle = next);
+            _profileManager.SaveCurrentSettingsToProfile(_profileManager.ActiveProfile);
+            _overlayWindow?.ApplySettings();
+            _settingsWindow?.OnProfileAutoSwitched(_profileManager.ActiveProfile);
 
-            var modeName = newMode switch
+            var styleName = next switch
             {
-                Settings.DisplayMode.Bars => "Side Bars",
-                Settings.DisplayMode.Full7Point1 => "7.1 Surround",
-                Settings.DisplayMode.Both => "Both",
-                _ => "Unknown"
+                Settings.OverlayStyle.SideBars => "Side bars",
+                Settings.OverlayStyle.RadarRing => "Radar ring",
+                Settings.OverlayStyle.RingPing => "Ring ping",
+                Settings.OverlayStyle.CompassStrip => "Compass",
+                Settings.OverlayStyle.EdgeGlow => "Edge glow",
+                _ => next.ToString()
             };
-            _notifyIcon?.ShowBalloonTip(1000, "DeafDirectionalHelper", $"Display mode: {modeName}", Forms.ToolTipIcon.Info);
+            _toastHost.ShowInfo($"Overlay style: {styleName}");
+        }
+
+        private void ToggleMoveMode()
+        {
+            if (_overlayWindow == null) return;
+
+            if (_overlayWindow.IsInMoveMode)
+            {
+                _overlayWindow.ExitMoveMode(commit: true);
+                return;
+            }
+
+            if (!_settingsManager.Settings.Display.Enabled)
+            {
+                _toastHost.ShowInfo("Turn the overlay on first (Ctrl+Shift+R)");
+                return;
+            }
+
+            _overlayWindow.EnterMoveMode();
         }
 
         private void SetupSystemTray()
@@ -211,24 +356,19 @@ namespace DeafDirectionalHelper
                 Text = "DeafDirectionalHelper - Audio Visualizer"
             };
 
-            // Context menu
-            var contextMenu = new Forms.ContextMenuStrip();
+            // WPF flyout replaces the old WinForms ContextMenuStrip (design 2l)
+            _trayFlyout = new TrayFlyout(
+                onToggleEnabled: ToggleEnabled,
+                onOpenSettings: ShowSettings,
+                onNextStyle: ToggleDisplayMode,
+                onResetPositions: ResetPositions,
+                onExitConfirmed: ExitApplication);
 
-            var settingsItem = new Forms.ToolStripMenuItem("Settings");
-            settingsItem.Click += (_, _) => ShowSettings();
-            contextMenu.Items.Add(settingsItem);
-
-            var enableItem = new Forms.ToolStripMenuItem("Enable/Disable");
-            enableItem.Click += (_, _) => ToggleEnabled();
-            contextMenu.Items.Add(enableItem);
-
-            contextMenu.Items.Add(new Forms.ToolStripSeparator());
-
-            var exitItem = new Forms.ToolStripMenuItem("Exit");
-            exitItem.Click += (_, _) => ExitApplication();
-            contextMenu.Items.Add(exitItem);
-
-            _notifyIcon.ContextMenuStrip = contextMenu;
+            _notifyIcon.MouseUp += (_, e) =>
+            {
+                if (e.Button is Forms.MouseButtons.Left or Forms.MouseButtons.Right)
+                    Dispatcher.BeginInvoke(DispatcherPriority.Normal, () => _trayFlyout?.Toggle());
+            };
             _notifyIcon.DoubleClick += (_, _) => ShowSettings();
         }
 
@@ -247,19 +387,9 @@ namespace DeafDirectionalHelper
 
         private void ShowScreens()
         {
-            // Create dual bars view (vertical side bars - single window with both bars)
-            _dualBarsView = new DualBarsView(_coloredSpeakers);
-            _dualBarsView.PositionChanged += OnIndicatorPositionChanged;
-
-            // Create horizontal dual view
-            _horizontalDualView = new HorizontalDualView(_coloredSpeakers);
-            _horizontalDualView.IndicatorPositionChanged += OnIndicatorPositionChanged;
-
-            // Create 7.1 view
-            _full7Point1View = new Full7Point1View(_coloredSpeakers);
-
-            // Show based on display mode
-            UpdateDisplayMode();
+            _overlayWindow = new View.Overlays.OverlayWindow(_speakers);
+            _overlayWindow.PositionChanged += OnIndicatorPositionChanged;
+            UpdateScreenVisibility();
         }
 
         private void OnIndicatorPositionChanged(object? sender, EventArgs e)
@@ -272,18 +402,19 @@ namespace DeafDirectionalHelper
         {
             if (_settingsWindow == null)
             {
-                _settingsWindow = new SettingsWindow();
+                _settingsWindow = new View.Settings.SettingsShell(_speakers);
                 _settingsWindow.ExitRequested += (_, _) => ExitApplication();
                 _settingsWindow.SettingsUpdated += OnSettingsUpdated;
                 _settingsWindow.ResetPositionsRequested += OnResetPositionsRequested;
-                _settingsWindow.IsVisibleChanged += OnSettingsWindowVisibilityChanged;
+                _settingsWindow.MoveModeRequested += (_, _) => ToggleMoveMode();
+
+                // Showing/activating the settings window can knock the overlay
+                // out of the Win32 topmost band; put it straight back.
+                _settingsWindow.Activated += (_, _) => _overlayWindow?.ReassertTopmost();
             }
 
             _settingsWindow.Show();
             _settingsWindow.Activate();
-
-            // Explicitly enable dragging when showing settings
-            SetDraggingEnabled(true);
         }
 
         private void ShowHotkeys()
@@ -306,92 +437,26 @@ namespace DeafDirectionalHelper
                 s.Bars.RightIndicatorPercent = 0.65;
             });
 
-            // The settings change will trigger ApplyLayout on all views
-            // But also explicitly recenter views
-            _dualBarsView?.Recenter();
-            _horizontalDualView?.Recenter();
-            _full7Point1View?.Recenter();
-
-            // Update settings window sliders
+            _overlayWindow?.ApplySettings();
             _settingsWindow?.RefreshIndicatorSliders();
-
-            _notifyIcon?.ShowBalloonTip(1000, "DeafDirectionalHelper", "Positions reset", Forms.ToolTipIcon.Info);
-        }
-
-        private void OnSettingsWindowVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            var isVisible = (bool)e.NewValue;
-            SetDraggingEnabled(isVisible);
-        }
-
-        private void SetDraggingEnabled(bool enabled)
-        {
-            if (_dualBarsView != null)
-                _dualBarsView.AllowDragging = enabled;
-            if (_horizontalDualView != null)
-                _horizontalDualView.AllowDragging = enabled;
-            if (_full7Point1View != null)
-                _full7Point1View.AllowDragging = enabled;
+            _toastHost.ShowInfo("Positions reset");
         }
 
         private void OnSettingsUpdated(object? sender, EventArgs e)
         {
-            var settings = _settingsManager.Settings;
-
-            // Update enabled state
-            _isMonitoring = settings.Display.Enabled;
-
-            // Views handle their own layout via OnSettingsChanged
-            // Just update visibility based on enabled state
+            _isMonitoring = _settingsManager.Settings.Display.Enabled;
+            _overlayWindow?.ApplySettings();
             UpdateScreenVisibility();
         }
 
         private void UpdateScreenVisibility()
         {
-            var settings = _settingsManager.Settings;
-
-            if (!settings.Display.Enabled)
-            {
-                _dualBarsView?.Hide();
-                _horizontalDualView?.Hide();
-                _full7Point1View?.Hide();
-                return;
-            }
-
-            UpdateDisplayMode();
+            _overlayWindow?.SetVisible(_settingsManager.Settings.Display.Enabled);
         }
 
         private void UpdateDisplayMode()
         {
-            var settings = _settingsManager.Settings;
-            var mode = settings.Display.Mode;
-            var dualLayout = settings.Bars.DualLayout;
-
-            // Show/hide based on mode
-            var showBars = mode == Settings.DisplayMode.Bars || mode == Settings.DisplayMode.Both;
-            var show7Point1 = mode == Settings.DisplayMode.Full7Point1 || mode == Settings.DisplayMode.Both;
-
-            // For bars mode, check which layout to use
-            var showVerticalBars = showBars && dualLayout == Settings.DualLayout.Vertical;
-            var showHorizontalDual = showBars && dualLayout == Settings.DualLayout.HorizontalLine;
-
-            if (_dualBarsView != null)
-            {
-                if (showVerticalBars) _dualBarsView.Show();
-                else _dualBarsView.Hide();
-            }
-
-            if (_horizontalDualView != null)
-            {
-                if (showHorizontalDual) _horizontalDualView.Show();
-                else _horizontalDualView.Hide();
-            }
-
-            if (_full7Point1View != null)
-            {
-                if (show7Point1) _full7Point1View.Show();
-                else _full7Point1View.Hide();
-            }
+            _overlayWindow?.ApplySettings();
         }
 
         private void ToggleEnabled()
@@ -400,8 +465,8 @@ namespace DeafDirectionalHelper
             _isMonitoring = _settingsManager.Settings.Display.Enabled;
             UpdateScreenVisibility();
 
-            var status = _isMonitoring ? "enabled" : "disabled";
-            _notifyIcon?.ShowBalloonTip(1000, "DeafDirectionalHelper", $"Sound indicators {status}", Forms.ToolTipIcon.Info);
+            var status = _isMonitoring ? "on" : "off";
+            _toastHost.ShowInfo($"Sound indicators {status}");
         }
 
         private void StartMonitoring()
@@ -422,6 +487,9 @@ namespace DeafDirectionalHelper
                             try
                             {
                                 _speakers.Update();
+                                _signalDoctor?.Tick(_speakers.LastRawPeak,
+                                    _speakers.Endpoint.CurrentDeviceId,
+                                    _speakers.Endpoint.CurrentDeviceName);
                             }
                             catch (Exception ex)
                             {
@@ -438,14 +506,21 @@ namespace DeafDirectionalHelper
             // Stop monitoring
             _monitoringCts?.Cancel();
 
-            // Stop process monitor
-            _processMonitor.Stop();
-            _processMonitor.Dispose();
+            // Stop game detection
+            _gameDetector.Stop();
+            _gameDetector.Dispose();
+            _toastHost.Close();
+
+            // Stop audio session/endpoint plumbing
+            _signalDoctorWindow?.Close();
+            _speakers.Sessions.Dispose();
+            _speakers.Endpoint.Dispose();
 
             // Dispose hotkey manager
             _hotkeyManager?.Dispose();
 
             // Clean up system tray
+            _trayFlyout?.Close();
             if (_notifyIcon != null)
             {
                 _notifyIcon.Visible = false;
@@ -453,10 +528,8 @@ namespace DeafDirectionalHelper
             }
 
             // Close all windows
-            _dualBarsView?.Close();
-            _horizontalDualView?.Close();
-            _full7Point1View?.Close();
-            _settingsWindow?.Close();
+            _overlayWindow?.StopAndClose();
+            _settingsWindow?.CloseForExit();
 
             // Save settings
             _settingsManager.Save();

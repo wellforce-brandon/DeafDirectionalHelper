@@ -178,6 +178,18 @@ public class ProfileManager
     }
 
     /// <summary>
+    /// Duplicates a profile (settings copied from the source, not from current app state).
+    /// </summary>
+    public AppProfile DuplicateProfile(AppProfile source)
+    {
+        var copy = AppProfile.CreateFrom(source, $"{source.Name} copy", source.ExePath);
+        _settingsManager.Settings.Profiles.Add(copy);
+        _settingsManager.Save();
+        ProfilesChanged?.Invoke(this, EventArgs.Empty);
+        return copy;
+    }
+
+    /// <summary>
     /// Updates a profile's name and exe path.
     /// </summary>
     public void UpdateProfile(AppProfile profile, string name, string? exePath)

@@ -41,5 +41,13 @@ namespace DeafDirectionalHelper
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            // Dev-only: verify Phase 0 theme tokens/templates visually.
+            if (Array.Exists(e.Args, a => a.Equals("-themesampler", StringComparison.OrdinalIgnoreCase)))
+                new View.ThemeSampler().Show();
+        }
     }
 }

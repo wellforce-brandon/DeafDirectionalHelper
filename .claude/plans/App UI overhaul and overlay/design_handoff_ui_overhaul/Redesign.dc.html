@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<title>DeafDirectionalHelper — Redesign explorations</title>
+<script src="image-slot.js"></script>
+<style>
+body{margin:0;background:#ECEAE4;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+</style>
+</helmet>
+
+<section id="t6" data-screen-label="Overlay scaling" style="padding:36px 44px 48px;border-bottom:1px solid rgba(0,0,0,0.08)">
+
+  <div style="display:flex;align-items:baseline;gap:10px;margin:0 0 14px">
+    <a href="#t6" style="font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none">6</a>
+    <span style="font:600 14px/1.2 'Segoe UI',system-ui,sans-serif;color:#1a1a1a">Scaling — it slipped out of the redesigned pages; here it is, upgraded to one universal control</span>
+  </div>
+
+  <div style="max-width:920px;background:#FBFAF7;border:1px solid rgba(0,0,0,0.09);border-radius:8px;padding:16px 20px;margin:0 0 26px;font-size:12.5px;line-height:1.6;color:#3a3a38">
+    <div>· You're right — today's <b>7.1 Scale</b> (50–200%) and <b>Bar Width</b> (20–150&#8202;px) sliders weren't on the redesigned pages. Instead of two style-specific knobs, the redesign gets one <b>Overlay size</b> slider (50–200%, saved per profile) that scales whatever style is active — bars get wider, radar grows, compass lengthens, glow deepens — plus the style's own fine-tune dimension where it makes sense.</div>
+    <div>· <a href="#6b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">6b</a> is live: open <b>Tweaks → Overlay size</b> and drag 50–200% to scale the ring and bars in real time.</div>
+    <div>· <b>And no — the styles don't all get the same three.</b> Only Overlay size is universal; every other row belongs to one style and hides with it (Bar width / Spread are Side-bars-only). <a href="#6c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">6c</a> shows the exact control set per style.</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+    <!-- ============================ 6a SIZE & POSITION ROWS ============================ -->
+    <div id="6a" data-screen-label="Settings — Size & position" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:660px">
+        <a href="#6a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">6a</a>
+        "Size &amp; position" group on the <a href="#2a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2a</a> Overlay page — shown here with the <b>Side bars</b> set; rows swap per style (<a href="#6c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">6c</a>)
+      </div>
+      <div style="width:660px;background:#0B0C0E;border:1px solid #2E333B;border-radius:10px;box-shadow:0 22px 55px rgba(0,0,0,0.4);padding:20px 24px 22px">
+        <div style="font-size:13px;font-weight:700;letter-spacing:0.07em;color:#A8AEB8">SIZE &amp; POSITION</div>
+        <div style="display:flex;align-items:center;min-height:64px;border-bottom:1px solid #1C2026;gap:16px;margin-top:4px">
+          <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Overlay size</div><div style="font-size:13px;color:#A8AEB8;margin-top:2px">Scales the active style — replaces "7.1 Scale"</div></div>
+          <div style="display:flex;align-items:center;gap:12px;flex:none">
+            <div style="position:relative;width:190px;height:32px">
+              <div style="position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:#2E333B"></div>
+              <div style="position:absolute;left:0;width:33%;top:13px;height:6px;border-radius:3px;background:#56B4E9"></div>
+              <div style="position:absolute;left:33%;top:13px;height:6px;width:2px;background:#6E757F"></div>
+              <div style="position:absolute;left:calc(33% - 12px);top:4px;width:24px;height:24px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box"></div>
+            </div>
+            <span style="width:56px;text-align:center;font:600 15px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#14161A;border:1px solid #454C57;border-radius:6px;padding:7px 0">100%</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;min-height:64px;border-bottom:1px solid #1C2026;gap:16px">
+          <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Bar width</div><div style="font-size:13px;color:#A8AEB8;margin-top:2px">Side bars only — fine-tune on top of size</div></div>
+          <div style="display:flex;align-items:center;gap:12px;flex:none">
+            <div style="position:relative;width:190px;height:32px">
+              <div style="position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:#2E333B"></div>
+              <div style="position:absolute;left:0;width:11%;top:13px;height:6px;border-radius:3px;background:#56B4E9"></div>
+              <div style="position:absolute;left:calc(11% - 12px);top:4px;width:24px;height:24px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box"></div>
+            </div>
+            <span style="width:56px;text-align:center;font:600 15px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#14161A;border:1px solid #454C57;border-radius:6px;padding:7px 0">34 px</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;min-height:64px;border-bottom:1px solid #1C2026;gap:16px">
+          <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Spread</div><div style="font-size:13px;color:#A8AEB8;margin-top:2px">Distance from screen center, both sides linked</div></div>
+          <div style="display:flex;align-items:center;gap:12px;flex:none">
+            <div style="position:relative;width:190px;height:32px">
+              <div style="position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:#2E333B"></div>
+              <div style="position:absolute;left:0;width:50%;top:13px;height:6px;border-radius:3px;background:#56B4E9"></div>
+              <div style="position:absolute;left:calc(50% - 12px);top:4px;width:24px;height:24px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box"></div>
+            </div>
+            <span style="width:56px;text-align:center;font:600 15px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#14161A;border:1px solid #454C57;border-radius:6px;padding:7px 0">30%</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap">
+          <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;background:#56B4E9;border-radius:8px;color:#04121D;font-size:14px;font-weight:700;cursor:pointer">Edit positions on screen <span style="font:600 12px Consolas,ui-monospace,monospace;color:#0B3A57">&nbsp;Ctrl+Shift+E</span></div>
+          <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border:2px solid #454C57;border-radius:8px;color:#F4F5F7;font-size:14px;font-weight:600;cursor:pointer">Reset <span style="font:600 12px Consolas,ui-monospace,monospace;color:#A8AEB8">&nbsp;Ctrl+Shift+P</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;margin-top:16px;flex-wrap:wrap">
+          <span style="font-size:12px;color:#6E757F">Size maps per style:</span>
+          <span style="font-size:12px;color:#F4F5F7;background:#14161A;border:1px solid #2E333B;border-radius:12px;padding:4px 10px">Side bars → width</span>
+          <span style="font-size:12px;color:#F4F5F7;background:#14161A;border:1px solid #2E333B;border-radius:12px;padding:4px 10px">Radar → diameter</span>
+          <span style="font-size:12px;color:#F4F5F7;background:#14161A;border:1px solid #2E333B;border-radius:12px;padding:4px 10px">Compass → length</span>
+          <span style="font-size:12px;color:#F4F5F7;background:#14161A;border:1px solid #2E333B;border-radius:12px;padding:4px 10px">Glow → depth</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================ 6b LIVE SCALE DEMO ============================ -->
+    <div id="6b" data-screen-label="Live overlay scaling demo" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#6b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">6b</a>
+        LIVE — open Tweaks → drag <b>Overlay size</b> (50–200%): the ring scales from its anchor, the bars widen without moving their screen position
+      </div>
+      <div style="width:866px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden;background:#101216">
+        <div style="width:864px;height:486px;overflow:hidden;position:relative">
+          <div style="width:1920px;height:1080px;transform:scale(0.45);transform-origin:0 0;position:absolute;left:0;top:0;background:#15181D">
+            <image-slot id="game-shot-6b" shape="rect" placeholder="Drop a game screenshot (1920×1080)" style="position:absolute;left:0;top:0;width:1920px;height:1080px"></image-slot>
+            <div style="position:absolute;left:948px;top:539px;width:24px;height:2px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:959px;top:528px;width:2px;height:24px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:30px;top:30px;background:rgba(8,10,13,0.85);border:1.5px solid #56B4E9;border-radius:26px;padding:12px 24px;pointer-events:none;display:flex;align-items:center;gap:12px">
+              <span style="font:700 20px Consolas,ui-monospace,monospace;color:#56B4E9">OVERLAY SIZE {{ovScalePct}}</span>
+              <span style="font-size:18px;color:#A8AEB8">drag it in the Tweaks panel</span>
+            </div>
+            <!-- left bar, width scales -->
+            <div style="position:absolute;left:26px;top:90px;width:{{barWpx}};height:900px;display:flex;flex-direction:column;gap:8px;pointer-events:none;transition:width 120ms ease">
+              <div style="flex:264;position:relative;background:rgba(10,13,16,0.55);border:2px solid rgba(255,255,255,0.35);border-radius:{{barRad}};overflow:hidden;box-sizing:border-box">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:{{eLFf}};background:{{eLFc}};transition:height 120ms ease-out,background-color 120ms linear"></div>
+              </div>
+              <div style="flex:348;position:relative;background:rgba(10,13,16,0.55);border:2px solid rgba(255,255,255,0.35);border-radius:{{barRad}};overflow:hidden;box-sizing:border-box">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:{{eLSf}};background:{{eLSc}};transition:height 120ms ease-out,background-color 120ms linear"></div>
+              </div>
+              <div style="flex:264;position:relative;background:rgba(10,13,16,0.55);border:2px solid rgba(255,255,255,0.35);border-radius:{{barRad}};overflow:hidden;box-sizing:border-box">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:{{eLRf}};background:{{eLRc}};transition:height 120ms ease-out,background-color 120ms linear"></div>
+              </div>
+            </div>
+            <span style="position:absolute;left:{{labLx}};top:200px;font:700 22px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.9);text-shadow:0 1px 4px rgba(0,0,0,0.9);pointer-events:none;transition:left 120ms ease">F</span>
+            <span style="position:absolute;left:{{labLx}};top:528px;font:700 22px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.9);text-shadow:0 1px 4px rgba(0,0,0,0.9);pointer-events:none;transition:left 120ms ease">S</span>
+            <span style="position:absolute;left:{{labLx}};top:848px;font:700 22px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.9);text-shadow:0 1px 4px rgba(0,0,0,0.9);pointer-events:none;transition:left 120ms ease">R</span>
+            <!-- right bar, width scales, right edge pinned -->
+            <div style="position:absolute;left:{{rbX}};top:90px;width:{{barWpx}};height:900px;display:flex;flex-direction:column;gap:8px;pointer-events:none;transition:width 120ms ease,left 120ms ease">
+              <div style="flex:264;position:relative;background:rgba(10,13,16,0.55);border:2px solid rgba(255,255,255,0.35);border-radius:{{barRad}};overflow:hidden;box-sizing:border-box">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:{{eRFf}};background:{{eRFc}};transition:height 120ms ease-out,background-color 120ms linear"></div>
+              </div>
+              <div style="flex:348;position:relative;background:rgba(10,13,16,0.55);border:2px solid rgba(255,255,255,0.35);border-radius:{{barRad}};overflow:hidden;box-sizing:border-box">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:{{eRSf}};background:{{eRSc}};transition:height 120ms ease-out,background-color 120ms linear"></div>
+              </div>
+              <div style="flex:264;position:relative;background:rgba(10,13,16,0.55);border:2px solid rgba(255,255,255,0.35);border-radius:{{barRad}};overflow:hidden;box-sizing:border-box">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:{{eRRf}};background:{{eRRc}};transition:height 120ms ease-out,background-color 120ms linear"></div>
+              </div>
+            </div>
+            <!-- radar ring, uniform scale from bottom-center anchor -->
+            <div style="position:absolute;left:820px;top:740px;width:280px;height:280px;transform:{{ringT}};transform-origin:50% 100%;pointer-events:none;transition:transform 120ms ease">
+              <div style="position:absolute;left:65px;top:65px;width:150px;height:150px;border-radius:50%;border:1px solid rgba(255,255,255,0.16);box-sizing:border-box"></div>
+              <div style="position:absolute;left:50px;top:50px;width:180px;height:180px;border-radius:50%;border:1px solid rgba(255,255,255,0.16);box-sizing:border-box"></div>
+              <div style="position:absolute;left:34.5px;top:34.5px;width:211px;height:211px;border-radius:50%;border:1px solid rgba(255,255,255,0.16);box-sizing:border-box"></div>
+              <div style="position:absolute;left:19.5px;top:19.5px;width:241px;height:241px;border-radius:50%;border:1px solid rgba(255,255,255,0.16);box-sizing:border-box"></div>
+              <div style="position:absolute;left:4.5px;top:4.5px;width:271px;height:271px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.24);box-sizing:border-box"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rp1}};-webkit-mask-image:radial-gradient(circle,transparent 22%,#000 22.3%,#000 26.8%,transparent 27.1%);mask-image:radial-gradient(circle,transparent 22%,#000 22.3%,#000 26.8%,transparent 27.1%)"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rp2}};-webkit-mask-image:radial-gradient(circle,transparent 27.4%,#000 27.7%,#000 32.2%,transparent 32.5%);mask-image:radial-gradient(circle,transparent 27.4%,#000 27.7%,#000 32.2%,transparent 32.5%)"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rp3}};-webkit-mask-image:radial-gradient(circle,transparent 32.8%,#000 33.1%,#000 37.6%,transparent 37.9%);mask-image:radial-gradient(circle,transparent 32.8%,#000 33.1%,#000 37.6%,transparent 37.9%)"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rp4}};-webkit-mask-image:radial-gradient(circle,transparent 38.2%,#000 38.5%,#000 43%,transparent 43.3%);mask-image:radial-gradient(circle,transparent 38.2%,#000 38.5%,#000 43%,transparent 43.3%)"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rp5}};-webkit-mask-image:radial-gradient(circle,transparent 43.6%,#000 43.9%,#000 48.4%,transparent 48.7%);mask-image:radial-gradient(circle,transparent 43.6%,#000 43.9%,#000 48.4%,transparent 48.7%)"></div>
+              <div style="position:absolute;left:126px;top:127px;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:24px solid rgba(255,255,255,0.92)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================ 6c PER-STYLE CONTROL MATRIX ============================ -->
+    <div id="6c" data-screen-label="Size controls per overlay style" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:660px">
+        <a href="#6c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">6c</a>
+        What "Size &amp; position" contains per style — <span style="color:#2a78d6">&#9679;</span> Overlay size is the only universal row; the rest appear and disappear with the style
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;max-width:660px">
+        <!-- side bars -->
+        <div style="width:310px;background:#0B0C0E;border:1px solid #2E333B;border-radius:10px;padding:14px 16px;box-sizing:border-box">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14.5px;font-weight:700;color:#F4F5F7">Side bars</span><span style="font:600 10px Consolas,ui-monospace,monospace;color:#6E757F">4 CONTROLS</span></div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:34px;margin-top:8px">
+            <span style="width:7px;height:7px;border-radius:50%;background:#56B4E9;flex:none"></span><span style="flex:1;font-size:13px;color:#F4F5F7">Overlay size</span>
+            <div style="position:relative;width:80px;height:18px;flex:none"><div style="position:absolute;left:0;right:0;top:7px;height:4px;border-radius:2px;background:#2E333B"></div><div style="position:absolute;left:0;width:33%;top:7px;height:4px;border-radius:2px;background:#56B4E9"></div><div style="position:absolute;left:calc(33% - 7px);top:2px;width:14px;height:14px;border-radius:50%;background:#F4F5F7;border:2px solid #56B4E9;box-sizing:border-box"></div></div>
+            <span style="font:600 11.5px Consolas,ui-monospace,monospace;color:#A8AEB8;width:38px;text-align:right">100%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:34px">
+            <span style="width:7px;flex:none"></span><span style="flex:1;font-size:13px;color:#F4F5F7">Bar width</span>
+            <div style="position:relative;width:80px;height:18px;flex:none"><div style="position:absolute;left:0;right:0;top:7px;height:4px;border-radius:2px;background:#2E333B"></div><div style="position:absolute;left:0;width:11%;top:7px;height:4px;border-radius:2px;background:#56B4E9"></div><div style="position:absolute;left:calc(11% - 7px);top:2px;width:14px;height:14px;border-radius:50%;background:#F4F5F7;border:2px solid #56B4E9;box-sizing:border-box"></div></div>
+            <span style="font:600 11.5px Consolas,ui-monospace,monospace;color:#A8AEB8;width:38px;text-align:right">34px</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:34px">
+            <span style="width:7px;flex:none"></span><span style="flex:1;font-size:13px;color:#F4F5F7">Spread</span>
+            <div style="position:relative;width:80px;height:18px;flex:none"><div style="position:absolute;left:0;right:0;top:7px;height:4px;border-radius:2px;background:#2E333B"></div><div style="position:absolute;left:0;width:50%;top:7px;height:4px;border-radius:2px;background:#56B4E9"></div><div style="position:absolute;left:calc(50% - 7px);top:2px;width:14px;height:14px;border-radius:50%;background:#F4F5F7;border:2px solid #56B4E9;box-sizing:border-box"></div></div>
+            <span style="font:600 11.5px Consolas,ui-monospace,monospace;color:#A8AEB8;width:38px;text-align:right">30%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:34px">
+            <span style="width:7px;flex:none"></span><span style="flex:1;font-size:13px;color:#F4F5F7">Link left / right</span>
+            <div style="width:34px;height:20px;border-radius:11px;background:#009E73;position:relative;flex:none"><div style="position:absolute;right:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#FFF"></div></div>
+          </div>
+        </div>
+        <!-- radar ring -->
+        <div style="width:310px;background:#0B0C0E;border:1px solid #2E333B;border-radius:10px;padding:14px 16px;box-sizing:border-box">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14.5px;font-weight:700;color:#F4F5F7">Radar ring / ping</span><span style="font:600 10px Consolas,ui-monospace,monospace;color:#6E757F">3 CONTROLS</span></div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:34px;margin-top:8px">
+            <span style="width:7px;height:7px;border-radius:50%;background:#56B4E9;flex:none"></span><span style="flex:1;font-size:13px;color:#F4F5F7">Overlay size</span>
+            <div style="position:relative;width:80px;height:18px;flex:none"><div style="position:absolute;left:0;right:0;top:7px;height:4px;border-radius:2px;background:#2E333B"></div><div style="position:absolute;left:0;width:33%;top:7px;height:4px;border-radius:2px;background:#56B4E9"></div><div style="position:absolute;left:calc(33% - 7px);top:2px;width:14px;height:14px;border-radius:50%;background:#F4F5F7;border:2px solid #56B4E9;box-sizing:border-box"></div></div>
+            <span style="font:600 11.5px Consolas,ui-monospace,monospace;color:#A8AEB8;width:38px;text-align:right">100%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:34px">
+            <span style="width:7px;flex:none"></span><span style="flex:1;font-size:13px;color:#F4F5F7">Rings</span>
+            <div style="display:flex;background:#14161A;border:1px solid #454C57;border-radius:6px;padding:2px;flex:none"><span style="padding:3px 9px;font-size:11.5px;color:#A8AEB8">3</span><span style="padding:3px 9px;border-radius:4px;background:#56B4E9;color:#04121D;font-size:11.5px;font-weight:700">5</span><span style="padding:3px 9px;font-size:11.5px;color:#A8AEB8">7</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:34px">
+            <span style="width:7px;flex:none"></span><span style="flex:1;font-size:13px;color:#F4F5F7">Anchor</span>
+            <div style="display:flex;background:#14161A;border:1px solid #454C57;border-radius:6px;padding:2px;flex:none"><span style="padding:3px 9px;border-radius:4px;background:#56B4E9;color:#04121D;font-size:11.5px;font-weight:700">Bottom</span><span style="padding:3px 9px;font-size:11.5px;color:#A8AEB8">Top</span></div>
+          </div>
+          <div style="font-size:11.5px;color:#6E757F;margin-top:6px">No width, no spread — nothing bar-shaped here.</div>
+        </div>
+        <!-- compass -->
+        <div style="width:310px;background:#0B0C0E;border:1px solid #2E333B;border-radius:10px;padding:14px 16px;box-sizing:border-box">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14.5px;font-weight:700;color:#F4F5F7">Compass strip</span><span style="font:600 10px Consolas,ui-monospace,monospace;color:#6E757F">2 CONTROLS</span></div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:34px;margin-top:8px">
+            <span style="width:7px;height:7px;border-radius:50%;background:#56B4E9;flex:none"></span><span style="flex:1;font-size:13px;color:#F4F5F7">Overlay size <span style="color:#6E757F">→ length</span></span>
+            <div style="position:relative;width:80px;height:18px;flex:none"><div style="position:absolute;left:0;right:0;top:7px;height:4px;border-radius:2px;background:#2E333B"></div><div style="position:absolute;left:0;width:33%;top:7px;height:4px;border-radius:2px;background:#56B4E9"></div><div style="position:absolute;left:calc(33% - 7px);top:2px;width:14px;height:14px;border-radius:50%;background:#F4F5F7;border:2px solid #56B4E9;box-sizing:border-box"></div></div>
+            <span style="font:600 11.5px Consolas,ui-monospace,monospace;color:#A8AEB8;width:38px;text-align:right">100%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:34px">
+            <span style="width:7px;flex:none"></span><span style="flex:1;font-size:13px;color:#F4F5F7">Anchor</span>
+            <div style="display:flex;background:#14161A;border:1px solid #454C57;border-radius:6px;padding:2px;flex:none"><span style="padding:3px 9px;border-radius:4px;background:#56B4E9;color:#04121D;font-size:11.5px;font-weight:700">Top</span><span style="padding:3px 9px;font-size:11.5px;color:#A8AEB8">Bottom</span></div>
+          </div>
+        </div>
+        <!-- edge glow -->
+        <div style="width:310px;background:#0B0C0E;border:1px solid #2E333B;border-radius:10px;padding:14px 16px;box-sizing:border-box">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14.5px;font-weight:700;color:#F4F5F7">Edge glow</span><span style="font:600 10px Consolas,ui-monospace,monospace;color:#6E757F">1 CONTROL</span></div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:34px;margin-top:8px">
+            <span style="width:7px;height:7px;border-radius:50%;background:#56B4E9;flex:none"></span><span style="flex:1;font-size:13px;color:#F4F5F7">Overlay size <span style="color:#6E757F">→ bloom depth</span></span>
+            <div style="position:relative;width:80px;height:18px;flex:none"><div style="position:absolute;left:0;right:0;top:7px;height:4px;border-radius:2px;background:#2E333B"></div><div style="position:absolute;left:0;width:33%;top:7px;height:4px;border-radius:2px;background:#56B4E9"></div><div style="position:absolute;left:calc(33% - 7px);top:2px;width:14px;height:14px;border-radius:50%;background:#F4F5F7;border:2px solid #56B4E9;box-sizing:border-box"></div></div>
+            <span style="font:600 11.5px Consolas,ui-monospace,monospace;color:#A8AEB8;width:38px;text-align:right">100%</span>
+          </div>
+          <div style="font-size:11.5px;color:#6E757F;margin-top:6px">Hugs all four edges — nothing to move or spread, so no other rows. Positions live in move mode only for styles that float.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p style="margin:26px 0 0;font:12px/1.6 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.5);max-width:900px">Try next: &#8220;put per-style size memory in the profile cards (<a href="#3d" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">3d</a>)&#8221; · &#8220;show 50% / 100% / 200% side by side&#8221; · &#8220;add size to keyboard move mode (+ / − keys)&#8221;</p>
+</section>
+
+<section id="t5" data-screen-label="Keyboard navigation" style="padding:36px 44px 48px;border-bottom:1px solid rgba(0,0,0,0.08)">
+
+  <div style="display:flex;align-items:baseline;gap:10px;margin:0 0 14px">
+    <a href="#t5" style="font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none">5</a>
+    <span style="font:600 14px/1.2 'Segoe UI',system-ui,sans-serif;color:#1a1a1a">Keyboard navigation — audit of today + a demo you can actually drive (<a href="#5a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">5a</a> is live: click it, then use your keys)</span>
+  </div>
+
+  <div style="max-width:920px;background:#FBFAF7;border:1px solid rgba(0,0,0,0.09);border-radius:8px;padding:16px 20px;margin:0 0 26px;font-size:12.5px;line-height:1.6;color:#3a3a38">
+    <div style="font-weight:600;margin-bottom:6px;color:#1a1a1a">Audit: what the current app actually has</div>
+    <div>· <b>Free WPF defaults only</b>: Tab order, Space on checkboxes, arrows inside sliders/combos. Custom focus rings exist on <b>checkboxes and buttons only</b> — the slider and combo templates define <b>no focus visual</b>, so focus goes invisible mid-form.</div>
+    <div>· Dialogs never set default/cancel buttons → <b>Enter and Esc do nothing</b> in Exit-confirm, Profile editor, About, Hotkeys. No label mnemonics. Overlay positioning is <b>mouse-drag only</b>. The strong piece today: global hotkeys (Ctrl+Shift+R / M / S / P / H).</div>
+    <div>· The redesign spec: yellow 3&#8202;px ring on <i>every</i> control, ↑↓ row navigation, ←→ value adjustment, F6 region jumping, Enter/Esc wired in every dialog, and keyboard nudging in overlay move mode — all shown in <a href="#5a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">5a</a>–<a href="#5c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">5c</a>.</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+    <!-- ============================ 5a LIVE KEYBOARD DEMO ============================ -->
+    <div id="5a" data-screen-label="Keyboard navigation — live demo" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#5a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">5a</a>
+        LIVE — click the window, then: Tab / Shift+Tab · ↑ ↓ rows · ← → adjust · Space/Enter · F6 regions · Esc releases. The footer HUD narrates focus + available keys ("smart highlighting").
+      </div>
+      <div onClick="{{armKb}}" style="width:880px;background:#0B0C0E;border:1px solid #2E333B;border-radius:8px;box-shadow:0 22px 55px rgba(0,0,0,0.4);overflow:hidden;position:relative;cursor:pointer">
+        <div style="height:36px;background:#14161A;display:flex;align-items:center;border-bottom:1px solid #23272E">
+          <img src="Icons/Icon32.png" alt="" style="width:16px;height:16px;margin:0 9px 0 12px"/>
+          <span style="flex:1;font-size:12.5px;color:#C8CDD4">DeafDirectionalHelper — keyboard demo</span>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2500;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:11px">&#x25A1;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2715;</div>
+        </div>
+        <div style="display:flex;min-height:430px">
+          <div style="width:212px;flex:none;background:#14161A;border-right:1px solid #23272E;display:flex;flex-direction:column;padding:14px 10px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px 16px">
+              <span style="font-size:15px;font-weight:700;color:#F4F5F7">Settings</span>
+              <span style="font:600 10px Consolas,ui-monospace,monospace;color:#6E757F;border:1px solid #2E333B;border-radius:4px;padding:2px 6px">REGION 1</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <sc-for list="{{ kbNav }}" as="nv" hint-placeholder-count="6">
+                <div style="display:flex;align-items:center;height:44px;padding:0 12px;border-radius:6px;background:{{nv.bg}};border-left:{{nv.bl}};font-size:15px;font-weight:{{nv.w}};color:{{nv.c}};outline:{{nv.o}};outline-offset:-3px">{{nv.label}}</div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+            <div style="flex:1;padding:20px 26px 8px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between">
+                <div style="font-size:22px;font-weight:700;color:#F4F5F7;line-height:1.2">Overlay</div>
+                <span style="font:600 10px Consolas,ui-monospace,monospace;color:#6E757F;border:1px solid #2E333B;border-radius:4px;padding:2px 6px">REGION 2 — F6</span>
+              </div>
+              <div style="display:flex;align-items:center;min-height:56px;border-bottom:1px solid #1C2026;gap:16px;margin-top:6px">
+                <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Show sound indicators</div></div>
+                <div style="display:flex;align-items:center;gap:10px;flex:none"><span style="font-size:13px;font-weight:600;color:{{tEnLabC}}">{{tEnLab}}</span><div style="width:52px;height:28px;border-radius:16px;background:{{tEnBg}};position:relative;flex:none;outline:{{o6}};outline-offset:3px;transition:background-color 150ms linear"><div style="position:absolute;left:{{tEnX}};top:3px;width:22px;height:22px;border-radius:50%;background:#FFFFFF;transition:left 150ms ease"></div></div></div>
+              </div>
+              <div style="display:flex;align-items:center;min-height:60px;border-bottom:1px solid #1C2026;gap:16px">
+                <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Overlay style</div></div>
+                <div style="display:flex;flex:none;background:#14161A;border:1px solid #454C57;border-radius:8px;padding:3px;outline:{{o7}};outline-offset:3px">
+                  <sc-for list="{{ kbSeg }}" as="sg" hint-placeholder-count="3">
+                    <div style="padding:8px 16px;border-radius:6px;background:{{sg.bg}};color:{{sg.c}};font-size:14px;font-weight:{{sg.w}};transition:background-color 120ms linear">{{sg.lab}}</div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;min-height:56px;border-bottom:1px solid #1C2026;gap:16px">
+                <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Only show while sound plays</div></div>
+                <div style="display:flex;align-items:center;gap:10px;flex:none"><span style="font-size:13px;font-weight:600;color:{{tTrLabC}}">{{tTrLab}}</span><div style="width:52px;height:28px;border-radius:16px;background:{{tTrBg}};position:relative;flex:none;outline:{{o8}};outline-offset:3px;transition:background-color 150ms linear"><div style="position:absolute;left:{{tTrX}};top:3px;width:22px;height:22px;border-radius:50%;background:#FFFFFF;transition:left 150ms ease"></div></div></div>
+              </div>
+              <div style="display:flex;align-items:center;min-height:60px;border-bottom:1px solid #1C2026;gap:16px">
+                <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Sensitivity</div></div>
+                <div style="display:flex;align-items:center;gap:12px;flex:none">
+                  <div style="position:relative;width:190px;height:32px;outline:{{o9}};outline-offset:3px;border-radius:6px">
+                    <div style="position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:#2E333B"></div>
+                    <div style="position:absolute;left:0;width:{{seW}};top:13px;height:6px;border-radius:3px;background:#56B4E9;transition:width 100ms ease"></div>
+                    <div style="position:absolute;left:{{seT}};top:4px;width:24px;height:24px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box;transition:left 100ms ease"></div>
+                  </div>
+                  <span style="width:52px;text-align:center;font:600 15px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#14161A;border:1px solid #454C57;border-radius:6px;padding:7px 0">{{seVal}}</span>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;min-height:60px;gap:16px">
+                <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Noise floor</div></div>
+                <div style="display:flex;align-items:center;gap:12px;flex:none">
+                  <div style="position:relative;width:190px;height:32px;outline:{{o10}};outline-offset:3px;border-radius:6px">
+                    <div style="position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:#2E333B"></div>
+                    <div style="position:absolute;left:0;width:{{noW}};top:13px;height:6px;border-radius:3px;background:#56B4E9;transition:width 100ms ease"></div>
+                    <div style="position:absolute;left:{{noT}};top:4px;width:24px;height:24px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box;transition:left 100ms ease"></div>
+                  </div>
+                  <span style="width:52px;text-align:center;font:600 15px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#14161A;border:1px solid #454C57;border-radius:6px;padding:7px 0">{{noVal}}</span>
+                </div>
+              </div>
+            </div>
+            <div style="flex:none;display:flex;align-items:center;gap:12px;padding:12px 26px;border-top:1px solid #23272E;background:#0F1114">
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 18px;border:2px solid #454C57;border-radius:8px;color:#F4F5F7;font-size:14px;font-weight:600;outline:{{o11}};outline-offset:3px;background:{{reBg}};transition:background-color 120ms linear">Reset positions</div>
+              <div style="flex:1"></div>
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:130px;padding:10px 20px;background:{{hiBg}};border-radius:8px;color:#04121D;font-size:14.5px;font-weight:700;outline:{{o12}};outline-offset:3px;transition:background-color 120ms linear">Hide window</div>
+            </div>
+          </div>
+        </div>
+        <sc-if value="{{ kbArmed }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:12px;padding:11px 26px;background:#14161A;border-top:1px solid #23272E">
+            <span style="font:700 10.5px Consolas,ui-monospace,monospace;color:#0B0C0E;background:#F0E442;border-radius:4px;padding:3px 7px;flex:none">FOCUS</span>
+            <span style="font-size:13.5px;font-weight:700;color:#F4F5F7;flex:none">{{hudName}}</span>
+            <span style="font-size:12.5px;color:#A8AEB8;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{hudHint}}</span>
+            <div style="flex:1"></div>
+            <span style="font:700 13px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:7px;padding:6px 12px;flex:none">{{lastKey}}</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ kbUnarmed }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 26px;background:#1C2026;border-top:2px solid #F0E442">
+            <span style="font-size:13.5px;font-weight:700;color:#F0E442">Click this window, then drive it with your keyboard</span>
+            <span style="font-size:12.5px;color:#A8AEB8">Tab · ↑ ↓ · ← → · Space / Enter · F6 · Esc releases</span>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- ============================ 5b KEY MAP ============================ -->
+    <div id="5b" data-screen-label="Keyboard map" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:560px">
+        <a href="#5b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">5b</a>
+        Full key map — including keyboard-only overlay positioning (solves mouse-only drag)
+      </div>
+      <div style="width:560px;background:#0B0C0E;border:1px solid #2E333B;border-radius:10px;padding:20px 22px">
+        <div style="font-size:13px;font-weight:700;letter-spacing:0.07em;color:#A8AEB8">SETTINGS WINDOW</div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:9px 16px;align-items:center;margin-top:10px">
+          <span style="font:700 12.5px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:6px;padding:5px 9px;justify-self:start">Tab / Shift+Tab</span><span style="font-size:13.5px;color:#F4F5F7">Next / previous control</span>
+          <span style="font:700 12.5px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:6px;padding:5px 9px;justify-self:start">↑ ↓</span><span style="font-size:13.5px;color:#F4F5F7">Move between rows (skips straight to each row's control)</span>
+          <span style="font:700 12.5px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:6px;padding:5px 9px;justify-self:start">← →</span><span style="font-size:13.5px;color:#F4F5F7">Adjust: slider steps, segmented choice, toggle on/off · <span style="color:#A8AEB8">Shift = big steps</span></span>
+          <span style="font:700 12.5px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:6px;padding:5px 9px;justify-self:start">Space / Enter</span><span style="font-size:13.5px;color:#F4F5F7">Toggle / activate · Enter confirms dialogs, Esc cancels — everywhere</span>
+          <span style="font:700 12.5px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:6px;padding:5px 9px;justify-self:start">F6</span><span style="font-size:13.5px;color:#F4F5F7">Jump between navigation and content regions</span>
+        </div>
+        <div style="font-size:13px;font-weight:700;letter-spacing:0.07em;color:#A8AEB8;margin-top:18px">OVERLAY MOVE MODE <span style="color:#6E757F;font-weight:400">(no mouse needed)</span></div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:9px 16px;align-items:center;margin-top:10px">
+          <span style="font:700 12.5px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:6px;padding:5px 9px;justify-self:start">Ctrl+Shift+E</span><span style="font-size:13.5px;color:#F4F5F7">Enter / leave move mode (new hotkey)</span>
+          <span style="font:700 12.5px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:6px;padding:5px 9px;justify-self:start">Tab</span><span style="font-size:13.5px;color:#F4F5F7">Select which indicator to move (left bar → right bar → radar…)</span>
+          <span style="font:700 12.5px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:6px;padding:5px 9px;justify-self:start">Arrows</span><span style="font-size:13.5px;color:#F4F5F7">Nudge 1% · <span style="color:#A8AEB8">Shift+arrows = 5%, snaps to guides</span></span>
+          <span style="font:700 12.5px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:6px;padding:5px 9px;justify-self:start">Enter / Esc</span><span style="font-size:13.5px;color:#F4F5F7">Save position / cancel · <span style="font-family:Consolas,ui-monospace,monospace">Ctrl+Shift+P</span> still resets all</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================ 5c FOCUS SPECIMENS ============================ -->
+    <div id="5c" data-screen-label="Focus-state specimens" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:460px">
+        <a href="#5c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">5c</a>
+        Focus specimens — the 3&#8202;px #F0E442 ring on every control type (today only checkboxes + buttons have one)
+      </div>
+      <div style="width:460px;background:#0B0C0E;border:1px solid #2E333B;border-radius:10px;padding:18px 22px;display:grid;grid-template-columns:110px 1fr 1fr;gap:16px 18px;align-items:center">
+        <span style="font:600 10.5px Consolas,ui-monospace,monospace;color:#6E757F"></span>
+        <span style="font:600 10.5px Consolas,ui-monospace,monospace;color:#6E757F">REST</span>
+        <span style="font:600 10.5px Consolas,ui-monospace,monospace;color:#6E757F">FOCUSED</span>
+        <span style="font-size:13px;color:#A8AEB8">Toggle</span>
+        <div style="width:52px;height:28px;border-radius:16px;background:#009E73;position:relative"><div style="position:absolute;right:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#FFF"></div></div>
+        <div style="width:52px;height:28px;border-radius:16px;background:#009E73;position:relative;outline:3px solid #F0E442;outline-offset:3px"><div style="position:absolute;right:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#FFF"></div></div>
+        <span style="font-size:13px;color:#A8AEB8">Segmented</span>
+        <div style="display:inline-flex;background:#14161A;border:1px solid #454C57;border-radius:7px;padding:2px;justify-self:start"><span style="padding:5px 10px;border-radius:5px;background:#56B4E9;color:#04121D;font-size:12px;font-weight:700">A</span><span style="padding:5px 10px;color:#A8AEB8;font-size:12px">B</span></div>
+        <div style="display:inline-flex;background:#14161A;border:1px solid #454C57;border-radius:7px;padding:2px;justify-self:start;outline:3px solid #F0E442;outline-offset:3px"><span style="padding:5px 10px;border-radius:5px;background:#56B4E9;color:#04121D;font-size:12px;font-weight:700">A</span><span style="padding:5px 10px;color:#A8AEB8;font-size:12px">B</span></div>
+        <span style="font-size:13px;color:#A8AEB8">Slider thumb</span>
+        <div style="position:relative;width:110px;height:26px"><div style="position:absolute;left:0;right:0;top:10px;height:6px;border-radius:3px;background:#2E333B"></div><div style="position:absolute;left:0;width:40%;top:10px;height:6px;border-radius:3px;background:#56B4E9"></div><div style="position:absolute;left:calc(40% - 11px);top:2px;width:22px;height:22px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box"></div></div>
+        <div style="position:relative;width:110px;height:26px"><div style="position:absolute;left:0;right:0;top:10px;height:6px;border-radius:3px;background:#2E333B"></div><div style="position:absolute;left:0;width:40%;top:10px;height:6px;border-radius:3px;background:#56B4E9"></div><div style="position:absolute;left:calc(40% - 11px);top:2px;width:22px;height:22px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box;outline:3px solid #F0E442;outline-offset:2px"></div></div>
+        <span style="font-size:13px;color:#A8AEB8">Button</span>
+        <div style="display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 14px;background:#56B4E9;border-radius:7px;color:#04121D;font-size:13px;font-weight:700;justify-self:start">Save</div>
+        <div style="display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 14px;background:#56B4E9;border-radius:7px;color:#04121D;font-size:13px;font-weight:700;justify-self:start;outline:3px solid #F0E442;outline-offset:3px">Save</div>
+        <span style="font-size:13px;color:#A8AEB8">Nav item</span>
+        <div style="display:flex;align-items:center;height:36px;padding:0 10px;border-radius:6px;background:#1C2026;border-left:4px solid #56B4E9;font-size:13px;font-weight:600;color:#F4F5F7">Overlay</div>
+        <div style="display:flex;align-items:center;height:36px;padding:0 10px;border-radius:6px;background:#1C2026;border-left:4px solid #56B4E9;font-size:13px;font-weight:600;color:#F4F5F7;outline:3px solid #F0E442;outline-offset:-3px">Overlay</div>
+        <span style="font-size:13px;color:#A8AEB8">Radio card</span>
+        <div style="display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;background:#1C2026;border:2px solid #56B4E9"><span style="width:16px;height:16px;border-radius:50%;border:2px solid #56B4E9;box-sizing:border-box;display:flex;align-items:center;justify-content:center"><span style="width:7px;height:7px;border-radius:50%;background:#56B4E9"></span></span><span style="font-size:12.5px;font-weight:600;color:#F4F5F7">Follow</span></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;background:#1C2026;border:2px solid #56B4E9;outline:3px solid #F0E442;outline-offset:3px"><span style="width:16px;height:16px;border-radius:50%;border:2px solid #56B4E9;box-sizing:border-box;display:flex;align-items:center;justify-content:center"><span style="width:7px;height:7px;border-radius:50%;background:#56B4E9"></span></span><span style="font-size:12.5px;font-weight:600;color:#F4F5F7">Follow</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <p style="margin:26px 0 0;font:12px/1.6 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.5);max-width:900px">Try next: &#8220;add screen-reader annotations (names/roles/values) to <a href="#5a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">5a</a>&#8221; · &#8220;demo move-mode nudging on the <a href="#2e" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2e</a> bars&#8221; · &#8220;write the WPF implementation checklist for engineering&#8221;</p>
+</section>
+
+<section id="t4" data-screen-label="Radar ping A/B — ring loudness mapping" style="padding:36px 44px 48px;border-bottom:1px solid rgba(0,0,0,0.08)">
+
+  <div style="display:flex;align-items:baseline;gap:10px;margin:0 0 14px">
+    <a href="#t4" style="font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none">4</a>
+    <span style="font:600 14px/1.2 'Segoe UI',system-ui,sans-serif;color:#1a1a1a">Radar ping, style B — five rings, two mapping logics (A/B of your question)</span>
+  </div>
+
+  <div style="max-width:920px;background:#FBFAF7;border:1px solid rgba(0,0,0,0.09);border-radius:8px;padding:16px 20px;margin:0 0 26px;font-size:12.5px;line-height:1.6;color:#3a3a38">
+    <div style="font-weight:600;margin-bottom:6px;color:#1a1a1a">Your three questions, answered in the demos</div>
+    <div>· <b>Which ring for quiet vs loud?</b> Loud should sit <b>inside</b>, near you — in games loudness is a distance proxy: approaching footsteps get louder <i>and</i> closer. Putting loud on the rim would read backwards. <a href="#4b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">4b</a> shows that mapping; quiet sounds appear on the outermost ring and march inward as they grow.</div>
+    <div>· <b>One ring or all of them?</b> Both work, so both are live: <a href="#4a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">4a</a> lights <b>every ring up to the level</b> (meter logic — more rings = louder, very legible in peripheral vision), <a href="#4b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">4b</a> lights <b>only one</b> (map logic — ring = distance, cleaner with several simultaneous sounds).</div>
+    <div>· Rings only ever light in the sound's 45° direction sector, never the whole circle; the rear 45° wedge stays dark (7.1 has no rear-center). Verdict: not a bad idea at all — my pick is <a href="#4b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">4b</a> for hunting threats, <a href="#4a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">4a</a> if you care most about how loud. Could ship as "Radar ping (meter)" and "Radar ping (distance)" styles next to <a href="#2g" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2g</a>.</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+    <!-- ============================ 4a CUMULATIVE ============================ -->
+    <div id="4a" data-screen-label="Radar ping — cumulative meter" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#4a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">4a</a>
+        Cumulative meter — rings fill outward from you: 1 ring = whisper, all 5 = max. Amount lit = loudness.
+      </div>
+      <div style="width:866px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden;background:#101216">
+        <div style="width:864px;height:486px;overflow:hidden;position:relative">
+          <div style="width:1920px;height:1080px;transform:scale(0.45);transform-origin:0 0;position:absolute;left:0;top:0;background:#15181D">
+            <image-slot id="game-shot-4a" shape="rect" placeholder="Drop a game screenshot (1920×1080)" style="position:absolute;left:0;top:0;width:1920px;height:1080px"></image-slot>
+            <div style="position:absolute;left:948px;top:539px;width:24px;height:2px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:959px;top:528px;width:2px;height:24px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:820px;top:740px;width:280px;height:280px;pointer-events:none">
+              <div style="position:absolute;left:65px;top:65px;width:150px;height:150px;border-radius:50%;border:1px solid rgba(255,255,255,0.16);box-sizing:border-box"></div>
+              <div style="position:absolute;left:50px;top:50px;width:180px;height:180px;border-radius:50%;border:1px solid rgba(255,255,255,0.16);box-sizing:border-box"></div>
+              <div style="position:absolute;left:34.5px;top:34.5px;width:211px;height:211px;border-radius:50%;border:1px solid rgba(255,255,255,0.16);box-sizing:border-box"></div>
+              <div style="position:absolute;left:19.5px;top:19.5px;width:241px;height:241px;border-radius:50%;border:1px solid rgba(255,255,255,0.16);box-sizing:border-box"></div>
+              <div style="position:absolute;left:4.5px;top:4.5px;width:271px;height:271px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.24);box-sizing:border-box"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rc1}};-webkit-mask-image:radial-gradient(circle,transparent 22%,#000 22.3%,#000 26.8%,transparent 27.1%);mask-image:radial-gradient(circle,transparent 22%,#000 22.3%,#000 26.8%,transparent 27.1%)"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rc2}};-webkit-mask-image:radial-gradient(circle,transparent 27.4%,#000 27.7%,#000 32.2%,transparent 32.5%);mask-image:radial-gradient(circle,transparent 27.4%,#000 27.7%,#000 32.2%,transparent 32.5%)"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rc3}};-webkit-mask-image:radial-gradient(circle,transparent 32.8%,#000 33.1%,#000 37.6%,transparent 37.9%);mask-image:radial-gradient(circle,transparent 32.8%,#000 33.1%,#000 37.6%,transparent 37.9%)"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rc4}};-webkit-mask-image:radial-gradient(circle,transparent 38.2%,#000 38.5%,#000 43%,transparent 43.3%);mask-image:radial-gradient(circle,transparent 38.2%,#000 38.5%,#000 43%,transparent 43.3%)"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rc5}};-webkit-mask-image:radial-gradient(circle,transparent 43.6%,#000 43.9%,#000 48.4%,transparent 48.7%);mask-image:radial-gradient(circle,transparent 43.6%,#000 43.9%,#000 48.4%,transparent 48.7%)"></div>
+              <span style="position:absolute;left:132px;top:-8px;font:700 19px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.95);text-shadow:0 1px 4px rgba(0,0,0,0.9)">F</span>
+              <div style="position:absolute;left:126px;top:127px;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:24px solid rgba(255,255,255,0.92)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================ 4b PROXIMITY ============================ -->
+    <div id="4b" data-screen-label="Radar ping — proximity map" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#4b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">4b</a>
+        Proximity map — one blip per sound: quiet appears on the rim, gets louder → jumps ring by ring toward you. Ring = distance.
+      </div>
+      <div style="width:866px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden;background:#101216">
+        <div style="width:864px;height:486px;overflow:hidden;position:relative">
+          <div style="width:1920px;height:1080px;transform:scale(0.45);transform-origin:0 0;position:absolute;left:0;top:0;background:#15181D">
+            <image-slot id="game-shot-4b" shape="rect" placeholder="Drop a game screenshot (1920×1080)" style="position:absolute;left:0;top:0;width:1920px;height:1080px"></image-slot>
+            <div style="position:absolute;left:948px;top:539px;width:24px;height:2px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:959px;top:528px;width:2px;height:24px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:820px;top:740px;width:280px;height:280px;pointer-events:none">
+              <div style="position:absolute;left:65px;top:65px;width:150px;height:150px;border-radius:50%;border:1px solid rgba(255,255,255,0.16);box-sizing:border-box"></div>
+              <div style="position:absolute;left:50px;top:50px;width:180px;height:180px;border-radius:50%;border:1px solid rgba(255,255,255,0.16);box-sizing:border-box"></div>
+              <div style="position:absolute;left:34.5px;top:34.5px;width:211px;height:211px;border-radius:50%;border:1px solid rgba(255,255,255,0.16);box-sizing:border-box"></div>
+              <div style="position:absolute;left:19.5px;top:19.5px;width:241px;height:241px;border-radius:50%;border:1px solid rgba(255,255,255,0.16);box-sizing:border-box"></div>
+              <div style="position:absolute;left:4.5px;top:4.5px;width:271px;height:271px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.24);box-sizing:border-box"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rp1}};-webkit-mask-image:radial-gradient(circle,transparent 22%,#000 22.3%,#000 26.8%,transparent 27.1%);mask-image:radial-gradient(circle,transparent 22%,#000 22.3%,#000 26.8%,transparent 27.1%)"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rp2}};-webkit-mask-image:radial-gradient(circle,transparent 27.4%,#000 27.7%,#000 32.2%,transparent 32.5%);mask-image:radial-gradient(circle,transparent 27.4%,#000 27.7%,#000 32.2%,transparent 32.5%)"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rp3}};-webkit-mask-image:radial-gradient(circle,transparent 32.8%,#000 33.1%,#000 37.6%,transparent 37.9%);mask-image:radial-gradient(circle,transparent 32.8%,#000 33.1%,#000 37.6%,transparent 37.9%)"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rp4}};-webkit-mask-image:radial-gradient(circle,transparent 38.2%,#000 38.5%,#000 43%,transparent 43.3%);mask-image:radial-gradient(circle,transparent 38.2%,#000 38.5%,#000 43%,transparent 43.3%)"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;background:{{rp5}};-webkit-mask-image:radial-gradient(circle,transparent 43.6%,#000 43.9%,#000 48.4%,transparent 48.7%);mask-image:radial-gradient(circle,transparent 43.6%,#000 43.9%,#000 48.4%,transparent 48.7%)"></div>
+              <span style="position:absolute;left:132px;top:-8px;font:700 19px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.95);text-shadow:0 1px 4px rgba(0,0,0,0.9)">F</span>
+              <div style="position:absolute;left:126px;top:127px;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:24px solid rgba(255,255,255,0.92)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p style="margin:26px 0 0;font:12px/1.6 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.5);max-width:900px">Try next: &#8220;keep <a href="#4b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">4b</a>, drop <a href="#4a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">4a</a>&#8221; · &#8220;add a fading trail as blips move between rings&#8221; · &#8220;show ring count as a setting (3 / 5 / 7)&#8221;</p>
+</section>
+
+<section id="t3" data-screen-label="Game detection & audio capture" style="padding:36px 44px 48px;border-bottom:1px solid rgba(0,0,0,0.08)">
+
+  <div style="display:flex;align-items:baseline;gap:10px;margin:0 0 14px">
+    <a href="#t3" style="font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none">3</a>
+    <span style="font:600 14px/1.2 'Segoe UI',system-ui,sans-serif;color:#1a1a1a">Game detection &amp; audio capture — why it stayed dark in-game, and per-game profiles</span>
+  </div>
+
+  <div style="max-width:920px;background:#FBFAF7;border:1px solid rgba(0,0,0,0.09);border-radius:8px;padding:16px 20px;margin:0 0 26px;font-size:12.5px;line-height:1.6;color:#3a3a38">
+    <div style="font-weight:600;margin-bottom:6px;color:#1a1a1a">Root cause, from the code</div>
+    <div>· <span style="font-family:ui-monospace,Menlo,monospace">Speakers.cs → SelectDevice()</span> locks onto <b>one</b> endpoint: your configured device, else the <b>first 8-channel device it finds</b>, else the Windows default — and only ever reads that endpoint's meter. If the game plays to your headphones while an idle 8-channel virtual cable sits in the list, auto-detect grabs the silent cable → the overlay never lights up. Recovery logic only handles <i>device lost</i>, never <i>wrong device</i>.</div>
+    <div>· <span style="font-family:ui-monospace,Menlo,monospace">ProcessMonitor.cs</span> polls every 2&#8202;s but only watches exes that <b>already have a profile</b> — it can't discover a game it hasn't been told about.</div>
+    <div>· The fix uses the same safe WASAPI layer: audio <b>sessions</b> carry a process id and their own meter, so the app can find "cs2.exe is making sound on Headphones" and read <i>that</i> — no game hooks, same accessibility story. Session discovery doubles as game detection, which powers the per-game profile prompts in <a href="#3c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">3c</a> / <a href="#3d" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">3d</a>.</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+    <!-- ============================ 3a AUDIO SOURCE PAGE ============================ -->
+    <div id="3a" data-screen-label="Settings — Audio source & capture mode" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#3a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">3a</a>
+        Audio &amp; device page (in the <a href="#2a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2a</a> shell) — three capture modes; "Follow the game" is the zero-setup fix. Live signal check proves audio is arriving.
+      </div>
+      <div style="width:880px;background:#0B0C0E;border:1px solid #2E333B;border-radius:8px;box-shadow:0 22px 55px rgba(0,0,0,0.4);overflow:hidden">
+        <div style="height:36px;background:#14161A;display:flex;align-items:center;border-bottom:1px solid #23272E">
+          <img src="Icons/Icon32.png" alt="" style="width:16px;height:16px;margin:0 9px 0 12px"/>
+          <span style="flex:1;font-size:12.5px;color:#C8CDD4">DeafDirectionalHelper</span>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2500;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:11px">&#x25A1;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2715;</div>
+        </div>
+        <div style="display:flex;min-height:600px">
+          <div style="width:212px;flex:none;background:#14161A;border-right:1px solid #23272E;display:flex;flex-direction:column;padding:14px 10px">
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 10px 16px">
+              <span style="font-size:15px;font-weight:700;color:#F4F5F7">Settings</span>
+              <span style="font:600 11px Consolas,ui-monospace,monospace;color:#0B0C0E;background:#56B4E9;border-radius:20px;padding:2px 9px">&#9733; CS2</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">Overlay</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 12px;border-radius:6px;background:#1C2026;border-left:4px solid #56B4E9;font-size:15px;font-weight:600;color:#F4F5F7">Audio &amp; device</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">Profiles</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">General</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">Hotkeys</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">About</div>
+            </div>
+            <div style="flex:1"></div>
+            <div style="border-top:1px solid #23272E;padding:12px 6px 2px;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:#009E73"></span><span style="font-size:12.5px;color:#A8AEB8">cs2.exe detected · audio flowing</span></div>
+            </div>
+          </div>
+          <div style="flex:1;min-width:0;padding:22px 26px 24px">
+            <div style="font-size:24px;font-weight:700;color:#F4F5F7;line-height:1.2">Audio &amp; device</div>
+            <div style="font-size:13.5px;color:#A8AEB8;margin-top:4px">Where the overlay listens. Output levels only — never game files or memory.</div>
+            <div style="font-size:14px;font-weight:700;color:#F4F5F7;margin:18px 0 8px">Capture mode</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:10px;background:#1C2026;border:2px solid #56B4E9">
+                <span style="width:22px;height:22px;border-radius:50%;border:2px solid #56B4E9;box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px"><span style="width:10px;height:10px;border-radius:50%;background:#56B4E9"></span></span>
+                <div style="min-width:0">
+                  <div style="display:flex;align-items:center;gap:8px"><span style="font-size:15.5px;font-weight:700;color:#F4F5F7">Follow the game</span><span style="font:700 10.5px Consolas,ui-monospace,monospace;color:#02120C;background:#009E73;border-radius:12px;padding:2px 8px">RECOMMENDED</span></div>
+                  <div style="font-size:13px;color:#A8AEB8;margin-top:3px;line-height:1.5">Finds the detected game's own audio session and reads it on <b style="color:#F4F5F7">whichever device it plays to</b>. Zero setup — fixes "overlay never lights up".</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:10px;background:#14161A;border:2px solid #2E333B">
+                <span style="width:22px;height:22px;border-radius:50%;border:2px solid #6E757F;box-sizing:border-box;flex:none;margin-top:1px"></span>
+                <div style="min-width:0">
+                  <span style="font-size:15.5px;color:#F4F5F7">Windows default device</span>
+                  <div style="font-size:13px;color:#A8AEB8;margin-top:3px">Follows whatever Windows is playing to — survives headphone ↔ speaker swaps.</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:10px;background:#14161A;border:2px solid #2E333B">
+                <span style="width:22px;height:22px;border-radius:50%;border:2px solid #6E757F;box-sizing:border-box;flex:none;margin-top:1px"></span>
+                <div style="min-width:0;flex:1">
+                  <span style="font-size:15.5px;color:#F4F5F7">One specific device</span>
+                  <div style="font-size:13px;color:#A8AEB8;margin-top:3px">Today's behavior — best for full 7.1 via an 8-channel virtual cable. If the game plays elsewhere, the overlay stays silent; the <a href="#3b" style="color:#56B4E9;font-weight:600;text-decoration:none">Signal doctor</a> catches that.</div>
+                  <div style="display:flex;align-items:center;gap:8px;min-height:40px;max-width:360px;background:#0B0C0E;border:1px solid #454C57;border-radius:7px;padding:0 12px;margin-top:8px;box-sizing:border-box"><span style="flex:1;font-size:13.5px;color:#6E757F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">CABLE-C Input (VB-Audio Voicemeeter VAIO) · 8 ch</span><svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1 L5 5 L9 1" fill="none" stroke="#6E757F" stroke-width="1.6"></path></svg></div>
+                </div>
+              </div>
+            </div>
+            <!-- live signal check -->
+            <div style="margin-top:16px;background:#14161A;border:1px solid #2E333B;border-radius:10px;padding:14px 16px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="width:10px;height:10px;border-radius:50%;background:#009E73;flex:none"></span>
+                <span style="font-size:14.5px;font-weight:700;color:#F4F5F7">Live signal check</span>
+                <span style="font-size:13px;color:#A8AEB8">— receiving <span style="font-family:Consolas,ui-monospace,monospace;color:#F4F5F7">cs2.exe</span> on Headphones (Realtek)</span>
+              </div>
+              <div style="display:flex;align-items:flex-end;gap:14px;margin-top:12px">
+                <sc-for list="{{ sig }}" as="m" hint-placeholder-count="8">
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="width:26px;height:56px;border-radius:5px;background:#0B0C0E;border:1px solid #2E333B;position:relative;overflow:hidden;box-sizing:border-box"><div style="position:absolute;left:0;right:0;bottom:0;height:{{m.h}};background:{{m.c}};transition:height 120ms ease-out,background-color 120ms linear"></div></div>
+                    <span style="font:600 10.5px Consolas,ui-monospace,monospace;color:#A8AEB8">{{m.lab}}</span>
+                  </div>
+                </sc-for>
+                <div style="flex:1;min-width:0;font-size:12.5px;color:#A8AEB8;line-height:1.5;padding-bottom:4px">Play any sound in the game — if these move, the overlay moves. <span style="color:#E69F00;font-weight:600">Stereo source: directions collapse to left / right; route to an 8-channel device for full surround.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================ 3b SIGNAL DOCTOR ============================ -->
+    <div id="3b" data-screen-label="Signal doctor" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:640px">
+        <a href="#3b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">3b</a>
+        Signal doctor — pops automatically when a detected game makes sound but the selected device stays silent. This is your bug, caught live, with a one-click fix.
+      </div>
+      <div style="width:640px;background:#0B0C0E;border:1px solid #2E333B;border-radius:10px;box-shadow:0 22px 55px rgba(0,0,0,0.4);overflow:hidden">
+        <div style="height:34px;background:#14161A;display:flex;align-items:center;border-bottom:1px solid #23272E"><span style="flex:1;font-size:12.5px;color:#C8CDD4;margin-left:12px">Signal doctor</span><div style="width:44px;height:34px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2715;</div></div>
+        <div style="background:#2A1F08;border-bottom:1px solid #4A3A10;padding:12px 18px;display:flex;gap:10px;align-items:flex-start">
+          <span style="width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:16px solid #E69F00;flex:none;margin-top:2px"></span>
+          <div style="font-size:14px;color:#F4E9C8;line-height:1.5"><b style="color:#FFD97A">Overlay armed but silent.</b> <span style="font-family:Consolas,ui-monospace,monospace;color:#FFF">cs2.exe</span> has been playing audio for 12&#8202;s, but none of it reached the device you're listening to.</div>
+        </div>
+        <div style="padding:16px 18px 18px">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="border:2px solid #56B4E9;border-radius:10px;background:#14161A;padding:12px 14px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:14.5px;font-weight:700;color:#F4F5F7;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">CABLE-C Input (VB-Audio Voicemeeter)</span>
+                <span style="font:700 10.5px Consolas,ui-monospace,monospace;color:#04121D;background:#56B4E9;border-radius:12px;padding:2px 8px;flex:none">LISTENING HERE</span>
+                <span style="font:600 11px Consolas,ui-monospace,monospace;color:#A8AEB8;flex:none">8 CH</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+                <div style="flex:1;height:12px;border-radius:6px;background:#0B0C0E;border:1px solid #2E333B;position:relative;overflow:hidden"><div style="position:absolute;left:0;top:0;bottom:0;width:0%;background:#56B4E9"></div></div>
+                <span style="font:600 12px Consolas,ui-monospace,monospace;color:#6E757F;flex:none">silent 12 s</span>
+              </div>
+            </div>
+            <div style="border:2px solid #009E73;border-radius:10px;background:#14161A;padding:12px 14px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:14.5px;font-weight:700;color:#F4F5F7;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Headphones (Realtek High Definition)</span>
+                <span style="font:700 10.5px Consolas,ui-monospace,monospace;color:#02120C;background:#009E73;border-radius:12px;padding:2px 8px;flex:none">GAME AUDIO IS HERE</span>
+                <span style="font:600 11px Consolas,ui-monospace,monospace;color:#A8AEB8;flex:none">2 CH</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+                <div style="flex:1;height:12px;border-radius:6px;background:#0B0C0E;border:1px solid #2E333B;position:relative;overflow:hidden"><div style="position:absolute;left:0;top:0;bottom:0;width:{{pvLf}};background:{{pvL}};transition:width 120ms ease-out,background-color 120ms linear"></div></div>
+                <span style="font:600 12px Consolas,ui-monospace,monospace;color:#009E73;flex:none">&#9679; cs2.exe session</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+                <div style="display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:9px 16px;background:#009E73;border-radius:8px;color:#02120C;font-size:14px;font-weight:700;cursor:pointer">Listen here instead</div>
+                <span style="font-size:12.5px;color:#A8AEB8">left / right only on 2 channels</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid #23272E">
+            <div style="display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:9px 16px;border:2px solid #56B4E9;border-radius:8px;color:#56B4E9;font-size:14px;font-weight:700;cursor:pointer">Switch to "Follow the game"</div>
+            <span style="font-size:12.5px;color:#A8AEB8;flex:1">tracks cs2.exe wherever it plays, forever</span>
+            <span style="font-size:13px;color:#A8AEB8;text-decoration:underline;text-underline-offset:3px;cursor:pointer">7.1 routing guide</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================ 3c DETECTION PROMPTS ============================ -->
+    <div id="3c" data-screen-label="Game detected — profile prompts" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#3c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">3c</a>
+        In-game prompts — top: unknown game detected, offer a profile. Bottom: known game, auto-switched with undo. Which one you get is set in <a href="#3d" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">3d</a>.
+      </div>
+      <div style="width:866px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden;background:#101216">
+        <div style="width:864px;height:486px;overflow:hidden;position:relative">
+          <div style="width:1920px;height:1080px;transform:scale(0.45);transform-origin:0 0;position:absolute;left:0;top:0;background:#15181D">
+            <image-slot id="game-shot-3c" shape="rect" placeholder="Drop a game screenshot (1920×1080)" style="position:absolute;left:0;top:0;width:1920px;height:1080px"></image-slot>
+            <div style="position:absolute;left:948px;top:539px;width:24px;height:2px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:959px;top:528px;width:2px;height:24px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <!-- unknown game toast -->
+            <div style="position:absolute;right:40px;top:40px;width:640px;background:rgba(13,15,19,0.94);border:2px solid #2E333B;border-radius:16px;padding:24px;pointer-events:none">
+              <div style="display:flex;align-items:center;gap:16px">
+                <div style="width:56px;height:56px;border-radius:12px;background:#1C2026;border:1px solid #454C57;display:flex;align-items:center;justify-content:center;flex:none"><span style="font:700 16px Consolas,ui-monospace,monospace;color:#A8AEB8">EXE</span></div>
+                <div style="min-width:0">
+                  <div style="font-size:24px;font-weight:700;color:#F4F5F7">New game detected</div>
+                  <div style="font-size:19px;color:#A8AEB8;margin-top:3px"><span style="font-family:Consolas,ui-monospace,monospace;color:#F4F5F7">cs2.exe</span> is running and making sound</div>
+                </div>
+              </div>
+              <div style="font-size:19px;color:#A8AEB8;margin-top:16px;line-height:1.5">Give it its own profile? Overlay style, color scale and positions will switch automatically every time it runs.</div>
+              <div style="display:flex;align-items:center;gap:14px;margin-top:20px">
+                <div style="display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:12px 26px;background:#56B4E9;border-radius:10px;color:#04121D;font-size:20px;font-weight:700">Create CS2 profile</div>
+                <div style="display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:12px 22px;border:2px solid #454C57;border-radius:10px;color:#F4F5F7;font-size:20px;font-weight:600">Not now</div>
+                <div style="flex:1"></div>
+                <span style="font-size:17px;color:#6E757F;text-decoration:underline;text-underline-offset:3px">Ignore this game</span>
+              </div>
+            </div>
+            <!-- known game auto-switch toast -->
+            <div style="position:absolute;right:40px;top:330px;width:640px;background:rgba(13,15,19,0.94);border:2px solid #2E333B;border-radius:16px;padding:18px 24px 22px;pointer-events:none;overflow:hidden">
+              <div style="display:flex;align-items:center;gap:12px">
+                <span style="width:14px;height:14px;border-radius:50%;background:#009E73;flex:none"></span>
+                <span style="font-size:21px;color:#F4F5F7;min-width:0"><b>Switched to ★ CS2</b> — radar overlay · Ice scale</span>
+                <div style="flex:1"></div>
+                <span style="font-size:18px;color:#56B4E9;font-weight:700;text-decoration:underline;text-underline-offset:3px">Undo</span>
+              </div>
+              <div style="position:absolute;left:0;bottom:0;height:6px;width:34%;background:#2E333B"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================ 3d PROFILES PAGE ============================ -->
+    <div id="3d" data-screen-label="Settings — per-game profiles" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#3d" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">3d</a>
+        Profiles page — one card per game with its overlay style + color scale at a glance, live "running now" state, and the detection behavior switch that drives <a href="#3c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">3c</a>.
+      </div>
+      <div style="width:880px;background:#0B0C0E;border:1px solid #2E333B;border-radius:8px;box-shadow:0 22px 55px rgba(0,0,0,0.4);overflow:hidden">
+        <div style="height:36px;background:#14161A;display:flex;align-items:center;border-bottom:1px solid #23272E">
+          <img src="Icons/Icon32.png" alt="" style="width:16px;height:16px;margin:0 9px 0 12px"/>
+          <span style="flex:1;font-size:12.5px;color:#C8CDD4">DeafDirectionalHelper</span>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2500;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:11px">&#x25A1;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2715;</div>
+        </div>
+        <div style="display:flex;min-height:560px">
+          <div style="width:212px;flex:none;background:#14161A;border-right:1px solid #23272E;display:flex;flex-direction:column;padding:14px 10px">
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 10px 16px">
+              <span style="font-size:15px;font-weight:700;color:#F4F5F7">Settings</span>
+              <span style="font:600 11px Consolas,ui-monospace,monospace;color:#0B0C0E;background:#56B4E9;border-radius:20px;padding:2px 9px">&#9733; CS2</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">Overlay</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">Audio &amp; device</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 12px;border-radius:6px;background:#1C2026;border-left:4px solid #56B4E9;font-size:15px;font-weight:600;color:#F4F5F7">Profiles</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">General</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">Hotkeys</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">About</div>
+            </div>
+          </div>
+          <div style="flex:1;min-width:0;padding:22px 26px 24px">
+            <div style="font-size:24px;font-weight:700;color:#F4F5F7;line-height:1.2">Profiles</div>
+            <div style="font-size:13.5px;color:#A8AEB8;margin-top:4px">Each game gets its own overlay style, colors and positions.</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap">
+              <span style="font-size:14px;color:#F4F5F7;flex:none">When a profiled game starts:</span>
+              <div style="display:flex;background:#14161A;border:1px solid #454C57;border-radius:8px;padding:3px">
+                <div style="padding:8px 14px;border-radius:6px;color:#A8AEB8;font-size:13.5px">Switch silently</div>
+                <div style="padding:8px 14px;border-radius:6px;background:#56B4E9;color:#04121D;font-size:13.5px;font-weight:700">Switch + toast</div>
+                <div style="padding:8px 14px;border-radius:6px;color:#A8AEB8;font-size:13.5px">Ask first</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+              <span style="font-size:14px;color:#F4F5F7">Offer a profile when an unknown game makes sound</span>
+              <div style="width:46px;height:26px;border-radius:15px;background:#009E73;position:relative;flex:none"><div style="position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#FFF"></div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px">
+              <div style="border:2px solid #009E73;border-radius:10px;background:#14161A;padding:14px 16px;position:relative">
+                <div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px;font-weight:700;color:#F4F5F7">&#9733; CS2</span><span style="font:700 10.5px Consolas,ui-monospace,monospace;color:#02120C;background:#009E73;border-radius:12px;padding:2px 8px">RUNNING NOW</span></div>
+                <div style="font:600 12px Consolas,ui-monospace,monospace;color:#A8AEB8;margin-top:3px">cs2.exe</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap">
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#F4F5F7;background:#0B0C0E;border:1px solid #2E333B;border-radius:14px;padding:5px 10px"><span style="width:12px;height:12px;border-radius:50%;border:2px solid #56B4E9;box-sizing:border-box"></span>Radar ring</span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#F4F5F7;background:#0B0C0E;border:1px solid #2E333B;border-radius:14px;padding:5px 10px"><span style="width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,#FFFFFF,#56B4E9,#0072B2)"></span>Ice scale</span>
+                  <span style="font-size:12.5px;color:#A8AEB8">auto-switch on</span>
+                </div>
+                <div style="display:flex;gap:14px;margin-top:12px"><span style="font-size:13px;color:#56B4E9;font-weight:600;cursor:pointer">Edit</span><span style="font-size:13px;color:#A8AEB8;cursor:pointer">Duplicate</span></div>
+              </div>
+              <div style="border:1px solid #2E333B;border-radius:10px;background:#14161A;padding:14px 16px">
+                <div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px;font-weight:700;color:#F4F5F7">&#9733; Default</span></div>
+                <div style="font-size:12px;color:#A8AEB8;margin-top:3px">fallback when no game is detected</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap">
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#F4F5F7;background:#0B0C0E;border:1px solid #2E333B;border-radius:14px;padding:5px 10px"><span style="width:3px;height:12px;background:#56B4E9;border-radius:1px"></span><span style="width:3px;height:12px;background:#56B4E9;border-radius:1px;margin-left:-3px"></span>Side bars</span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#F4F5F7;background:#0B0C0E;border:1px solid #2E333B;border-radius:14px;padding:5px 10px"><span style="width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,#F0E442,#E69F00,#D55E00)"></span>Thermal scale</span>
+                </div>
+                <div style="display:flex;gap:14px;margin-top:12px"><span style="font-size:13px;color:#56B4E9;font-weight:600;cursor:pointer">Edit</span></div>
+              </div>
+              <div style="border:1px solid #2E333B;border-radius:10px;background:#14161A;padding:14px 16px">
+                <div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px;font-weight:700;color:#F4F5F7">Deep Rock</span></div>
+                <div style="font:600 12px Consolas,ui-monospace,monospace;color:#A8AEB8;margin-top:3px">FSD-Win64-Shipping.exe · last seen 2 days ago</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap">
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#F4F5F7;background:#0B0C0E;border:1px solid #2E333B;border-radius:14px;padding:5px 10px"><span style="width:14px;height:8px;border:2px solid #56B4E9;border-radius:3px;box-sizing:border-box"></span>Edge glow</span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#F4F5F7;background:#0B0C0E;border:1px solid #2E333B;border-radius:14px;padding:5px 10px"><span style="width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,#FFFFFF,#CC79A7,#882255)"></span>Violet scale</span>
+                  <span style="font-size:12.5px;color:#A8AEB8">auto-switch on</span>
+                </div>
+                <div style="display:flex;gap:14px;margin-top:12px"><span style="font-size:13px;color:#56B4E9;font-weight:600;cursor:pointer">Edit</span><span style="font-size:13px;color:#FF8A47;cursor:pointer">Delete</span></div>
+              </div>
+              <div style="border:2px dashed #454C57;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:130px;cursor:pointer">
+                <span style="font-size:22px;color:#56B4E9;font-weight:700;line-height:1">+</span>
+                <span style="font-size:14px;color:#F4F5F7;font-weight:600">New profile</span>
+                <span style="font-size:12px;color:#A8AEB8">or launch a game and let detection offer one</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p style="margin:26px 0 0;font:12px/1.6 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.5);max-width:900px">Try next: &#8220;wire <a href="#3b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">3b</a> into the first-run flow&#8221; · &#8220;show the profile-edit sheet for the CS2 card in <a href="#3d" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">3d</a>&#8221; · &#8220;mock the routing guide&#8221;</p>
+</section>
+
+<section id="t2" data-screen-label="Redesign explorations" style="padding:36px 44px 48px">
+
+  <div style="display:flex;align-items:baseline;gap:10px;margin:0 0 14px">
+    <a href="#t2" style="font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none">2</a>
+    <span style="font:600 14px/1.2 'Segoe UI',system-ui,sans-serif;color:#1a1a1a">Redesign — high-contrast, accessibility-first (baseline: <a href="Current UI.dc.html" style="color:#1a1a1a">Current UI.dc.html</a>) · settings directions <a href="#2a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2a</a>–<a href="#2d" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2d</a> · overlay concepts <a href="#2e" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2e</a>–<a href="#2h" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2h</a></span>
+  </div>
+
+  <div style="max-width:920px;background:#FBFAF7;border:1px solid rgba(0,0,0,0.09);border-radius:8px;padding:16px 20px;margin:0 0 26px;font-size:12.5px;line-height:1.6;color:#3a3a38">
+    <div style="font-weight:600;margin-bottom:6px;color:#1a1a1a">Design system for all directions</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+      <span style="width:15px;height:15px;border-radius:4px;background:#0B0C0E;border:1px solid rgba(0,0,0,0.2)"></span><span style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px">#0B0C0E bg</span>
+      <span style="width:15px;height:15px;border-radius:4px;background:#14161A;border:1px solid rgba(0,0,0,0.2)"></span><span style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px">#14161A panel</span>
+      <span style="width:15px;height:15px;border-radius:4px;background:#F4F5F7;border:1px solid rgba(0,0,0,0.2)"></span><span style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px">#F4F5F7 text</span>
+      <span style="width:15px;height:15px;border-radius:4px;background:#56B4E9"></span><span style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px">#56B4E9 interactive</span>
+      <span style="width:15px;height:15px;border-radius:4px;background:#009E73"></span><span style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px">#009E73 on</span>
+      <span style="width:15px;height:15px;border-radius:4px;background:#E69F00"></span><span style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px">#E69F00 warn</span>
+      <span style="width:15px;height:15px;border-radius:4px;background:#D55E00"></span><span style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px">#D55E00 danger</span>
+      <span style="width:15px;height:15px;border-radius:4px;background:#F0E442"></span><span style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px">#F0E442 focus ring</span>
+    </div>
+    <div>· Accents are <b>Okabe–Ito colorblind-safe</b> hues; text sits at WCAG AAA on its surface. Type stays native — Segoe UI 15–16&#8202;px controls, Consolas for hotkeys and numbers. Hit targets ≥ 44&#8202;px, every state also carried by a <b>shape or label</b>, never color alone. Dark Win32 title bars (the current app ships light chrome on a dark body).</div>
+    <div>· Overlays now encode loudness <b>three ways at once</b> — fill amount, color ramp, and a decaying peak mark — and are silent-invisible instead of the current always-on white blocks. Use the <b>Tweaks panel</b>: switch the color scale (thermal / ice / violet / classic), toggle move-mode, or pause the simulation. Dialogs, first-run, and tray are shown once in the <a href="#2a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2a</a> language and will follow whichever direction you pick.</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+    <!-- ============================================================ 2a SETTINGS — SIDEBAR ============================================================ -->
+    <div id="2a" data-screen-label="Settings redesign — Sidebar" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#2a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2a</a>
+        Sidebar navigation — one topic per page, live overlay preview at the top, plain-language labels. Recommended default.
+      </div>
+      <div style="width:880px;background:#0B0C0E;border:1px solid #2E333B;border-radius:8px;box-shadow:0 22px 55px rgba(0,0,0,0.4);overflow:hidden">
+        <div style="height:36px;background:#14161A;display:flex;align-items:center;border-bottom:1px solid #23272E">
+          <img src="Icons/Icon32.png" alt="" style="width:16px;height:16px;margin:0 9px 0 12px"/>
+          <span style="flex:1;font-size:12.5px;color:#C8CDD4">DeafDirectionalHelper</span>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2500;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:11px">&#x25A1;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2715;</div>
+        </div>
+        <div style="display:flex;height:604px">
+          <!-- nav rail -->
+          <div style="width:212px;flex:none;background:#14161A;border-right:1px solid #23272E;display:flex;flex-direction:column;padding:14px 10px">
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 10px 16px">
+              <span style="font-size:15px;font-weight:700;color:#F4F5F7">Settings</span>
+              <span style="font:600 11px Consolas,ui-monospace,monospace;color:#0B0C0E;background:#56B4E9;border-radius:20px;padding:2px 9px">&#9733; Default</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <div style="display:flex;align-items:center;height:44px;padding:0 12px;border-radius:6px;background:#1C2026;border-left:4px solid #56B4E9;font-size:15px;font-weight:600;color:#F4F5F7">Overlay</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">Audio &amp; device</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">Profiles</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">General</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">Hotkeys</div>
+              <div style="display:flex;align-items:center;height:44px;padding:0 16px;border-radius:6px;font-size:15px;color:#A8AEB8">About</div>
+            </div>
+            <div style="flex:1"></div>
+            <div style="border-top:1px solid #23272E;padding:12px 6px 2px;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:#009E73"></span><span style="font-size:12.5px;color:#A8AEB8">Overlay running · 8-channel device</span></div>
+              <span style="font:12px Consolas,ui-monospace,monospace;color:#6E757F">Ctrl+Shift+S opens this window</span>
+            </div>
+          </div>
+          <!-- content -->
+          <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+            <div style="flex:1;overflow:hidden;padding:22px 26px 0">
+              <div style="font-size:24px;font-weight:700;color:#F4F5F7;line-height:1.2">Overlay</div>
+              <div style="font-size:13.5px;color:#A8AEB8;margin-top:4px">How sound directions are shown on screen. Changes apply instantly.</div>
+              <!-- live preview strip -->
+              <div style="margin-top:16px;background:#14161A;border:1px solid #2E333B;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:16px">
+                <div style="width:180px;height:74px;flex:none;position:relative;background:#080A0C;border-radius:5px;overflow:hidden;border:1px solid #23272E">
+                  <div style="position:absolute;left:12px;top:8px;bottom:8px;width:9px;border-radius:5px;background:#1C2026;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end"><div style="height:{{pvLf}};background:{{pvL}};transition:height 140ms ease,background-color 140ms linear"></div></div>
+                  <div style="position:absolute;right:12px;top:8px;bottom:8px;width:9px;border-radius:5px;background:#1C2026;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end"><div style="height:{{pvRf}};background:{{pvR}};transition:height 140ms ease,background-color 140ms linear"></div></div>
+                  <span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:600 9px Consolas,ui-monospace,monospace;color:#4A5158;letter-spacing:0.08em">LIVE</span>
+                </div>
+                <div style="min-width:0">
+                  <div style="font-size:15px;font-weight:600;color:#F4F5F7">Preview reacts to real audio</div>
+                  <div style="font-size:13px;color:#A8AEB8;margin-top:3px;line-height:1.5">Test your setup without leaving settings — play any sound and watch it here and on screen.</div>
+                </div>
+              </div>
+              <!-- rows -->
+              <div style="display:flex;align-items:center;min-height:58px;border-bottom:1px solid #1C2026;gap:16px">
+                <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Show sound indicators</div></div>
+                <div style="display:flex;align-items:center;gap:10px;flex:none"><span style="font-size:13px;font-weight:600;color:#009E73">On</span><div style="width:52px;height:28px;border-radius:16px;background:#009E73;position:relative;flex:none"><div style="position:absolute;right:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#FFFFFF"></div></div></div>
+              </div>
+              <div style="display:flex;align-items:center;min-height:64px;border-bottom:1px solid #1C2026;gap:16px">
+                <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Overlay style</div><div style="font-size:13px;color:#A8AEB8;margin-top:2px">Switch anytime with Ctrl+Shift+M</div></div>
+                <div style="display:flex;flex:none;background:#14161A;border:1px solid #454C57;border-radius:8px;padding:3px">
+                  <div style="padding:8px 16px;border-radius:6px;background:#56B4E9;color:#04121D;font-size:14px;font-weight:700">Side bars</div>
+                  <div style="padding:8px 16px;border-radius:6px;color:#A8AEB8;font-size:14px">7.1 radar</div>
+                  <div style="padding:8px 16px;border-radius:6px;color:#A8AEB8;font-size:14px">Both</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;min-height:64px;border-bottom:1px solid #1C2026;gap:16px">
+                <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Only show while sound plays</div><div style="font-size:13px;color:#A8AEB8;margin-top:2px">Indicators fade out in silence instead of staying white</div></div>
+                <div style="display:flex;align-items:center;gap:10px;flex:none"><span style="font-size:13px;font-weight:600;color:#A8AEB8">Off</span><div style="width:52px;height:28px;border-radius:16px;background:#2E333B;border:1px solid #454C57;position:relative;flex:none;box-sizing:border-box"><div style="position:absolute;left:3px;top:2px;width:22px;height:22px;border-radius:50%;background:#A8AEB8"></div></div></div>
+              </div>
+              <div style="display:flex;align-items:center;min-height:64px;border-bottom:1px solid #1C2026;gap:16px">
+                <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Sensitivity</div><div style="font-size:13px;color:#A8AEB8;margin-top:2px">How easily indicators light up</div></div>
+                <div style="display:flex;align-items:center;gap:12px;flex:none">
+                  <div style="position:relative;width:190px;height:32px">
+                    <div style="position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:#2E333B"></div>
+                    <div style="position:absolute;left:0;width:31%;top:13px;height:6px;border-radius:3px;background:#56B4E9"></div>
+                    <div style="position:absolute;left:calc(31% - 12px);top:4px;width:24px;height:24px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box"></div>
+                  </div>
+                  <span style="width:52px;text-align:center;font:600 15px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#14161A;border:1px solid #454C57;border-radius:6px;padding:7px 0">1.0</span>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;min-height:64px;gap:16px">
+                <div style="flex:1;min-width:0"><div style="font-size:15.5px;color:#F4F5F7">Noise floor</div><div style="font-size:13px;color:#A8AEB8;margin-top:2px">Ignore sounds quieter than this</div></div>
+                <div style="display:flex;align-items:center;gap:12px;flex:none">
+                  <div style="position:relative;width:190px;height:32px">
+                    <div style="position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:#2E333B"></div>
+                    <div style="position:absolute;left:0;width:17%;top:13px;height:6px;border-radius:3px;background:#56B4E9"></div>
+                    <div style="position:absolute;left:calc(17% - 12px);top:4px;width:24px;height:24px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box;outline:3px solid #F0E442;outline-offset:2px"></div>
+                  </div>
+                  <span style="width:52px;text-align:center;font:600 15px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#14161A;border:1px solid #454C57;border-radius:6px;padding:7px 0">0.05</span>
+                </div>
+              </div>
+              <div style="font-size:12px;color:#6E757F;margin-top:2px">Yellow ring = keyboard focus — visible on every control, 3&#8202;px, AAA against both surfaces.</div>
+            </div>
+            <div style="flex:none;display:flex;align-items:center;gap:12px;padding:14px 26px;border-top:1px solid #23272E;background:#0F1114">
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 18px;border:2px solid #454C57;border-radius:8px;color:#F4F5F7;font-size:14px;font-weight:600;cursor:pointer">Reset positions <span style="font:600 12px Consolas,ui-monospace,monospace;color:#A8AEB8">&nbsp;Ctrl+Shift+P</span></div>
+              <div style="flex:1"></div>
+              <span style="font-size:14px;color:#D55E00;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px">Exit app…</span>
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:130px;padding:10px 20px;background:#56B4E9;border-radius:8px;color:#04121D;font-size:14.5px;font-weight:700;cursor:pointer">Hide window</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ 2b SETTINGS — TABS + GIANT CONTROLS ============================================================ -->
+    <div id="2b" data-screen-label="Settings redesign — Tabs" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#2b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2b</a>
+        Tabs + giant controls — 18&#8202;px type, stepper buttons on every slider (keyboard &amp; motor-friendly), card grouping
+      </div>
+      <div style="width:880px;background:#0B0C0E;border:1px solid #2E333B;border-radius:8px;box-shadow:0 22px 55px rgba(0,0,0,0.4);overflow:hidden">
+        <div style="height:36px;background:#14161A;display:flex;align-items:center;border-bottom:1px solid #23272E">
+          <img src="Icons/Icon32.png" alt="" style="width:16px;height:16px;margin:0 9px 0 12px"/>
+          <span style="flex:1;font-size:12.5px;color:#C8CDD4">DeafDirectionalHelper — Settings</span>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2500;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:11px">&#x25A1;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2715;</div>
+        </div>
+        <div style="display:flex;align-items:center;padding:0 22px;border-bottom:1px solid #23272E;background:#0F1114">
+          <div style="padding:16px 4px 13px;margin-right:28px;border-bottom:3px solid #56B4E9;font-size:16px;font-weight:700;color:#F4F5F7">Display</div>
+          <div style="padding:16px 4px 13px;margin-right:28px;border-bottom:3px solid transparent;font-size:16px;color:#A8AEB8">Audio</div>
+          <div style="padding:16px 4px 13px;margin-right:28px;border-bottom:3px solid transparent;font-size:16px;color:#A8AEB8">Profiles</div>
+          <div style="padding:16px 4px 13px;border-bottom:3px solid transparent;font-size:16px;color:#A8AEB8">General</div>
+          <div style="flex:1"></div>
+          <span style="font:600 12px Consolas,ui-monospace,monospace;color:#0B0C0E;background:#E69F00;border-radius:20px;padding:3px 10px">&#9733; Default — unsaved</span>
+        </div>
+        <div style="padding:20px 22px 22px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="background:#14161A;border:1px solid #2E333B;border-radius:10px;padding:18px 20px">
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.07em;color:#A8AEB8;margin-bottom:14px">WHAT YOU SEE</div>
+            <div style="font-size:18px;color:#F4F5F7;margin-bottom:10px">Overlay style</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border-radius:8px;background:#1C2026;border:2px solid #56B4E9">
+                <span style="width:22px;height:22px;border-radius:50%;border:2px solid #56B4E9;box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex:none"><span style="width:10px;height:10px;border-radius:50%;background:#56B4E9"></span></span>
+                <span style="font-size:16px;font-weight:600;color:#F4F5F7">Side bars</span><span style="font-size:13px;color:#A8AEB8">left / right edges</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border-radius:8px;background:#14161A;border:2px solid #454C57">
+                <span style="width:22px;height:22px;border-radius:50%;border:2px solid #6E757F;box-sizing:border-box;flex:none"></span>
+                <span style="font-size:16px;color:#F4F5F7">7.1 radar</span><span style="font-size:13px;color:#A8AEB8">all 8 speakers</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border-radius:8px;background:#14161A;border:2px solid #454C57">
+                <span style="width:22px;height:22px;border-radius:50%;border:2px solid #6E757F;box-sizing:border-box;flex:none"></span>
+                <span style="font-size:16px;color:#F4F5F7">Both</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;min-height:44px">
+              <span style="font-size:16px;color:#F4F5F7">Show only while sound plays</span>
+              <div style="width:56px;height:30px;border-radius:17px;background:#2E333B;border:1px solid #454C57;position:relative;box-sizing:border-box"><div style="position:absolute;left:3px;top:2px;width:24px;height:24px;border-radius:50%;background:#A8AEB8"></div></div>
+            </div>
+          </div>
+          <div style="background:#14161A;border:1px solid #2E333B;border-radius:10px;padding:18px 20px">
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.07em;color:#A8AEB8;margin-bottom:14px">HOW IT REACTS</div>
+            <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:18px;color:#F4F5F7">Sensitivity</span><span style="font:700 20px Consolas,ui-monospace,monospace;color:#F4F5F7">1.0</span></div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+              <div style="width:44px;height:44px;border-radius:8px;border:2px solid #454C57;display:flex;align-items:center;justify-content:center;color:#F4F5F7;font-size:20px;font-weight:700;flex:none">&#8722;</div>
+              <div style="position:relative;flex:1;height:32px">
+                <div style="position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:#2E333B"></div>
+                <div style="position:absolute;left:0;width:31%;top:13px;height:6px;border-radius:3px;background:#56B4E9"></div>
+                <div style="position:absolute;left:calc(31% - 12px);top:4px;width:24px;height:24px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box"></div>
+              </div>
+              <div style="width:44px;height:44px;border-radius:8px;border:2px solid #454C57;display:flex;align-items:center;justify-content:center;color:#F4F5F7;font-size:20px;font-weight:700;flex:none">+</div>
+            </div>
+            <div style="font-size:13px;color:#A8AEB8;margin-top:6px">Higher = lights up on quieter sounds</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px"><span style="font-size:18px;color:#F4F5F7">Noise floor</span><span style="font:700 20px Consolas,ui-monospace,monospace;color:#F4F5F7">0.05</span></div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+              <div style="width:44px;height:44px;border-radius:8px;border:2px solid #454C57;display:flex;align-items:center;justify-content:center;color:#F4F5F7;font-size:20px;font-weight:700;flex:none">&#8722;</div>
+              <div style="position:relative;flex:1;height:32px">
+                <div style="position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:#2E333B"></div>
+                <div style="position:absolute;left:0;width:17%;top:13px;height:6px;border-radius:3px;background:#56B4E9"></div>
+                <div style="position:absolute;left:calc(17% - 12px);top:4px;width:24px;height:24px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box"></div>
+              </div>
+              <div style="width:44px;height:44px;border-radius:8px;border:2px solid #454C57;display:flex;align-items:center;justify-content:center;color:#F4F5F7;font-size:20px;font-weight:700;flex:none">+</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;min-height:44px">
+              <div><span style="font-size:16px;color:#F4F5F7">Filter self sounds</span><div style="font-size:13px;color:#A8AEB8;margin-top:2px">Hides audio equal in both ears — your own steps</div></div>
+              <div style="width:56px;height:30px;border-radius:17px;background:#009E73;position:relative;flex:none"><div style="position:absolute;right:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#FFF"></div></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 22px;border-top:1px solid #23272E;background:#0F1114">
+          <span style="font-size:13.5px;color:#E69F00;font-weight:600">Unsaved changes on ★ Default</span>
+          <div style="flex:1"></div>
+          <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 18px;border:2px solid #454C57;border-radius:8px;color:#F4F5F7;font-size:14px;font-weight:600;cursor:pointer">Discard</div>
+          <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:140px;padding:10px 20px;background:#009E73;border-radius:8px;color:#02120C;font-size:14.5px;font-weight:700;cursor:pointer">Save profile</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ 2c SETTINGS — SINGLE SHEET ============================================================ -->
+    <div id="2c" data-screen-label="Settings redesign — Single sheet" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:760px">
+        <a href="#2c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2c</a>
+        Single sheet — one scrolling column, jump chips, maximum quiet: near-black, one accent, inline status text
+      </div>
+      <div style="width:760px;background:#050607;border:1px solid #2E333B;border-radius:8px;box-shadow:0 22px 55px rgba(0,0,0,0.4);overflow:hidden">
+        <div style="height:36px;background:#0C0E10;display:flex;align-items:center;border-bottom:1px solid #1C2026">
+          <img src="Icons/Icon32.png" alt="" style="width:16px;height:16px;margin:0 9px 0 12px"/>
+          <span style="flex:1;font-size:12.5px;color:#C8CDD4">DeafDirectionalHelper — Settings</span>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2500;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:11px">&#x25A1;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2715;</div>
+        </div>
+        <div style="padding:24px 30px 26px">
+          <div style="display:flex;align-items:baseline;gap:12px">
+            <span style="font-size:26px;font-weight:700;color:#FFFFFF">Settings</span>
+            <span style="font-size:15px;color:#56B4E9;font-weight:600">★ Default profile</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <span style="font-size:13.5px;font-weight:600;color:#050607;background:#F4F5F7;border-radius:16px;padding:6px 14px">Overlay</span>
+            <span style="font-size:13.5px;color:#F4F5F7;border:1px solid #454C57;border-radius:16px;padding:6px 14px">Audio</span>
+            <span style="font-size:13.5px;color:#F4F5F7;border:1px solid #454C57;border-radius:16px;padding:6px 14px">Profiles</span>
+            <span style="font-size:13.5px;color:#F4F5F7;border:1px solid #454C57;border-radius:16px;padding:6px 14px">General</span>
+            <span style="font-size:13.5px;color:#F4F5F7;border:1px solid #454C57;border-radius:16px;padding:6px 14px">Hotkeys</span>
+          </div>
+          <div style="height:1px;background:#1C2026;margin:20px 0 4px"></div>
+          <div style="padding:16px 0;border-bottom:1px solid #1C2026">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:20px">
+              <div style="font-size:17px;color:#FFFFFF">Show sound indicators</div>
+              <div style="width:56px;height:30px;border-radius:17px;background:#56B4E9;position:relative;flex:none"><div style="position:absolute;right:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#050607"></div></div>
+            </div>
+            <div style="font-size:14px;color:#A8AEB8;margin-top:4px">Turn everything on or off. Hotkey: <span style="font-family:Consolas,ui-monospace,monospace;color:#F4F5F7">Ctrl+Shift+R</span></div>
+          </div>
+          <div style="padding:16px 0;border-bottom:1px solid #1C2026">
+            <div style="font-size:17px;color:#FFFFFF;margin-bottom:10px">Overlay style</div>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1;text-align:center;padding:13px 0;border-radius:8px;background:#F4F5F7;color:#050607;font-size:15px;font-weight:700">Side bars</div>
+              <div style="flex:1;text-align:center;padding:13px 0;border-radius:8px;border:1px solid #454C57;color:#F4F5F7;font-size:15px">7.1 radar</div>
+              <div style="flex:1;text-align:center;padding:13px 0;border-radius:8px;border:1px solid #454C57;color:#F4F5F7;font-size:15px">Both</div>
+            </div>
+          </div>
+          <div style="padding:16px 0;border-bottom:1px solid #1C2026">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:20px">
+              <div style="font-size:17px;color:#FFFFFF">Audio device</div>
+              <div style="display:flex;align-items:center;gap:10px;min-height:48px;min-width:330px;background:#0C0E10;border:1px solid #454C57;border-radius:8px;padding:0 14px;box-sizing:border-box"><span style="flex:1;font-size:15px;color:#F4F5F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto-detect 8-channel device</span><svg width="11" height="7" viewBox="0 0 11 7"><path d="M1 1 L5.5 5.5 L10 1" fill="none" stroke="#F4F5F7" stroke-width="1.8"></path></svg></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;margin-top:8px"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M9.86 18l-5.86-5.86 1.41-1.41 4.45 4.45 9.59-9.59 1.41 1.41z" fill="#009E73"></path></svg><span style="font-size:14px;color:#009E73;font-weight:600">Device OK — 8 channels detected</span></div>
+          </div>
+          <div style="padding:16px 0">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:20px">
+              <div><div style="font-size:17px;color:#FFFFFF">Sensitivity</div><div style="font-size:14px;color:#A8AEB8;margin-top:2px">How easily indicators light up</div></div>
+              <div style="display:flex;align-items:center;gap:12px;flex:none">
+                <div style="position:relative;width:230px;height:32px">
+                  <div style="position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:#1C2026;border:1px solid #2E333B"></div>
+                  <div style="position:absolute;left:0;width:31%;top:13px;height:6px;border-radius:3px;background:#F4F5F7"></div>
+                  <div style="position:absolute;left:calc(31% - 13px);top:3px;width:26px;height:26px;border-radius:50%;background:#050607;border:3px solid #F4F5F7;box-sizing:border-box"></div>
+                </div>
+                <span style="font:700 17px Consolas,ui-monospace,monospace;color:#FFFFFF">1.0</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;border-top:1px solid #1C2026;padding-top:18px">
+            <div style="flex:1"></div>
+            <div style="display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 20px;border:2px solid #454C57;border-radius:8px;color:#F4F5F7;font-size:15px;font-weight:600;cursor:pointer">Hide window</div>
+            <div style="display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 20px;border:2px solid #D55E00;border-radius:8px;color:#FF8A47;font-size:15px;font-weight:600;cursor:pointer">Exit app</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ 2d SETTINGS — COMPACT PRO ============================================================ -->
+    <div id="2d" data-screen-label="Settings redesign — Compact pro" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#2d" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2d</a>
+        Compact pro — keeps the current two-column muscle memory, modernized cards, value chips, denser but still 44&#8202;px targets
+      </div>
+      <div style="width:880px;background:#0B0C0E;border:1px solid #2E333B;border-radius:8px;box-shadow:0 22px 55px rgba(0,0,0,0.4);overflow:hidden">
+        <div style="height:36px;background:#14161A;display:flex;align-items:center;border-bottom:1px solid #23272E">
+          <img src="Icons/Icon32.png" alt="" style="width:16px;height:16px;margin:0 9px 0 12px"/>
+          <span style="flex:1;font-size:12.5px;color:#C8CDD4">DeafDirectionalHelper — Settings</span>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2500;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:11px">&#x25A1;</div>
+          <div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2715;</div>
+        </div>
+        <div style="display:flex;align-items:center;padding:14px 20px 0;gap:10px">
+          <span style="font-size:20px;font-weight:700;color:#F4F5F7">Settings</span>
+          <span style="font:600 11px Consolas,ui-monospace,monospace;color:#0B0C0E;background:#56B4E9;border-radius:20px;padding:2px 9px">&#9733; Default</span>
+          <div style="flex:1"></div>
+          <span style="font:12.5px Consolas,ui-monospace,monospace;color:#A8AEB8">Hotkeys&nbsp;<span style="color:#56B4E9">Ctrl+Shift+H</span></span>
+          <span style="font-size:13px;color:#A8AEB8;text-decoration:underline;text-underline-offset:3px">About</span>
+        </div>
+        <div style="padding:14px 20px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+            <div style="background:#14161A;border:1px solid #2E333B;border-radius:8px;padding:14px 16px">
+              <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;color:#A8AEB8;margin-bottom:10px">DISPLAY</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;min-height:40px"><span style="font-size:14.5px;color:#F4F5F7">Sound indicators</span><div style="width:46px;height:26px;border-radius:15px;background:#009E73;position:relative"><div style="position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#FFF"></div></div></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;min-height:40px"><span style="font-size:14.5px;color:#F4F5F7">Mode</span><div style="display:flex;background:#0B0C0E;border:1px solid #454C57;border-radius:7px;padding:2px"><span style="padding:6px 11px;border-radius:5px;background:#56B4E9;color:#04121D;font-size:13px;font-weight:700">Dual</span><span style="padding:6px 11px;color:#A8AEB8;font-size:13px">7.1</span><span style="padding:6px 11px;color:#A8AEB8;font-size:13px">Both</span></div></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;min-height:40px"><span style="font-size:14.5px;color:#F4F5F7">Monitor</span><div style="display:flex;align-items:center;gap:8px;min-height:38px;background:#0B0C0E;border:1px solid #454C57;border-radius:7px;padding:0 12px;box-sizing:border-box"><span style="font-size:13.5px;color:#F4F5F7">1 · Primary · 2560×1440</span><svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1 L5 5 L9 1" fill="none" stroke="#F4F5F7" stroke-width="1.6"></path></svg></div></div>
+            </div>
+            <div style="background:#14161A;border:1px solid #2E333B;border-radius:8px;padding:14px 16px">
+              <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;color:#A8AEB8;margin-bottom:10px">REACTION</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;min-height:40px;gap:12px"><span style="font-size:14.5px;color:#F4F5F7;flex:none">Sensitivity</span><div style="position:relative;flex:1;height:30px;max-width:150px"><div style="position:absolute;left:0;right:0;top:12px;height:6px;border-radius:3px;background:#2E333B"></div><div style="position:absolute;left:0;width:31%;top:12px;height:6px;border-radius:3px;background:#56B4E9"></div><div style="position:absolute;left:calc(31% - 10px);top:5px;width:20px;height:20px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box"></div></div><span style="font:600 13px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#0B0C0E;border:1px solid #454C57;border-radius:5px;padding:5px 8px">1.0</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;min-height:40px;gap:12px"><span style="font-size:14.5px;color:#F4F5F7;flex:none">Noise floor</span><div style="position:relative;flex:1;height:30px;max-width:150px"><div style="position:absolute;left:0;right:0;top:12px;height:6px;border-radius:3px;background:#2E333B"></div><div style="position:absolute;left:0;width:17%;top:12px;height:6px;border-radius:3px;background:#56B4E9"></div><div style="position:absolute;left:calc(17% - 10px);top:5px;width:20px;height:20px;border-radius:50%;background:#F4F5F7;border:3px solid #56B4E9;box-sizing:border-box"></div></div><span style="font:600 13px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#0B0C0E;border:1px solid #454C57;border-radius:5px;padding:5px 8px">0.05</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;min-height:40px"><div><span style="font-size:14.5px;color:#F4F5F7">Show only while sound plays</span></div><div style="width:46px;height:26px;border-radius:15px;background:#2E333B;border:1px solid #454C57;position:relative;box-sizing:border-box"><div style="position:absolute;left:3px;top:2px;width:20px;height:20px;border-radius:50%;background:#A8AEB8"></div></div></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;min-height:40px"><div><span style="font-size:14.5px;color:#F4F5F7">Filter self sounds</span><span style="font-size:12px;color:#A8AEB8"> · equal L/R</span></div><div style="width:46px;height:26px;border-radius:15px;background:#2E333B;border:1px solid #454C57;position:relative;box-sizing:border-box"><div style="position:absolute;left:3px;top:2px;width:20px;height:20px;border-radius:50%;background:#A8AEB8"></div></div></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+            <div style="background:#14161A;border:1px solid #2E333B;border-radius:8px;padding:14px 16px">
+              <div style="display:flex;align-items:center;margin-bottom:10px"><span style="font-size:12px;font-weight:700;letter-spacing:0.08em;color:#A8AEB8">PROFILES</span><div style="flex:1"></div><span style="font-size:12px;color:#E69F00;font-weight:600">auto-switch paused here</span></div>
+              <div style="display:flex;align-items:center;gap:8px;min-height:44px;background:#0B0C0E;border:1px solid #2E333B;border-radius:7px;padding:0 12px;margin-bottom:8px"><span style="font-size:14px;font-weight:600;color:#F4F5F7">&#9733; Default</span><span style="font-size:12px;color:#A8AEB8">active</span><div style="flex:1"></div><span style="font-size:13px;color:#56B4E9;font-weight:600">Edit</span></div>
+              <div style="display:flex;align-items:center;gap:8px;min-height:44px;background:#0B0C0E;border:1px solid #2E333B;border-radius:7px;padding:0 12px"><span style="font-size:14px;color:#F4F5F7">CS2</span><span style="font:11.5px Consolas,ui-monospace,monospace;color:#A8AEB8">cs2.exe</span><div style="flex:1"></div><span style="font-size:13px;color:#56B4E9;font-weight:600">Edit</span></div>
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <div style="display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 14px;border:2px solid #454C57;border-radius:7px;color:#F4F5F7;font-size:13.5px;font-weight:600">New profile</div>
+                <div style="display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 14px;background:#009E73;border-radius:7px;color:#02120C;font-size:13.5px;font-weight:700">Save</div>
+              </div>
+            </div>
+            <div style="background:#14161A;border:1px solid #2E333B;border-radius:8px;padding:14px 16px">
+              <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;color:#A8AEB8;margin-bottom:10px">AUDIO</div>
+              <div style="display:flex;align-items:center;gap:8px;min-height:44px;background:#0B0C0E;border:1px solid #454C57;border-radius:7px;padding:0 12px"><span style="flex:1;font-size:13.5px;color:#F4F5F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto-detect 8-channel device</span><svg width="10" height="6" viewBox="0 0 10 6"><path d="M1 1 L5 5 L9 1" fill="none" stroke="#F4F5F7" stroke-width="1.6"></path></svg></div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:8px"><svg width="13" height="13" viewBox="0 0 24 24"><path d="M9.86 18l-5.86-5.86 1.41-1.41 4.45 4.45 9.59-9.59 1.41 1.41z" fill="#009E73"></path></svg><span style="font-size:12.5px;color:#009E73;font-weight:600">8 channels · VB-Audio VAIO</span></div>
+            </div>
+            <div style="background:#14161A;border:1px solid #2E333B;border-radius:8px;padding:14px 16px">
+              <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;color:#A8AEB8;margin-bottom:10px">GENERAL</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;min-height:38px"><span style="font-size:14.5px;color:#F4F5F7">Start with Windows</span><div style="width:46px;height:26px;border-radius:15px;background:#2E333B;border:1px solid #454C57;position:relative;box-sizing:border-box"><div style="position:absolute;left:3px;top:2px;width:20px;height:20px;border-radius:50%;background:#A8AEB8"></div></div></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;min-height:38px"><span style="font-size:14.5px;color:#F4F5F7">Start minimized to tray</span><div style="width:46px;height:26px;border-radius:15px;background:#2E333B;border:1px solid #454C57;position:relative;box-sizing:border-box"><div style="position:absolute;left:3px;top:2px;width:20px;height:20px;border-radius:50%;background:#A8AEB8"></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-top:1px solid #23272E;background:#0F1114">
+          <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border:2px solid #454C57;border-radius:8px;color:#F4F5F7;font-size:14px;font-weight:600">Reset positions</div>
+          <div style="flex:1"></div>
+          <span style="font-size:14px;color:#D55E00;font-weight:600;text-decoration:underline;text-underline-offset:3px">Exit app…</span>
+          <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:120px;padding:10px 18px;background:#56B4E9;border-radius:8px;color:#04121D;font-size:14.5px;font-weight:700">Hide window</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ 2e OVERLAY — REFINED EDGE BARS ============================================================ -->
+    <div id="2e" data-screen-label="Overlay concept — Refined edge bars" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#2e" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2e</a>
+        Refined edge bars — evolution of today's bars: level fills the segment, white tick marks the recent peak, silent = invisible. Move-mode chip + snap guide shown (Tweaks → toggle).
+      </div>
+      <div style="width:866px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden;background:#101216">
+        <div style="width:864px;height:486px;overflow:hidden;position:relative">
+          <div style="width:1920px;height:1080px;transform:scale(0.45);transform-origin:0 0;position:absolute;left:0;top:0;background:#15181D">
+            <image-slot id="game-shot-2e" shape="rect" placeholder="Drop a game screenshot (1920×1080)" style="position:absolute;left:0;top:0;width:1920px;height:1080px"></image-slot>
+            <div style="position:absolute;left:948px;top:539px;width:24px;height:2px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:959px;top:528px;width:2px;height:24px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <!-- left bar: F / S / R segments -->
+            <div style="position:absolute;left:26px;top:90px;width:34px;height:900px;display:flex;flex-direction:column;gap:8px;pointer-events:none">
+              <div style="flex:264;position:relative;background:rgba(10,13,16,0.55);border:2px solid rgba(255,255,255,0.35);border-radius:17px;overflow:hidden;box-sizing:border-box">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:{{eLFf}};background:{{eLFc}};transition:height 120ms ease-out,background-color 120ms linear"></div>
+                <div style="position:absolute;left:2px;right:2px;bottom:{{eLFp}};height:4px;background:#FFFFFF;border-radius:2px;transition:bottom 200ms linear"></div>
+              </div>
+              <div style="flex:348;position:relative;background:rgba(10,13,16,0.55);border:2px solid rgba(255,255,255,0.35);border-radius:17px;overflow:hidden;box-sizing:border-box">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:{{eLSf}};background:{{eLSc}};transition:height 120ms ease-out,background-color 120ms linear"></div>
+                <div style="position:absolute;left:2px;right:2px;bottom:{{eLSp}};height:4px;background:#FFFFFF;border-radius:2px;transition:bottom 200ms linear"></div>
+              </div>
+              <div style="flex:264;position:relative;background:rgba(10,13,16,0.55);border:2px solid rgba(255,255,255,0.35);border-radius:17px;overflow:hidden;box-sizing:border-box">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:{{eLRf}};background:{{eLRc}};transition:height 120ms ease-out,background-color 120ms linear"></div>
+                <div style="position:absolute;left:2px;right:2px;bottom:{{eLRp}};height:4px;background:#FFFFFF;border-radius:2px;transition:bottom 200ms linear"></div>
+              </div>
+            </div>
+            <span style="position:absolute;left:70px;top:200px;font:700 22px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.9);text-shadow:0 1px 4px rgba(0,0,0,0.9);pointer-events:none">F</span>
+            <span style="position:absolute;left:70px;top:528px;font:700 22px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.9);text-shadow:0 1px 4px rgba(0,0,0,0.9);pointer-events:none">S</span>
+            <span style="position:absolute;left:70px;top:848px;font:700 22px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.9);text-shadow:0 1px 4px rgba(0,0,0,0.9);pointer-events:none">R</span>
+            <!-- right bar -->
+            <div style="position:absolute;left:1860px;top:90px;width:34px;height:900px;display:flex;flex-direction:column;gap:8px;pointer-events:none">
+              <div style="flex:264;position:relative;background:rgba(10,13,16,0.55);border:2px solid rgba(255,255,255,0.35);border-radius:17px;overflow:hidden;box-sizing:border-box">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:{{eRFf}};background:{{eRFc}};transition:height 120ms ease-out,background-color 120ms linear"></div>
+                <div style="position:absolute;left:2px;right:2px;bottom:{{eRFp}};height:4px;background:#FFFFFF;border-radius:2px;transition:bottom 200ms linear"></div>
+              </div>
+              <div style="flex:348;position:relative;background:rgba(10,13,16,0.55);border:2px solid rgba(255,255,255,0.35);border-radius:17px;overflow:hidden;box-sizing:border-box">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:{{eRSf}};background:{{eRSc}};transition:height 120ms ease-out,background-color 120ms linear"></div>
+                <div style="position:absolute;left:2px;right:2px;bottom:{{eRSp}};height:4px;background:#FFFFFF;border-radius:2px;transition:bottom 200ms linear"></div>
+              </div>
+              <div style="flex:264;position:relative;background:rgba(10,13,16,0.55);border:2px solid rgba(255,255,255,0.35);border-radius:17px;overflow:hidden;box-sizing:border-box">
+                <div style="position:absolute;left:0;right:0;bottom:0;height:{{eRRf}};background:{{eRRc}};transition:height 120ms ease-out,background-color 120ms linear"></div>
+                <div style="position:absolute;left:2px;right:2px;bottom:{{eRRp}};height:4px;background:#FFFFFF;border-radius:2px;transition:bottom 200ms linear"></div>
+              </div>
+            </div>
+            <span style="position:absolute;left:1828px;top:200px;font:700 22px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.9);text-shadow:0 1px 4px rgba(0,0,0,0.9);pointer-events:none">F</span>
+            <span style="position:absolute;left:1828px;top:528px;font:700 22px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.9);text-shadow:0 1px 4px rgba(0,0,0,0.9);pointer-events:none">S</span>
+            <span style="position:absolute;left:1828px;top:848px;font:700 22px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.9);text-shadow:0 1px 4px rgba(0,0,0,0.9);pointer-events:none">R</span>
+            <!-- move mode -->
+            <sc-if value="{{ editMode }}" hint-placeholder-val="{{ true }}">
+              <div style="position:absolute;left:959px;top:0;width:2px;height:1080px;background:repeating-linear-gradient(180deg,rgba(86,180,233,0.7) 0 14px,transparent 14px 28px);pointer-events:none"></div>
+              <div style="position:absolute;left:50%;top:24px;transform:translateX(-50%);display:flex;align-items:center;gap:14px;background:rgba(8,10,13,0.85);border:1.5px solid #56B4E9;border-radius:26px;padding:12px 24px;pointer-events:none">
+                <span style="font:700 20px Consolas,ui-monospace,monospace;color:#56B4E9;letter-spacing:0.06em">MOVE MODE</span>
+                <span style="font-size:19px;color:#F4F5F7">drag a bar · snaps every 5% · mirrored while linked</span>
+                <span style="font:600 17px Consolas,ui-monospace,monospace;color:#A8AEB8">Ctrl+Shift+P resets</span>
+              </div>
+              <div style="position:absolute;left:26px;top:1004px;background:rgba(8,10,13,0.85);border:1.5px solid #56B4E9;border-radius:8px;padding:6px 14px;pointer-events:none"><span style="font:700 19px Consolas,ui-monospace,monospace;color:#56B4E9">3%</span></div>
+              <div style="position:absolute;left:1812px;top:1004px;background:rgba(8,10,13,0.85);border:1.5px solid #56B4E9;border-radius:8px;padding:6px 14px;pointer-events:none"><span style="font:700 19px Consolas,ui-monospace,monospace;color:#56B4E9">97%</span></div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ 2f OVERLAY — EDGE GLOW ============================================================ -->
+    <div id="2f" data-screen-label="Overlay concept — Edge glow" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#2f" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2f</a>
+        Edge glow — screen borders bloom from the sound's direction; zero HUD footprint, built for peripheral vision. Corners = front/rear, sides = flanks, top = center voice.
+      </div>
+      <div style="width:866px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden;background:#101216">
+        <div style="width:864px;height:486px;overflow:hidden;position:relative">
+          <div style="width:1920px;height:1080px;transform:scale(0.45);transform-origin:0 0;position:absolute;left:0;top:0;background:#15181D">
+            <image-slot id="game-shot-2f" shape="rect" placeholder="Drop a game screenshot (1920×1080)" style="position:absolute;left:0;top:0;width:1920px;height:1080px"></image-slot>
+            <div style="position:absolute;left:948px;top:539px;width:24px;height:2px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:959px;top:528px;width:2px;height:24px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:0;top:0;width:170px;height:1080px;background:{{gSL}};pointer-events:none"></div>
+            <div style="position:absolute;right:0;top:0;width:170px;height:1080px;background:{{gSR}};pointer-events:none"></div>
+            <div style="position:absolute;left:0;top:0;width:560px;height:560px;background:{{gFL}};pointer-events:none"></div>
+            <div style="position:absolute;right:0;top:0;width:560px;height:560px;background:{{gFR}};pointer-events:none"></div>
+            <div style="position:absolute;left:0;bottom:0;width:560px;height:560px;background:{{gRL}};pointer-events:none"></div>
+            <div style="position:absolute;right:0;bottom:0;width:560px;height:560px;background:{{gRR}};pointer-events:none"></div>
+            <div style="position:absolute;left:600px;top:0;width:720px;height:150px;background:{{gC}};pointer-events:none"></div>
+            <div style="position:absolute;left:0;top:0;width:8px;height:1080px;background:{{eSL}};pointer-events:none"></div>
+            <div style="position:absolute;right:0;top:0;width:8px;height:1080px;background:{{eSR}};pointer-events:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ 2g OVERLAY — RADAR RING ============================================================ -->
+    <div id="2g" data-screen-label="Overlay concept — Radar ring" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#2g" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2g</a>
+        Radar ring — replaces the 400×350 speaker diagram with one compact donut: 7 direction sectors light up around you, bass pulses the core. ~⅓ the footprint of today's 7.1 view.
+      </div>
+      <div style="width:866px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden;background:#101216">
+        <div style="width:864px;height:486px;overflow:hidden;position:relative">
+          <div style="width:1920px;height:1080px;transform:scale(0.45);transform-origin:0 0;position:absolute;left:0;top:0;background:#15181D">
+            <image-slot id="game-shot-2g" shape="rect" placeholder="Drop a game screenshot (1920×1080)" style="position:absolute;left:0;top:0;width:1920px;height:1080px"></image-slot>
+            <div style="position:absolute;left:948px;top:539px;width:24px;height:2px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:959px;top:528px;width:2px;height:24px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:850px;top:790px;width:220px;height:220px;pointer-events:none">
+              <div style="position:absolute;left:0;top:0;width:220px;height:220px;border-radius:50%;background:rgba(9,11,14,0.5);border:2px solid rgba(255,255,255,0.3);box-sizing:border-box"></div>
+              <div style="position:absolute;left:0;top:0;width:220px;height:220px;border-radius:50%;background:{{radarBg}};-webkit-mask-image:radial-gradient(circle,transparent 54%,#000 55%);mask-image:radial-gradient(circle,transparent 54%,#000 55%)"></div>
+              <div style="position:absolute;left:99px;top:-14px;width:22px;height:22px;display:flex;align-items:center;justify-content:center"><span style="font:700 18px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.95);text-shadow:0 1px 4px rgba(0,0,0,0.9)">F</span></div>
+              <div style="position:absolute;left:96px;top:88px;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:24px solid rgba(255,255,255,0.92)"></div>
+              <div style="position:absolute;left:76px;top:76px;width:68px;height:68px;border-radius:50%;background:{{lfeBg}};transform:scale({{lfeS}});transition:transform 120ms ease-out,background-color 120ms linear"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ 2h OVERLAY — COMPASS STRIP ============================================================ -->
+    <div id="2h" data-screen-label="Overlay concept — Compass strip" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#2h" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2h</a>
+        Compass strip — FPS-style bearing bar at the top: rear-left → front → rear-right laid out left-to-right, each cell rises with loudness. Familiar to shooter players, sits above the HUD.
+      </div>
+      <div style="width:866px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden;background:#101216">
+        <div style="width:864px;height:486px;overflow:hidden;position:relative">
+          <div style="width:1920px;height:1080px;transform:scale(0.45);transform-origin:0 0;position:absolute;left:0;top:0;background:#15181D">
+            <image-slot id="game-shot-2h" shape="rect" placeholder="Drop a game screenshot (1920×1080)" style="position:absolute;left:0;top:0;width:1920px;height:1080px"></image-slot>
+            <div style="position:absolute;left:948px;top:539px;width:24px;height:2px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:959px;top:528px;width:2px;height:24px;background:rgba(255,255,255,0.55);pointer-events:none"></div>
+            <div style="position:absolute;left:640px;top:36px;width:640px;height:96px;background:rgba(9,11,14,0.55);border:2px solid rgba(255,255,255,0.3);border-radius:18px;box-sizing:border-box;display:flex;align-items:flex-end;padding:0 18px 8px;gap:10px;pointer-events:none">
+              <sc-for list="{{ comp }}" as="tk" hint-placeholder-count="7">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+                  <div style="width:30px;height:44px;border-radius:6px;background:rgba(255,255,255,0.12);position:relative;overflow:hidden"><div style="position:absolute;left:0;right:0;bottom:0;height:{{tk.h}};background:{{tk.c}};transition:height 120ms ease-out,background-color 120ms linear"></div></div>
+                  <span style="font:700 17px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.9);text-shadow:0 1px 3px rgba(0,0,0,0.8)">{{tk.lab}}</span>
+                </div>
+              </sc-for>
+              <div style="width:2px;align-self:stretch;background:rgba(255,255,255,0.2);margin:10px 4px"></div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+                <div style="width:30px;height:44px;border-radius:6px;background:rgba(255,255,255,0.12);position:relative;overflow:hidden"><div style="position:absolute;left:0;right:0;bottom:0;height:{{lfeH}};background:{{lfeC}};transition:height 120ms ease-out,background-color 120ms linear"></div></div>
+                <span style="font:700 15px Consolas,ui-monospace,monospace;color:rgba(255,255,255,0.75);text-shadow:0 1px 3px rgba(0,0,0,0.8)">LFE</span>
+              </div>
+            </div>
+            <div style="position:absolute;left:952px;top:26px;width:16px;height:8px;pointer-events:none;display:flex;justify-content:center"><div style="width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:12px solid rgba(255,255,255,0.85)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ 2i LOUDNESS SCALES ============================================================ -->
+    <div id="2i" data-screen-label="Loudness color scales" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:520px">
+        <a href="#2i" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2i</a>
+        Loudness scales — pick per profile; loudness always also encoded by fill + peak tick, so hue is never the only signal
+      </div>
+      <div style="width:520px;background:#0B0C0E;border:1px solid #2E333B;border-radius:8px;padding:20px 22px;display:flex;flex-direction:column;gap:16px">
+        <div>
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:14.5px;font-weight:600;color:#F4F5F7">Thermal · default</span><span style="font-size:11.5px;color:#A8AEB8">colorblind-safe (Okabe–Ito)</span></div>
+          <div style="height:22px;border-radius:11px;margin-top:7px;background:linear-gradient(90deg,#3A3F46 0%,#F0E442 10%,#E69F00 55%,#D55E00 100%);border:1px solid #2E333B"></div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:14.5px;font-weight:600;color:#F4F5F7">Ice</span><span style="font-size:11.5px;color:#A8AEB8">single-hue — safest for all CVD types</span></div>
+          <div style="height:22px;border-radius:11px;margin-top:7px;background:linear-gradient(90deg,#3A3F46 0%,#FFFFFF 10%,#56B4E9 55%,#0072B2 100%);border:1px solid #2E333B"></div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:14.5px;font-weight:600;color:#F4F5F7">Violet</span><span style="font-size:11.5px;color:#A8AEB8">for red/green-heavy games</span></div>
+          <div style="height:22px;border-radius:11px;margin-top:7px;background:linear-gradient(90deg,#3A3F46 0%,#FFFFFF 10%,#CC79A7 55%,#882255 100%);border:1px solid #2E333B"></div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:14.5px;font-weight:600;color:#F4F5F7">Classic</span><span style="font-size:11.5px;color:#A8AEB8">today's white → yellow → red</span></div>
+          <div style="height:22px;border-radius:11px;margin-top:7px;background:linear-gradient(90deg,#FFFFFF 0%,#FFFF00 12%,#FF8000 55%,#FF0000 100%);border:1px solid #2E333B"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font:600 11px Consolas,ui-monospace,monospace;color:#6E757F;padding:0 2px"><span>QUIET</span><span>LOUD</span></div>
+      </div>
+    </div>
+
+    <!-- ============================================================ 2j DIALOGS ============================================================ -->
+    <div id="2j" data-screen-label="Dialogs redesign" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:880px">
+        <a href="#2j" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2j</a>
+        Dialogs in the <a href="#2a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2a</a> language — key chips, labels above fields, danger action never the default
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;max-width:940px">
+        <!-- hotkeys -->
+        <div style="width:400px;background:#0B0C0E;border:1px solid #2E333B;border-radius:10px;box-shadow:0 16px 40px rgba(0,0,0,0.35);overflow:hidden">
+          <div style="height:34px;background:#14161A;display:flex;align-items:center;border-bottom:1px solid #23272E"><span style="flex:1;font-size:12.5px;color:#C8CDD4;margin-left:12px">Keyboard shortcuts</span><div style="width:44px;height:34px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2715;</div></div>
+          <div style="padding:18px 20px 20px">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:14px;min-height:40px"><span style="font:700 14px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:7px;padding:7px 11px;flex:none">Ctrl+Shift+R</span><span style="font-size:14.5px;color:#F4F5F7">Overlay on / off</span></div>
+              <div style="display:flex;align-items:center;gap:14px;min-height:40px"><span style="font:700 14px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:7px;padding:7px 11px;flex:none">Ctrl+Shift+M</span><span style="font-size:14.5px;color:#F4F5F7">Next overlay style</span></div>
+              <div style="display:flex;align-items:center;gap:14px;min-height:40px"><span style="font:700 14px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:7px;padding:7px 11px;flex:none">Ctrl+Shift+S</span><span style="font-size:14.5px;color:#F4F5F7">Open settings</span></div>
+              <div style="display:flex;align-items:center;gap:14px;min-height:40px"><span style="font:700 14px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:7px;padding:7px 11px;flex:none">Ctrl+Shift+P</span><span style="font-size:14.5px;color:#F4F5F7">Reset positions</span></div>
+              <div style="display:flex;align-items:center;gap:14px;min-height:40px"><span style="font:700 14px Consolas,ui-monospace,monospace;color:#F4F5F7;background:#1C2026;border:1px solid #454C57;border-bottom-width:3px;border-radius:7px;padding:7px 11px;flex:none">Ctrl+Shift+H</span><span style="font-size:14.5px;color:#F4F5F7">Show this card</span></div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:16px"><div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:100px;padding:10px 18px;background:#56B4E9;border-radius:8px;color:#04121D;font-size:14px;font-weight:700;cursor:pointer">Done</div></div>
+          </div>
+        </div>
+        <!-- exit confirm -->
+        <div style="width:400px;background:#0B0C0E;border:1px solid #2E333B;border-radius:10px;box-shadow:0 16px 40px rgba(0,0,0,0.35);overflow:hidden">
+          <div style="height:34px;background:#14161A;display:flex;align-items:center;border-bottom:1px solid #23272E"><span style="flex:1;font-size:12.5px;color:#C8CDD4;margin-left:12px">Exit DeafDirectionalHelper</span><div style="width:44px;height:34px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2715;</div></div>
+          <div style="padding:20px">
+            <div style="font-size:17px;font-weight:700;color:#F4F5F7">Exit the app?</div>
+            <div style="font-size:14.5px;color:#A8AEB8;margin-top:6px;line-height:1.5">Sound indicators stop until you start it again. To just hide this window, use <b style="color:#F4F5F7">Hide</b> instead.</div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:100px;padding:10px 18px;border:2px solid #454C57;border-radius:8px;color:#F4F5F7;font-size:14px;font-weight:600;cursor:pointer;outline:3px solid #F0E442;outline-offset:2px">Stay open</div>
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:100px;padding:10px 18px;background:#D55E00;border-radius:8px;color:#1A0A00;font-size:14px;font-weight:700;cursor:pointer">Exit app</div>
+            </div>
+          </div>
+        </div>
+        <!-- profile editor -->
+        <div style="width:460px;background:#0B0C0E;border:1px solid #2E333B;border-radius:10px;box-shadow:0 16px 40px rgba(0,0,0,0.35);overflow:hidden">
+          <div style="height:34px;background:#14161A;display:flex;align-items:center;border-bottom:1px solid #23272E"><span style="flex:1;font-size:12.5px;color:#C8CDD4;margin-left:12px">New profile</span><div style="width:44px;height:34px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2715;</div></div>
+          <div style="padding:20px">
+            <div style="font-size:14px;font-weight:600;color:#F4F5F7;margin-bottom:6px">Profile name</div>
+            <div style="display:flex;align-items:center;min-height:46px;background:#14161A;border:2px solid #56B4E9;border-radius:8px;padding:0 14px;font-size:15px;color:#F4F5F7">CS2<span style="width:2px;height:20px;background:#56B4E9;margin-left:2px"></span></div>
+            <div style="font-size:14px;font-weight:600;color:#F4F5F7;margin:16px 0 6px">Game or app (optional)</div>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1;display:flex;align-items:center;min-height:46px;background:#14161A;border:2px solid #454C57;border-radius:8px;padding:0 14px;font-size:14px;color:#A8AEB8;min-width:0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">C:\Games\CS2\cs2.exe</span></div>
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 16px;border:2px solid #454C57;border-radius:8px;color:#F4F5F7;font-size:14px;font-weight:600;cursor:pointer;flex:none">Browse…</div>
+            </div>
+            <div style="font-size:13px;color:#A8AEB8;margin-top:8px;line-height:1.5">When <span style="font-family:Consolas,ui-monospace,monospace;color:#F4F5F7">cs2.exe</span> is running, this profile switches on automatically.</div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:18px">
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:96px;padding:10px 18px;border:2px solid #454C57;border-radius:8px;color:#F4F5F7;font-size:14px;font-weight:600;cursor:pointer">Cancel</div>
+              <div style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:120px;padding:10px 18px;background:#56B4E9;border-radius:8px;color:#04121D;font-size:14px;font-weight:700;cursor:pointer">Create profile</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ 2k FIRST RUN ============================================================ -->
+    <div id="2k" data-screen-label="First-run setup" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:620px">
+        <a href="#2k" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2k</a>
+        First-run setup — replaces "settings window opens on launch": device check → overlay style → hotkeys, 3 steps
+      </div>
+      <div style="width:620px;background:#0B0C0E;border:1px solid #2E333B;border-radius:10px;box-shadow:0 22px 55px rgba(0,0,0,0.4);overflow:hidden">
+        <div style="height:36px;background:#14161A;display:flex;align-items:center;border-bottom:1px solid #23272E"><img src="Icons/Icon32.png" alt="" style="width:16px;height:16px;margin:0 9px 0 12px"/><span style="flex:1;font-size:12.5px;color:#C8CDD4">Welcome</span><div style="width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#9AA0A8;font-size:12px">&#x2715;</div></div>
+        <div style="padding:26px 30px 24px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="width:28px;height:8px;border-radius:4px;background:#56B4E9"></span>
+            <span style="width:28px;height:8px;border-radius:4px;background:#2E333B"></span>
+            <span style="width:28px;height:8px;border-radius:4px;background:#2E333B"></span>
+            <span style="font:600 12px Consolas,ui-monospace,monospace;color:#A8AEB8;margin-left:6px">STEP 1 OF 3</span>
+          </div>
+          <div style="font-size:24px;font-weight:700;color:#F4F5F7;margin-top:14px">Pick the audio device to listen to</div>
+          <div style="font-size:14.5px;color:#A8AEB8;margin-top:6px;line-height:1.55">DeafDirectionalHelper reads output levels only — the same numbers as the Windows volume meter. 8-channel devices give full surround directions; stereo still gives left / right.</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:18px">
+            <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-radius:10px;background:#14161A;border:2px solid #56B4E9">
+              <span style="width:22px;height:22px;border-radius:50%;border:2px solid #56B4E9;box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex:none"><span style="width:10px;height:10px;border-radius:50%;background:#56B4E9"></span></span>
+              <span style="flex:1;font-size:15px;font-weight:600;color:#F4F5F7;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">CABLE-C Input (VB-Audio Voicemeeter VAIO)</span>
+              <span style="font:700 11.5px Consolas,ui-monospace,monospace;color:#02120C;background:#009E73;border-radius:14px;padding:4px 10px;flex:none">8 CH · SURROUND</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-radius:10px;background:#14161A;border:2px solid #2E333B">
+              <span style="width:22px;height:22px;border-radius:50%;border:2px solid #6E757F;box-sizing:border-box;flex:none"></span>
+              <span style="flex:1;font-size:15px;color:#F4F5F7;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Speakers (Realtek High Definition Audio)</span>
+              <span style="font:700 11.5px Consolas,ui-monospace,monospace;color:#1A1200;background:#E69F00;border-radius:14px;padding:4px 10px;flex:none">2 CH · STEREO</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;margin-top:22px">
+            <span style="font-size:14px;color:#A8AEB8;text-decoration:underline;text-underline-offset:3px;cursor:pointer">Skip setup</span>
+            <div style="flex:1"></div>
+            <div style="display:inline-flex;align-items:center;justify-content:center;min-height:46px;min-width:130px;padding:10px 22px;background:#56B4E9;border-radius:8px;color:#04121D;font-size:15px;font-weight:700;cursor:pointer">Next →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ 2l TRAY ============================================================ -->
+    <div id="2l" data-screen-label="Tray flyout redesign" style="flex:none;display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.55);max-width:420px">
+        <a href="#2l" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2l</a>
+        Tray flyout — status + overlay toggle without opening settings; hotkey hints on every action
+      </div>
+      <div style="width:420px;height:340px;position:relative;background:#15181D;border:1px solid rgba(0,0,0,0.15);border-radius:6px;overflow:hidden">
+        <div style="position:absolute;left:0;right:0;bottom:0;height:44px;background:#1c1f24;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:flex-end;padding:0 12px;gap:10px">
+          <span style="font-size:11px;color:rgba(255,255,255,0.45)">&#x25B4;</span>
+          <img src="Icons/Icon32.png" alt="" style="width:18px;height:18px"/>
+          <span style="font-size:11px;color:rgba(255,255,255,0.65)">9:41 PM</span>
+        </div>
+        <div style="position:absolute;right:14px;bottom:56px;width:290px;background:#14161A;border:1px solid #2E333B;border-radius:10px;box-shadow:0 12px 36px rgba(0,0,0,0.55);overflow:hidden">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #23272E">
+            <img src="Icons/Icon32.png" alt="" style="width:24px;height:24px"/>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13.5px;font-weight:700;color:#F4F5F7">DeafDirectionalHelper</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:1px"><span style="width:8px;height:8px;border-radius:50%;background:#009E73"></span><span style="font-size:12px;color:#A8AEB8">Running · ★ Default</span></div>
+            </div>
+            <div style="width:42px;height:24px;border-radius:14px;background:#009E73;position:relative;flex:none"><div style="position:absolute;right:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#FFF"></div></div>
+          </div>
+          <div style="padding:6px">
+            <div style="display:flex;align-items:center;min-height:40px;padding:0 10px;border-radius:6px;background:#1C2026"><span style="flex:1;font-size:13.5px;color:#F4F5F7">Open settings</span><span style="font:600 11px Consolas,ui-monospace,monospace;color:#A8AEB8">Ctrl+Shift+S</span></div>
+            <div style="display:flex;align-items:center;min-height:40px;padding:0 10px;border-radius:6px"><span style="flex:1;font-size:13.5px;color:#F4F5F7">Next overlay style</span><span style="font:600 11px Consolas,ui-monospace,monospace;color:#A8AEB8">Ctrl+Shift+M</span></div>
+            <div style="display:flex;align-items:center;min-height:40px;padding:0 10px;border-radius:6px"><span style="flex:1;font-size:13.5px;color:#F4F5F7">Reset positions</span><span style="font:600 11px Consolas,ui-monospace,monospace;color:#A8AEB8">Ctrl+Shift+P</span></div>
+            <div style="height:1px;background:#23272E;margin:5px 8px"></div>
+            <div style="display:flex;align-items:center;min-height:40px;padding:0 10px;border-radius:6px"><span style="flex:1;font-size:13.5px;color:#FF8A47">Exit</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p style="margin:26px 0 0;font:12px/1.6 'Segoe UI',system-ui,sans-serif;color:rgba(0,0,0,0.5);max-width:900px">Try next: &#8220;go deeper on <a href="#2a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2a</a> — build out every page&#8221; · &#8220;combine <a href="#2e" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2e</a> bars with <a href="#2f" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2f</a> glow&#8221; · &#8220;make the radar <a href="#2g" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:2px 6px;background:rgba(0,0,0,0.08);color:#1a1a1a;border-radius:5px;text-decoration:none">2g</a> the hero and detail its settings page&#8221; — and use Tweaks to switch color scales live.</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;colorScale&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;thermal&quot;,&quot;options&quot;:[&quot;thermal&quot;,&quot;ice&quot;,&quot;violet&quot;,&quot;classic&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Overlay demos&quot;},&quot;overlayScale&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.5,&quot;max&quot;:2,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Overlay demos&quot;},&quot;simulate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Overlay demos&quot;},&quot;showEditMode&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Overlay demos&quot;}}">
+class Component extends DCLogic {
+  state = { d: [0, 0, 0, 0, 0, 0, 0, 0], t: [0, 0, 0, 0, 0, 0, 0, 0], armed: false, fi: 6, navSel: 0, en: true, styleIdx: 0, tr: false, sens: 1.0, noise: 0.05, pressed: -1, lastKey: '' };
+
+  componentDidMount() {
+    this._target = new Array(8).fill(0);
+    this._hold = new Array(8).fill(0);
+    this._disp = new Array(8).fill(0);
+    this._trail = new Array(8).fill(0);
+    this._timer = setInterval(() => this.tick(), 100);
+    this._onKey = (e) => this.onKey(e);
+    window.addEventListener('keydown', this._onKey);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._timer);
+    window.removeEventListener('keydown', this._onKey);
+  }
+
+  // ---- t5 keyboard-nav demo ----
+  armKb = () => { if (!this.state.armed) this.setState({ armed: true, lastKey: '' }); };
+
+  onKey(e) {
+    if (!this.state.armed) return;
+    const k = e.key;
+    if (!['Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Enter', 'F6', 'Escape'].includes(k)) return;
+    e.preventDefault();
+    const s = this.state;
+    let fi = s.fi, navSel = s.navSel, en = s.en, styleIdx = s.styleIdx, tr = s.tr, sens = s.sens, noise = s.noise, pressed = -1;
+    if (k === 'Escape') { this.setState({ armed: false, lastKey: 'Esc' }); return; }
+    if (k === 'Tab') fi = (fi + (e.shiftKey ? 12 : 1)) % 13;
+    else if (k === 'F6') fi = fi < 6 ? 6 : 0;
+    else if (k === 'ArrowUp') fi = fi < 6 ? (fi + 5) % 6 : (fi === 6 ? 12 : fi - 1);
+    else if (k === 'ArrowDown') fi = fi < 6 ? (fi + 1) % 6 : (fi === 12 ? 6 : fi + 1);
+    else if (k === 'ArrowLeft' || k === 'ArrowRight') {
+      const dir = k === 'ArrowRight' ? 1 : -1;
+      if (fi === 6) en = dir > 0;
+      else if (fi === 7) styleIdx = (styleIdx + dir + 3) % 3;
+      else if (fi === 8) tr = dir > 0;
+      else if (fi === 9) sens = Math.min(3, Math.max(0.1, Math.round((sens + dir * (e.shiftKey ? 0.5 : 0.1)) * 10) / 10));
+      else if (fi === 10) noise = Math.min(0.3, Math.max(0, Math.round((noise + dir * (e.shiftKey ? 0.05 : 0.01)) * 100) / 100));
+    } else if (k === ' ' || k === 'Enter') {
+      if (fi < 6) navSel = fi;
+      else if (fi === 6) en = !en;
+      else if (fi === 7) styleIdx = (styleIdx + 1) % 3;
+      else if (fi === 8) tr = !tr;
+      else if (fi === 11 || fi === 12) { pressed = fi; setTimeout(() => this.setState({ pressed: -1 }), 220); }
+    }
+    const lab = k === ' ' ? 'Space' : k === 'ArrowUp' ? '↑' : k === 'ArrowDown' ? '↓' : k === 'ArrowLeft' ? '←' : k === 'ArrowRight' ? '→' : k;
+    this.setState({ fi, navSel, en, styleIdx, tr, sens, noise, pressed, lastKey: (e.shiftKey && k.indexOf('Arrow') === 0 ? 'Shift+' : '') + lab });
+  }
+
+  tick() {
+    if ((this.props.simulate ?? true) === false) return;
+    const now = Date.now();
+    // spawn events ~ every 600ms; FL=0 FR=1 C=2 LFE=3 RL=4 RR=5 SL=6 SR=7
+    if (Math.random() < 0.16) {
+      const groups = [[0], [1], [4], [5], [6], [7], [0, 6], [1, 7], [4, 6], [5, 7]];
+      const pick = groups[Math.floor(Math.random() * groups.length)];
+      const loud = 0.25 + Math.random() * 0.75;
+      pick.forEach((c, i) => {
+        this._target[c] = Math.max(this._target[c], loud * (i === 0 ? 1 : 0.65));
+        this._hold[c] = now + 500 + Math.random() * 700;
+      });
+    }
+    if (Math.random() < 0.05) { this._target[2] = 0.3 + Math.random() * 0.5; this._hold[2] = now + 600; }
+    if (Math.random() < 0.045) { this._target[3] = 0.4 + Math.random() * 0.6; this._hold[3] = now + 500; }
+    const d = [];
+    const t = [];
+    for (let i = 0; i < 8; i++) {
+      if (now > this._hold[i]) this._target[i] *= 0.55; // release
+      this._disp[i] += (this._target[i] - this._disp[i]) * 0.45; // smooth
+      if (this._disp[i] < 0.005) this._disp[i] = 0;
+      this._trail[i] = Math.max(this._trail[i] * 0.93, this._disp[i]); // decaying peak
+      if (this._trail[i] < 0.01) this._trail[i] = 0;
+      d.push(this._disp[i]);
+      t.push(this._trail[i]);
+    }
+    this.setState({ d, t });
+  }
+
+  // ---- color scales (return {r,g,b} lerped over stops) ----
+  stops() {
+    switch (this.props.colorScale ?? 'thermal') {
+      case 'ice': return [[255, 255, 255], [86, 180, 233], [0, 114, 178]];
+      case 'violet': return [[255, 255, 255], [204, 121, 167], [136, 34, 85]];
+      case 'classic': return [[255, 255, 0], [255, 128, 0], [255, 0, 0]];
+      default: return [[240, 228, 66], [230, 159, 0], [213, 94, 0]]; // thermal
+    }
+  }
+
+  col(v) {
+    const s = this.stops();
+    const t = Math.min(1, Math.max(0, v));
+    const seg = t < 0.5 ? 0 : 1;
+    const f = (t - seg * 0.5) / 0.5;
+    const a = s[seg];
+    const b = s[seg + 1];
+    return [Math.round(a[0] + (b[0] - a[0]) * f), Math.round(a[1] + (b[1] - a[1]) * f), Math.round(a[2] + (b[2] - a[2]) * f)];
+  }
+
+  rgb(v) { const c = this.col(v); return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
+  rgba(v, a) { const c = this.col(v); return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a.toFixed(3) + ')'; }
+
+  // ---- ring-ping helpers (t4): 5 loudness levels, 7 direction sectors ----
+  ringLvl(v) {
+    if (v < 0.03) return 0;
+    return Math.min(5, Math.max(1, Math.ceil(Math.min(1, v) * 5)));
+  }
+
+  ringConic(d, onFn) {
+    const c = (i) => onFn(i) ? this.rgba(d[i], Math.min(0.95, 0.35 + d[i] * 0.65)) : 'rgba(0,0,0,0)';
+    const gap = 'rgba(0,0,0,0)';
+    return 'conic-gradient(from -22.5deg, ' + c(2) + ' 0deg 45deg, ' + c(1) + ' 45deg 90deg, ' + c(7) + ' 90deg 135deg, ' + c(5) + ' 135deg 180deg, ' + gap + ' 180deg 225deg, ' + c(4) + ' 225deg 270deg, ' + c(6) + ' 270deg 315deg, ' + c(0) + ' 315deg 360deg)';
+  }
+
+  renderVals() {
+    const d = this.state.d;
+    const t = this.state.t;
+    const pc = (v) => Math.round(v * 100) + '%';
+    const seg = (i) => ({ f: pc(d[i]), p: 'calc(' + pc(t[i]) + ' - 2px)', c: this.rgb(d[i]) });
+    const L = Math.max(d[0], d[4], d[6]);
+    const R = Math.max(d[1], d[5], d[7]);
+    // edge glow backgrounds
+    const side = (i, dir) => 'linear-gradient(' + dir + ', ' + this.rgba(d[i], Math.min(0.85, d[i])) + ', rgba(0,0,0,0))';
+    const corner = (i, pos) => 'radial-gradient(circle at ' + pos + ', ' + this.rgba(d[i], Math.min(0.8, d[i])) + ' 0%, rgba(0,0,0,0) 60%)';
+    // radar conic: from -22.5deg → C FR SR RR gap RL SL FL (45° each)
+    const sec = (i) => this.rgba(d[i], Math.min(0.92, 0.15 + d[i] * 0.85));
+    const gap = 'rgba(255,255,255,0.05)';
+    const radarBg = 'conic-gradient(from -22.5deg, ' + sec(2) + ' 0deg 45deg, ' + sec(1) + ' 45deg 90deg, ' + sec(7) + ' 90deg 135deg, ' + sec(5) + ' 135deg 180deg, ' + gap + ' 180deg 225deg, ' + sec(4) + ' 225deg 270deg, ' + sec(6) + ' 270deg 315deg, ' + sec(0) + ' 315deg 360deg)';
+    const compOrder = [[4, 'RL'], [6, 'SL'], [0, 'FL'], [2, 'C'], [1, 'FR'], [7, 'SR'], [5, 'RR']];
+    // t5 keyboard demo vals
+    const s5 = this.state;
+    const oo = (i) => (s5.armed && s5.fi === i) ? '3px solid #F0E442' : 'none';
+    const kbNames = ['Overlay page', 'Audio & device page', 'Profiles page', 'General page', 'Hotkeys page', 'About page', 'Show sound indicators', 'Overlay style', 'Only show while sound plays', 'Sensitivity', 'Noise floor', 'Reset positions', 'Hide window'];
+    const kbHint = s5.fi < 6 ? '↑ ↓ move · Enter selects · Tab into content · F6 switches region'
+      : (s5.fi === 6 || s5.fi === 8) ? 'Space / Enter toggles · ← → sets on/off · ↑ ↓ rows'
+      : s5.fi === 7 ? '← → choose · Enter cycles · ↑ ↓ rows'
+      : (s5.fi === 9 || s5.fi === 10) ? '← → adjust · Shift+← → big steps · ↑ ↓ rows'
+      : 'Enter presses · F6 jumps back to navigation';
+    const sePos = ((s5.sens - 0.1) / 2.9 * 100).toFixed(1);
+    const noPos = (s5.noise / 0.3 * 100).toFixed(1);
+    const kb = {
+      armKb: this.armKb,
+      kbUnarmed: !s5.armed,
+      kbArmed: s5.armed,
+      kbNav: ['Overlay', 'Audio & device', 'Profiles', 'General', 'Hotkeys', 'About'].map((label, i) => ({
+        label: label,
+        bg: s5.navSel === i ? '#1C2026' : 'transparent',
+        bl: s5.navSel === i ? '4px solid #56B4E9' : '4px solid transparent',
+        c: s5.navSel === i ? '#F4F5F7' : '#A8AEB8',
+        w: s5.navSel === i ? 600 : 400,
+        o: oo(i)
+      })),
+      kbSeg: ['Side bars', '7.1 radar', 'Both'].map((lab, i) => ({
+        lab: lab,
+        bg: s5.styleIdx === i ? '#56B4E9' : 'transparent',
+        c: s5.styleIdx === i ? '#04121D' : '#A8AEB8',
+        w: s5.styleIdx === i ? 700 : 400
+      })),
+      o6: oo(6), o7: oo(7), o8: oo(8), o9: oo(9), o10: oo(10), o11: oo(11), o12: oo(12),
+      tEnBg: s5.en ? '#009E73' : '#2E333B', tEnX: s5.en ? '27px' : '3px', tEnLab: s5.en ? 'On' : 'Off', tEnLabC: s5.en ? '#009E73' : '#A8AEB8',
+      tTrBg: s5.tr ? '#009E73' : '#2E333B', tTrX: s5.tr ? '27px' : '3px', tTrLab: s5.tr ? 'On' : 'Off', tTrLabC: s5.tr ? '#009E73' : '#A8AEB8',
+      seW: sePos + '%', seT: 'calc(' + sePos + '% - 12px)', seVal: s5.sens.toFixed(1),
+      noW: noPos + '%', noT: 'calc(' + noPos + '% - 12px)', noVal: s5.noise.toFixed(2),
+      reBg: s5.pressed === 11 ? '#454C57' : 'transparent',
+      hiBg: s5.pressed === 12 ? '#8ED0F7' : '#56B4E9',
+      hudName: kbNames[s5.fi], hudHint: kbHint, lastKey: s5.lastKey || '—'
+    };
+    // t6 overlay scaling
+    const sc6 = this.props.overlayScale ?? 1;
+    return {
+      ...kb,
+      ovScalePct: Math.round(sc6 * 100) + '%',
+      ringT: 'scale(' + sc6 + ')',
+      barWpx: Math.round(34 * sc6) + 'px',
+      barRad: Math.round(17 * sc6) + 'px',
+      rbX: Math.round(1920 - 26 - 34 * sc6) + 'px',
+      labLx: Math.round(26 + 34 * sc6 + 12) + 'px',
+      labRx: Math.round(1920 - 26 - 34 * sc6 - 34) + 'px',
+      editMode: this.props.showEditMode ?? true,
+      // 2a mini preview
+      pvL: this.rgb(L), pvLf: pc(L), pvR: this.rgb(R), pvRf: pc(R),
+      // 2e segments: left F=FL(0) S=SL(6) R=RL(4); right F=FR(1) S=SR(7) R=RR(5)
+      eLFf: seg(0).f, eLFp: seg(0).p, eLFc: seg(0).c,
+      eLSf: seg(6).f, eLSp: seg(6).p, eLSc: seg(6).c,
+      eLRf: seg(4).f, eLRp: seg(4).p, eLRc: seg(4).c,
+      eRFf: seg(1).f, eRFp: seg(1).p, eRFc: seg(1).c,
+      eRSf: seg(7).f, eRSp: seg(7).p, eRSc: seg(7).c,
+      eRRf: seg(5).f, eRRp: seg(5).p, eRRc: seg(5).c,
+      // 2f glows
+      gSL: side(6, '90deg'), gSR: side(7, '270deg'),
+      gFL: corner(0, '0% 0%'), gFR: corner(1, '100% 0%'),
+      gRL: corner(4, '0% 100%'), gRR: corner(5, '100% 100%'),
+      gC: 'linear-gradient(180deg, ' + this.rgba(d[2], Math.min(0.8, d[2])) + ', rgba(0,0,0,0))',
+      eSL: this.rgba(d[6], Math.min(1, d[6] * 1.4)), eSR: this.rgba(d[7], Math.min(1, d[7] * 1.4)),
+      // 2g radar
+      radarBg: radarBg,
+      lfeBg: this.rgba(d[3], Math.min(0.9, 0.12 + d[3])),
+      lfeS: (1 + d[3] * 0.35).toFixed(3),
+      // 2h compass
+      comp: compOrder.map(([i, lab]) => ({ lab: lab, h: pc(d[i]), c: this.rgb(d[i]) })),
+      // t4 ring pings: rc = cumulative (rings 1..lvl lit), rp = proximity (only ring 6-lvl lit; loud = inner)
+      rc1: this.ringConic(d, (i) => this.ringLvl(d[i]) >= 1),
+      rc2: this.ringConic(d, (i) => this.ringLvl(d[i]) >= 2),
+      rc3: this.ringConic(d, (i) => this.ringLvl(d[i]) >= 3),
+      rc4: this.ringConic(d, (i) => this.ringLvl(d[i]) >= 4),
+      rc5: this.ringConic(d, (i) => this.ringLvl(d[i]) >= 5),
+      rp1: this.ringConic(d, (i) => this.ringLvl(d[i]) > 0 && (6 - this.ringLvl(d[i])) === 1),
+      rp2: this.ringConic(d, (i) => this.ringLvl(d[i]) > 0 && (6 - this.ringLvl(d[i])) === 2),
+      rp3: this.ringConic(d, (i) => this.ringLvl(d[i]) > 0 && (6 - this.ringLvl(d[i])) === 3),
+      rp4: this.ringConic(d, (i) => this.ringLvl(d[i]) > 0 && (6 - this.ringLvl(d[i])) === 4),
+      rp5: this.ringConic(d, (i) => this.ringLvl(d[i]) > 0 && (6 - this.ringLvl(d[i])) === 5),
+      // 3a live signal check (channel order FL FR C LFE RL RR SL SR)
+      sig: [[0, 'FL'], [1, 'FR'], [2, 'C'], [3, 'LFE'], [4, 'RL'], [5, 'RR'], [6, 'SL'], [7, 'SR']].map(([i, lab]) => ({ lab: lab, h: pc(d[i]), c: this.rgb(d[i]) })),
+      lfeH: pc(d[3]), lfeC: this.rgb(d[3])
+    };
+  }
+}
+</script>
+</body>
+</html>

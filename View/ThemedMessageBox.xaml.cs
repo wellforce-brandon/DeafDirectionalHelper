@@ -25,6 +25,7 @@ public partial class ThemedMessageBox : Window
     private ThemedMessageBox(string message, string title, ThemedMessageBoxButton buttons)
     {
         InitializeComponent();
+        Helpers.DarkChrome.Apply(this);
         MessageText.Text = message;
         Title = title;
 

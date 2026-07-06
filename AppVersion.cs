@@ -14,8 +14,12 @@ public static class AppVersion
     // 1.3.2 - Themed message boxes (dark theme dialogs)
     // 1.3.3 - Log retention settings (size-based or date-based cleanup)
     // 1.4.0 - Application profiles with auto-switching
+    // 2.0.0 - UI overhaul: theme system, sidebar settings shell, 5 overlay styles
+    //         (side bars, radar ring, ring ping, compass, edge glow), colorblind-safe
+    //         color scales, follow-the-game audio capture, Signal Doctor, session-based
+    //         game detection with toasts, move mode, first-run wizard, tray flyout
 
-    public const string Version = "1.4.0";
+    public const string Version = "2.0.0";
     public const string AppName = "DeafDirectionalHelper";
     public const string Description = "Audio visualization tool for deaf and hard-of-hearing gamers";
     public const string GitHubUrl = "https://github.com/wellforce-brandon/DeafDirectionalHelper";
