@@ -57,13 +57,25 @@ public sealed class TrayFlyout
         _window ??= BuildWindow();
         RefreshState();
 
-        // Anchor above the tray: bottom-right of the primary work area
-        var work = SystemParameters.WorkArea;
         _window.Show();
         _window.UpdateLayout();
+        PositionNearTray();
+        _window.Activate();
+    }
+
+    /// <summary>
+    /// Anchor above the tray: bottom-right of the primary work area. Called
+    /// again from SizeChanged because on the first show the window's final
+    /// size (SizeToContent + per-monitor DPI) settles after Show(), which
+    /// otherwise leaves the flyout at the default window position.
+    /// </summary>
+    private void PositionNearTray()
+    {
+        if (_window == null || _window.ActualWidth == 0)
+            return;
+        var work = SystemParameters.WorkArea;
         _window.Left = work.Right - _window.ActualWidth - 8;
         _window.Top = work.Bottom - _window.ActualHeight - 8;
-        _window.Activate();
     }
 
     public void Close()
@@ -180,7 +192,17 @@ public sealed class TrayFlyout
             Topmost = true,
             SizeToContent = SizeToContent.WidthAndHeight,
             Width = double.NaN,
+            WindowStartupLocation = WindowStartupLocation.Manual,
+            // Rough pre-position so the first frame doesn't flash at the
+            // Windows default cascade spot; PositionNearTray refines it.
+            Left = SystemParameters.WorkArea.Right - FlyoutWidth - 44,
+            Top = SystemParameters.WorkArea.Bottom - 300,
             Content = new Border { Child = chrome, Width = FlyoutWidth, Margin = new Thickness(12) }
+        };
+        window.SizeChanged += (_, _) =>
+        {
+            if (window.IsVisible)
+                PositionNearTray();
         };
         window.Deactivated += (_, _) => window.Hide();
         window.PreviewKeyDown += (_, e) =>
