@@ -1,0 +1,80 @@
+<view:ThemedDialog x:Class="DeafDirectionalHelper.View.FeedbackDialog"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:view="clr-namespace:DeafDirectionalHelper.View"
+                   Title="Send feedback"
+                   Width="480">
+
+    <StackPanel Margin="24">
+        <TextBlock Text="Send feedback" FontSize="17" FontWeight="Bold"
+                   Foreground="{StaticResource Text}" Margin="0,0,0,4"/>
+        <TextBlock Text="Report a bug or share an idea. This opens GitHub in your browser to file it."
+                   Style="{StaticResource RowHelperText}" Margin="0,0,0,18"/>
+
+        <!-- Input form -->
+        <StackPanel x:Name="FormPanel">
+            <TextBlock Text="Category" FontSize="13" FontWeight="SemiBold"
+                       Foreground="{StaticResource Text}" Margin="0,0,0,6"/>
+            <ComboBox x:Name="CategoryCombo" Style="{StaticResource ThemedComboBox}"
+                      AutomationProperties.Name="Category">
+                <ComboBoxItem Content="Bug" Tag="Bug"/>
+                <ComboBoxItem Content="Capture/overlay issue" Tag="CaptureOrOverlay"/>
+                <ComboBoxItem Content="Feature request" Tag="FeatureRequest"/>
+                <ComboBoxItem Content="Accessibility" Tag="Accessibility"/>
+                <ComboBoxItem Content="Other" Tag="Other"/>
+            </ComboBox>
+
+            <TextBlock Text="Severity" FontSize="13" FontWeight="SemiBold"
+                       Foreground="{StaticResource Text}" Margin="0,16,0,6"/>
+            <ListBox x:Name="SeveritySegmented" Style="{StaticResource SegmentedControl}"
+                     HorizontalAlignment="Left" AutomationProperties.Name="Severity">
+                <ListBoxItem Content="Low" Tag="Low"/>
+                <ListBoxItem Content="Medium" Tag="Medium"/>
+                <ListBoxItem Content="High" Tag="High"/>
+            </ListBox>
+
+            <TextBlock Text="What happened?" FontSize="13" FontWeight="SemiBold"
+                       Foreground="{StaticResource Text}" Margin="0,16,0,6"/>
+            <TextBox x:Name="MessageTextBox" Style="{StaticResource ThemedTextBox}"
+                     Height="120" MaxLength="2000"
+                     AcceptsReturn="True" TextWrapping="Wrap"
+                     VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto"
+                     TextChanged="MessageTextBox_TextChanged"
+                     AutomationProperties.Name="Feedback message"/>
+            <Grid Margin="0,4,0,0">
+                <TextBlock x:Name="CounterText" Text="0 / 2000" FontSize="11.5"
+                           Foreground="{StaticResource TextMuted}" HorizontalAlignment="Right"/>
+                <TextBlock Text="At least 10 characters" FontSize="11.5"
+                           Foreground="{StaticResource TextMuted}"/>
+            </Grid>
+
+            <TextBlock Style="{StaticResource RowHelperText}" Margin="0,14,0,0" TextWrapping="Wrap"
+                       Text="We'll attach your app version, capture mode, active profile, overlay style and (if audio logging is on) a short log excerpt. Nothing personal is included, and it goes to a public GitHub repo."/>
+        </StackPanel>
+
+        <!-- Post-send status -->
+        <StackPanel x:Name="StatusPanel" Visibility="Collapsed">
+            <TextBlock x:Name="StatusTitle" FontSize="15" FontWeight="Bold"
+                       Foreground="{StaticResource Text}"/>
+            <TextBlock x:Name="StatusDetail" Style="{StaticResource RowHelperText}"
+                       Margin="0,6,0,0" TextWrapping="Wrap"/>
+            <TextBox x:Name="FallbackTextBox" Style="{StaticResource ThemedTextBox}"
+                     Height="140" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
+                     VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto"
+                     Margin="0,12,0,0" Visibility="Collapsed"
+                     AutomationProperties.Name="Report text"/>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <Grid Margin="0,20,0,0">
+            <Button x:Name="CancelButton" Content="Cancel" Style="{StaticResource SecondaryButton}"
+                    HorizontalAlignment="Left" IsCancel="True" Click="Cancel_Click"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="CopyAgainButton" Content="Copy again" Style="{StaticResource SecondaryButton}"
+                        Margin="0,0,10,0" Visibility="Collapsed" Click="CopyAgain_Click"/>
+                <Button x:Name="SendButton" Content="Send" Style="{StaticResource PrimaryButton}"
+                        MinWidth="110" IsDefault="True" IsEnabled="False" Click="Send_Click"/>
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</view:ThemedDialog>

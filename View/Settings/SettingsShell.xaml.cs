@@ -42,7 +42,7 @@ public partial class SettingsShell : Window
         _profilesPage = new ProfilesPage(NotifyPageChangedSettings);
         _generalPage = new GeneralPage(NotifyPageChangedSettings);
         _hotkeysPage = new HotkeysPage();
-        _aboutPage = new AboutPage();
+        _aboutPage = new AboutPage(speakers);
 
         NavList.SelectedIndex = 0;
         UpdateProfilePill();

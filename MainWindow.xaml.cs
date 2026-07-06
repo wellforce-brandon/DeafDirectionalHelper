@@ -362,6 +362,7 @@ namespace DeafDirectionalHelper
                 onOpenSettings: ShowSettings,
                 onNextStyle: ToggleDisplayMode,
                 onResetPositions: ResetPositions,
+                onSendFeedback: ShowFeedbackDialog,
                 onExitConfirmed: ExitApplication);
 
             _notifyIcon.MouseUp += (_, e) =>
@@ -421,6 +422,12 @@ namespace DeafDirectionalHelper
         {
             var hotkeysWindow = new HotkeysWindow();
             hotkeysWindow.ShowDialog();
+        }
+
+        internal void ShowFeedbackDialog()
+        {
+            var dialog = new View.FeedbackDialog(_speakers);
+            dialog.ShowDialog();
         }
 
         private void OnResetPositionsRequested(object? sender, EventArgs e)

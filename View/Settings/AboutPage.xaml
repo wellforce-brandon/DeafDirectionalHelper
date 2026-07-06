@@ -13,6 +13,10 @@
         <Button x:Name="GitHubButton" Content="GitHub — wellforce-brandon/DeafDirectionalHelper"
                 Style="{StaticResource LinkButton}" HorizontalAlignment="Left" Click="GitHub_Click"/>
 
+        <Button x:Name="FeedbackButton" Content="Report a problem or suggest something"
+                Style="{StaticResource LinkButton}" HorizontalAlignment="Left"
+                Margin="0,8,0,0" Click="Feedback_Click"/>
+
         <TextBlock Style="{StaticResource RowHelperText}" Margin="0,18,0,0"
                    Text="Based on CanetisRadar2 by Maxime Bonvin (MIT license)."/>
     </StackPanel>

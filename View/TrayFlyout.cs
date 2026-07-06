@@ -24,6 +24,7 @@ public sealed class TrayFlyout
     private readonly Action _onOpenSettings;
     private readonly Action _onNextStyle;
     private readonly Action _onResetPositions;
+    private readonly Action _onSendFeedback;
     private readonly Action _onExitConfirmed;
 
     private Window? _window;
@@ -31,12 +32,13 @@ public sealed class TrayFlyout
     private TextBlock? _statusText;
 
     public TrayFlyout(Action onToggleEnabled, Action onOpenSettings, Action onNextStyle,
-        Action onResetPositions, Action onExitConfirmed)
+        Action onResetPositions, Action onSendFeedback, Action onExitConfirmed)
     {
         _onToggleEnabled = onToggleEnabled;
         _onOpenSettings = onOpenSettings;
         _onNextStyle = onNextStyle;
         _onResetPositions = onResetPositions;
+        _onSendFeedback = onSendFeedback;
         _onExitConfirmed = onExitConfirmed;
     }
 
@@ -141,6 +143,7 @@ public sealed class TrayFlyout
         root.Children.Add(MakeItem("Open settings", "Ctrl+Shift+S", _onOpenSettings));
         root.Children.Add(MakeItem("Next overlay style", "Ctrl+Shift+M", _onNextStyle));
         root.Children.Add(MakeItem("Reset positions", "Ctrl+Shift+P", _onResetPositions));
+        root.Children.Add(MakeItem("Send feedback", null, _onSendFeedback));
 
         root.Children.Add(new Border { Height = 1, Background = Brush("Hairline"), Margin = new Thickness(10, 6, 10, 6) });
 

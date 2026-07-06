@@ -45,6 +45,10 @@ namespace DeafDirectionalHelper
         {
             base.OnStartup(e);
 
+            // Records the last unhandled exception so a feedback report filed
+            // shortly after a crash can include it (see Services/CrashRecorder.cs).
+            Services.CrashRecorder.Install();
+
             // Dev-only: verify Phase 0 theme tokens/templates visually.
             if (Array.Exists(e.Args, a => a.Equals("-themesampler", StringComparison.OrdinalIgnoreCase)))
                 new View.ThemeSampler().Show();
