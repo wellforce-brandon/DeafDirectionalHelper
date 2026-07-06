@@ -30,7 +30,12 @@ public sealed record AudibleSession(
 public sealed class SessionLocator : IDisposable
 {
     private const int PollIntervalMs = 2000;
-    private const float MinPeakToReport = 0.01f;
+
+    // Below this, a session is treated as silent for discovery purposes.
+    // Real game audio has been observed as low as ~0.005 (quiet ambience,
+    // background-audio settings, etc.) - keep this well under that, while
+    // still excluding true silence (consistently exactly 0 on idle devices).
+    private const float MinPeakToReport = 0.003f;
 
     private readonly Timer _pollTimer;
     private readonly Dictionary<uint, string> _pidNameCache = new();

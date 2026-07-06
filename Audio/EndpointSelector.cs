@@ -133,7 +133,9 @@ public sealed class EndpointSelector : IDisposable
             return _deviceId;
 
         // Else follow the loudest audible session so a brand-new game lights
-        // the overlay with zero configuration.
+        // the overlay with zero configuration. Also the practical fallback for
+        // anti-cheat-wrapped games, where the profile's process (the launcher)
+        // never matches the child process that actually owns the audio session.
         return _sessions.GetLoudestSession()?.DeviceId;
     }
 
