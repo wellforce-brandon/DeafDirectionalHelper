@@ -84,7 +84,7 @@ public partial class AudioDevicePage : UserControl
 
         foreach (var name in names)
         {
-            var row = new Grid { Margin = new Thickness(0, 0, 0, 8) };
+            var row = new Grid();
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
@@ -110,8 +110,20 @@ public partial class AudioDevicePage : UserControl
             Grid.SetColumn(toggle, 1);
             row.Children.Add(toggle);
 
-            DeviceExcludeList.Children.Add(row);
+            DeviceExcludeList.Children.Add(WrapStripedRow(row, DeviceExcludeList.Children.Count));
         }
+    }
+
+    /// <summary>Zebra striping: long lists of similar names need row separation to scan.</summary>
+    private Border WrapStripedRow(Grid row, int index)
+    {
+        return new Border
+        {
+            Background = index % 2 == 1 ? (Brush)FindResource("Raised") : Brushes.Transparent,
+            CornerRadius = new CornerRadius(6),
+            Padding = new Thickness(10, 6, 10, 6),
+            Child = row
+        };
     }
 
     private void SetDeviceExcluded(string friendlyName, bool excluded)
@@ -164,7 +176,7 @@ public partial class AudioDevicePage : UserControl
 
     private void AddExcludeRow(string processName, bool isExcluded)
     {
-        var row = new Grid { Margin = new Thickness(0, 0, 0, 8) };
+        var row = new Grid();
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
@@ -188,7 +200,7 @@ public partial class AudioDevicePage : UserControl
         Grid.SetColumn(toggle, 1);
         row.Children.Add(toggle);
 
-        ExcludeList.Children.Add(row);
+        ExcludeList.Children.Add(WrapStripedRow(row, ExcludeList.Children.Count));
         _excludeRows[processName] = toggle;
     }
 
