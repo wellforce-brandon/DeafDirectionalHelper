@@ -173,6 +173,29 @@
             </Grid>
         </Border>
 
+        <!-- 7b. Directional focus -->
+        <Border Style="{StaticResource SettingsRow}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Directional focus" Style="{StaticResource RowLabelText}"/>
+                    <TextBlock Text="Games leak a right-side sound into the left channel too. Higher = only the louder side lights up."
+                               Style="{StaticResource RowHelperText}"/>
+                </StackPanel>
+                <Slider x:Name="FocusSlider" Grid.Column="1" Style="{StaticResource ThemedSlider}"
+                        Minimum="0" Maximum="100" SmallChange="5" LargeChange="5"
+                        TickFrequency="5" IsSnapToTickEnabled="True" VerticalAlignment="Center"
+                        Margin="0,0,14,0" ValueChanged="FocusSlider_Changed"
+                        AutomationProperties.Name="Directional focus"/>
+                <ContentControl x:Name="FocusChip" Grid.Column="2" Style="{StaticResource ValueChip}"
+                                Content="50 %" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
         <!-- 8. Overlay strength -->
         <Border Style="{StaticResource SettingsRow}">
             <Grid>

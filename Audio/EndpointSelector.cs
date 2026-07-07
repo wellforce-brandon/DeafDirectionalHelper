@@ -24,6 +24,7 @@ public sealed class EndpointSelector : IDisposable
     private MMDevice? _device;
     private string? _deviceId;
     private string? _deviceName; // cached: FriendlyName is a slow property-store COM read
+    private int _channelCount;   // cached: safe for UI threads (see Current remarks)
     private volatile bool _devicesDirty = true; // force initial selection
     private bool _disposed;
 
@@ -33,9 +34,18 @@ public sealed class EndpointSelector : IDisposable
     /// </summary>
     public string? TrackedProcessName { get; set; }
 
+    /// <summary>
+    /// The selected device. COM apartment-bound: only the audio poll thread
+    /// that selected it may touch this object. UI code must use the cached
+    /// CurrentDeviceName / CurrentChannelCount instead - WASAPI interfaces
+    /// have no cross-apartment proxy, so a UI-thread dereference throws
+    /// InvalidCastException (E_NOINTERFACE) and kills the app.
+    /// </summary>
     public MMDevice? Current => _device;
+
     public string? CurrentDeviceId => _deviceId;
     public string CurrentDeviceName => _deviceName ?? "None";
+    public int CurrentChannelCount => _channelCount;
 
     /// <summary>Raised after the selected endpoint actually changed.</summary>
     public event EventHandler? DeviceChanged;
@@ -70,6 +80,7 @@ public sealed class EndpointSelector : IDisposable
         _device = null;
         _deviceId = null;
         _deviceName = null;
+        _channelCount = 0;
         _devicesDirty = true;
     }
 
@@ -103,14 +114,15 @@ public sealed class EndpointSelector : IDisposable
         {
             var selected = mode == CaptureMode.FixedDevice
                 ? SelectFixedDevice()
-                : _enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
+                : SelectDefaultRespectingExclusions();
 
             if (selected != null && selected.ID != _deviceId)
             {
                 _device = selected;
                 _deviceId = selected.ID;
                 _deviceName = selected.FriendlyName;
-                Console.WriteLine($"Capture endpoint: {_deviceName} ({selected.AudioMeterInformation.PeakValues.Count} channels, mode {mode})");
+                _channelCount = selected.AudioMeterInformation.PeakValues.Count;
+                Console.WriteLine($"Capture endpoint: {_deviceName} ({_channelCount} channels, mode {mode})");
                 DeviceChanged?.Invoke(this, EventArgs.Empty);
             }
         }
@@ -150,7 +162,8 @@ public sealed class EndpointSelector : IDisposable
             _device = device;
             _deviceId = deviceId;
             _deviceName = device.FriendlyName;
-            Console.WriteLine($"Capture endpoint: {_deviceName} ({device.AudioMeterInformation.PeakValues.Count} channels, {reason})");
+            _channelCount = device.AudioMeterInformation.PeakValues.Count;
+            Console.WriteLine($"Capture endpoint: {_deviceName} ({_channelCount} channels, {reason})");
             DeviceChanged?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
@@ -159,7 +172,37 @@ public sealed class EndpointSelector : IDisposable
         }
     }
 
-    /// <summary>Legacy selection: configured match, else first 8-channel device, else default.</summary>
+    private static bool IsExcludedDevice(string friendlyName)
+    {
+        return SettingsManager.Instance.Settings.ExcludedDevices
+            .Any(d => string.Equals(d, friendlyName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Default-device selection for WindowsDefault mode and the FollowGame
+    /// fallback. Excluded devices are never picked automatically (e.g. the
+    /// cable Discord plays through): fall to the first non-excluded 8-channel
+    /// device, then any non-excluded device.
+    /// </summary>
+    private MMDevice? SelectDefaultRespectingExclusions()
+    {
+        var defaultDevice = _enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
+        if (defaultDevice != null && !IsExcludedDevice(defaultDevice.FriendlyName))
+            return defaultDevice;
+
+        var devices = _enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active)
+            .Where(d => !IsExcludedDevice(d.FriendlyName))
+            .ToList();
+
+        return devices.FirstOrDefault(d => d.AudioMeterInformation.PeakValues.Count == 8)
+               ?? devices.FirstOrDefault();
+    }
+
+    /// <summary>
+    /// Legacy selection: configured match (an explicit user pick always wins,
+    /// even over the exclusion list), else first non-excluded 8-channel
+    /// device, else non-excluded default.
+    /// </summary>
     private MMDevice? SelectFixedDevice()
     {
         var devices = _enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
@@ -171,10 +214,11 @@ public sealed class EndpointSelector : IDisposable
             if (match != null) return match;
         }
 
-        var eightChannel = devices.FirstOrDefault(d => d.AudioMeterInformation.PeakValues.Count == 8);
+        var eightChannel = devices.FirstOrDefault(d =>
+            !IsExcludedDevice(d.FriendlyName) && d.AudioMeterInformation.PeakValues.Count == 8);
         if (eightChannel != null) return eightChannel;
 
-        return _enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
+        return SelectDefaultRespectingExclusions();
     }
 
     public void Dispose()

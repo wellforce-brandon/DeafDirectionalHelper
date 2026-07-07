@@ -59,7 +59,77 @@ public partial class AudioDevicePage : UserControl
         DeviceCombo.IsEnabled = mode == CaptureMode.FixedDevice;
         LoadDevices();
         RebuildExcludeList();
+        RebuildDeviceExcludeList();
         _isLoading = false;
+    }
+
+    // --- Device exclude list ----------------------------------------------
+
+    private void RebuildDeviceExcludeList()
+    {
+        DeviceExcludeList.Children.Clear();
+
+        var excluded = _settingsManager.Settings.ExcludedDevices;
+        var names = new SortedSet<string>(excluded, StringComparer.OrdinalIgnoreCase);
+        try
+        {
+            using var enumerator = new MMDeviceEnumerator();
+            foreach (var device in enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
+                names.Add(device.FriendlyName);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error enumerating devices for exclude list: {ex.Message}");
+        }
+
+        foreach (var name in names)
+        {
+            var row = new Grid { Margin = new Thickness(0, 0, 0, 8) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var label = new TextBlock
+            {
+                Text = name,
+                Style = (Style)FindResource("RowLabelText"),
+                VerticalAlignment = VerticalAlignment.Center,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            };
+            row.Children.Add(label);
+
+            var toggle = new CheckBox
+            {
+                Style = (Style)FindResource("ToggleSwitch"),
+                IsChecked = excluded.Contains(name, StringComparer.OrdinalIgnoreCase),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            AutomationProperties.SetName(toggle, $"Exclude device {name}");
+            var captured = name;
+            toggle.Checked += (_, _) => SetDeviceExcluded(captured, true);
+            toggle.Unchecked += (_, _) => SetDeviceExcluded(captured, false);
+            Grid.SetColumn(toggle, 1);
+            row.Children.Add(toggle);
+
+            DeviceExcludeList.Children.Add(row);
+        }
+    }
+
+    private void SetDeviceExcluded(string friendlyName, bool excluded)
+    {
+        if (_isLoading) return;
+        _settingsManager.Update(s =>
+        {
+            if (excluded)
+            {
+                if (!s.ExcludedDevices.Contains(friendlyName, StringComparer.OrdinalIgnoreCase))
+                    s.ExcludedDevices.Add(friendlyName);
+            }
+            else
+            {
+                s.ExcludedDevices.RemoveAll(d =>
+                    string.Equals(d, friendlyName, StringComparison.OrdinalIgnoreCase));
+            }
+        });
     }
 
     // --- Program exclude list -------------------------------------------
@@ -259,6 +329,7 @@ public partial class AudioDevicePage : UserControl
     {
         _isLoading = true;
         LoadDevices();
+        RebuildDeviceExcludeList();
         _isLoading = false;
     }
 }

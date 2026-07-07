@@ -54,6 +54,7 @@ public partial class OverlayPage : UserControl
 
         SensitivitySlider.Value = s.Bars.Sensitivity;
         ThresholdSlider.Value = s.Bars.MinThreshold;
+        FocusSlider.Value = Math.Round(s.Bars.DirectionalFocus * 100);
         StrengthSlider.Value = s.Bars.MaxOpacity;
         SizeSlider.Value = Math.Round(s.Bars.OverlaySize * 100);
         WidthSlider.Value = s.Bars.Width;
@@ -92,8 +93,13 @@ public partial class OverlayPage : UserControl
         var left = Process(Math.Max(_speakers.Speaker1.Value, Math.Max(_speakers.Speaker5.Value, _speakers.Speaker7.Value)), bars);
         var right = Process(Math.Max(_speakers.Speaker2.Value, Math.Max(_speakers.Speaker6.Value, _speakers.Speaker8.Value)), bars);
 
-        SetPreviewMeter(PreviewLeftMeter, left, bars.ColorScale);
-        SetPreviewMeter(PreviewRightMeter, right, bars.ColorScale);
+        // Mirror the overlay's directional focus so tuning the slider is visible here
+        var focus = Math.Clamp(bars.DirectionalFocus, 0.0, 1.0);
+        var focusedLeft = Math.Max(0, left - focus * right);
+        var focusedRight = Math.Max(0, right - focus * left);
+
+        SetPreviewMeter(PreviewLeftMeter, focusedLeft, bars.ColorScale);
+        SetPreviewMeter(PreviewRightMeter, focusedRight, bars.ColorScale);
     }
 
     private static double Process(double raw, BarSettings bars)
@@ -240,6 +246,13 @@ public partial class OverlayPage : UserControl
         ThresholdChip.Content = ThresholdSlider.Value.ToString("F2");
     }
 
+    private void FocusSlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_isLoading) return;
+        Update(s => s.Bars.DirectionalFocus = FocusSlider.Value / 100.0);
+        FocusChip.Content = $"{FocusSlider.Value:F0} %";
+    }
+
     private void StrengthSlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (_isLoading) return;
@@ -351,6 +364,7 @@ public partial class OverlayPage : UserControl
     {
         SensitivityChip.Content = SensitivitySlider.Value.ToString("F1");
         ThresholdChip.Content = ThresholdSlider.Value.ToString("F2");
+        FocusChip.Content = $"{FocusSlider.Value:F0} %";
         StrengthChip.Content = $"{StrengthSlider.Value * 100:F0} %";
         SizeChip.Content = $"{SizeSlider.Value:F0} %";
         WidthChip.Content = $"{WidthSlider.Value:F0} px";

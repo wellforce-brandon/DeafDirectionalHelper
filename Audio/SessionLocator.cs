@@ -80,11 +80,15 @@ public sealed class SessionLocator : IDisposable
         {
             var result = new List<AudibleSession>();
 
-            // Excluded programs are invisible as audio sources: they never
-            // appear in the snapshot, so follow-game capture, the unknown-game
-            // offer and SignalDoctor all skip them at this single choke point.
+            // Excluded programs AND excluded devices are invisible as audio
+            // sources: they never appear in the snapshot, so follow-game
+            // capture, the unknown-game offer and SignalDoctor all skip them
+            // at this single choke point.
             var excluded = new HashSet<string>(
                 SettingsManager.Instance.Settings.ExcludedPrograms.Select(TrimExe),
+                StringComparer.OrdinalIgnoreCase);
+            var excludedDevices = new HashSet<string>(
+                SettingsManager.Instance.Settings.ExcludedDevices,
                 StringComparer.OrdinalIgnoreCase);
 
             // Fresh enumeration each poll: avoids NAudio's cached session lists
@@ -94,7 +98,7 @@ public sealed class SessionLocator : IDisposable
             {
                 try
                 {
-                    CollectSessions(device, excluded, result);
+                    CollectSessions(device, excluded, excludedDevices, result);
                 }
                 catch
                 {
@@ -114,11 +118,9 @@ public sealed class SessionLocator : IDisposable
         }
     }
 
-    private void CollectSessions(MMDevice device, HashSet<string> excluded, List<AudibleSession> result)
+    private void CollectSessions(MMDevice device, HashSet<string> excluded,
+        HashSet<string> excludedDevices, List<AudibleSession> result)
     {
-        var sessions = device.AudioSessionManager.Sessions;
-        if (sessions == null) return;
-
         var deviceId = device.ID;
         if (!_deviceInfoCache.TryGetValue(deviceId, out var info))
         {
@@ -128,6 +130,12 @@ public sealed class SessionLocator : IDisposable
             _deviceInfoCache[deviceId] = info;
         }
         var (deviceName, channels) = info;
+
+        if (excludedDevices.Contains(deviceName))
+            return; // whole endpoint is invisible
+
+        var sessions = device.AudioSessionManager.Sessions;
+        if (sessions == null) return;
 
         for (int i = 0; i < sessions.Count; i++)
         {

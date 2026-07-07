@@ -153,6 +153,9 @@ public class AppProfile
     [JsonPropertyName("anchor")]
     public OverlayAnchor Anchor { get; set; } = OverlayAnchor.Bottom;
 
+    [JsonPropertyName("directionalFocus")]
+    public double DirectionalFocus { get; set; } = 0.5;
+
     /// <summary>
     /// Creates the default profile with standard settings.
     /// </summary>
@@ -206,6 +209,7 @@ public class AppProfile
         RingCount = other.RingCount;
         RingMapping = other.RingMapping;
         Anchor = other.Anchor;
+        DirectionalFocus = other.DirectionalFocus;
     }
 
     /// <summary>
@@ -234,6 +238,7 @@ public class AppProfile
         bars.RingCount = RingCount;
         bars.RingMapping = RingMapping;
         bars.Anchor = Anchor;
+        bars.DirectionalFocus = DirectionalFocus;
     }
 
     /// <summary>
@@ -262,5 +267,6 @@ public class AppProfile
         RingCount = bars.RingCount;
         RingMapping = bars.RingMapping;
         Anchor = bars.Anchor;
+        DirectionalFocus = bars.DirectionalFocus;
     }
 }

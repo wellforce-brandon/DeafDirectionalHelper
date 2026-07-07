@@ -234,7 +234,10 @@ namespace DeafDirectionalHelper
                     onCreate: () =>
                     {
                         var editor = new ProfileEditorWindow { IsNewProfile = true };
-                        editor.SetProfile(e.ProcessName, e.ExePath, false);
+                        // If no path could be read at all, seed the bare exe name:
+                        // profile matching only needs the filename, and an empty
+                        // field would block Create behind manual browsing.
+                        editor.SetProfile(e.ProcessName, e.ExePath ?? e.ProcessName + ".exe", false);
                         if (editor.ShowDialog() == true)
                         {
                             // Seeded from current settings + detected exe; auto-switch

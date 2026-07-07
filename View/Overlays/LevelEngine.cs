@@ -62,10 +62,27 @@ public sealed class LevelEngine
         var right = Math.Max(Process(_raw[1], bars), Math.Max(Process(_raw[5], bars), Process(_raw[7], bars)));
         var filtered = bars.IgnoreBalancedSounds && IsBalanced(left, right);
 
+        // Directional focus: games mix a positional sound into BOTH channels
+        // (quieter on the far side), so the far side lights up as a false
+        // positive. Cross-subtract each symmetric pair so only the dominant
+        // side survives; the common (centered/bleed) component is suppressed
+        // in proportion to the focus setting.
+        Span<double> targets = stackalloc double[8];
+        for (int i = 0; i < 8; i++)
+            targets[i] = filtered ? 0.0 : Process(_raw[i], bars);
+
+        var focus = Math.Clamp(bars.DirectionalFocus, 0.0, 1.0);
+        if (focus > 0 && !filtered)
+        {
+            ApplyFocus(targets, 0, 1, focus); // FL / FR
+            ApplyFocus(targets, 4, 5, focus); // RL / RR
+            ApplyFocus(targets, 6, 7, focus); // SL / SR
+        }
+
         var any = false;
         for (int i = 0; i < 8; i++)
         {
-            var target = filtered ? 0.0 : Process(_raw[i], bars);
+            var target = targets[i];
 
             var easing = target > Frame.Levels[i] ? _attackEasing : _releaseEasing;
             var disp = Frame.Levels[i] + (target - Frame.Levels[i]) * easing;
@@ -89,6 +106,14 @@ public sealed class LevelEngine
     {
         if (raw < bars.MinThreshold) return 0;
         return Math.Min(1.0, raw * bars.Sensitivity);
+    }
+
+    private static void ApplyFocus(Span<double> targets, int leftIdx, int rightIdx, double focus)
+    {
+        var left = targets[leftIdx];
+        var right = targets[rightIdx];
+        targets[leftIdx] = Math.Max(0, left - focus * right);
+        targets[rightIdx] = Math.Max(0, right - focus * left);
     }
 
     private bool IsBalanced(double left, double right)

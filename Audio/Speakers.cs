@@ -65,7 +65,10 @@ namespace DeafDirectionalHelper.Audio
         public float LastRawPeak { get; private set; }
 
         public string CurrentDeviceName => Endpoint.CurrentDeviceName;
-        public int CurrentChannelCount => Endpoint.Current?.AudioMeterInformation.PeakValues.Count ?? 0;
+        // Cached in EndpointSelector: safe from any thread (the MMDevice itself
+        // is apartment-bound to the audio poll thread and must not be touched
+        // from UI code - that was a real crash: E_NOINTERFACE InvalidCastException).
+        public int CurrentChannelCount => Endpoint.CurrentChannelCount;
 
         public Speakers()
         {
@@ -82,7 +85,9 @@ namespace DeafDirectionalHelper.Audio
 
             Sessions = new SessionLocator();
             Endpoint = new EndpointSelector(Sessions);
-            Endpoint.EnsureSelected();
+            // No EnsureSelected here: the ctor runs on the UI (STA) thread, but the
+            // selected MMDevice must belong to the audio poll thread that will read
+            // it every 50 ms. The first poll tick selects it on the right thread.
         }
 
         public void Update()

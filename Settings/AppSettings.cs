@@ -20,6 +20,12 @@ public class AppSettings
     [JsonPropertyName("firstRunCompleted")]
     public bool FirstRunCompleted { get; set; } = false;
 
+    // Device FriendlyNames the app should never listen to or follow
+    // automatically (e.g. the virtual cable Discord plays through).
+    // An explicit "One specific device" pick still wins over this list.
+    [JsonPropertyName("excludedDevices")]
+    public List<string> ExcludedDevices { get; set; } = new();
+
     [JsonPropertyName("bars")]
     public BarSettings Bars { get; set; } = new();
 
@@ -144,6 +150,11 @@ public class BarSettings
 
     [JsonPropertyName("linkIndicators")]
     public bool LinkIndicators { get; set; } = true; // mirrored left/right positions
+
+    // 0 = show channels as-is; 1 = only the dominant side of each L/R pair
+    // survives. Suppresses the far-side bleed games mix into both channels.
+    [JsonPropertyName("directionalFocus")]
+    public double DirectionalFocus { get; set; } = 0.5;
 }
 
 public class DisplaySettings

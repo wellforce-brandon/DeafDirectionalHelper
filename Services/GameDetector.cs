@@ -181,7 +181,42 @@ public sealed class GameDetector : IDisposable
         }
         catch
         {
+            // Anti-cheat games (EAC etc.) run elevated, so MainModule is
+            // access-denied - but QueryFullProcessImageName works with
+            // limited query rights (verified against a live EAC process).
+            return TryQueryProcessImageName(pid);
+        }
+    }
+
+    private const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr OpenProcess(uint access, bool inheritHandle, uint pid);
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    private static extern bool QueryFullProcessImageName(IntPtr hProcess, uint flags,
+        System.Text.StringBuilder exeName, ref uint size);
+
+    [DllImport("kernel32.dll")]
+    private static extern bool CloseHandle(IntPtr handle);
+
+    private static string? TryQueryProcessImageName(uint pid)
+    {
+        var handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+        if (handle == IntPtr.Zero) return null;
+        try
+        {
+            var buffer = new System.Text.StringBuilder(1024);
+            var size = (uint)buffer.Capacity;
+            return QueryFullProcessImageName(handle, 0, buffer, ref size) ? buffer.ToString() : null;
+        }
+        catch
+        {
             return null;
+        }
+        finally
+        {
+            CloseHandle(handle);
         }
     }
 
